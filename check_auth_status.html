@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Debug Tool</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #00ff00; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #00ff00; }
+        button { background: #00ff00; color: #000; padding: 10px 20px; border: none; cursor: pointer; margin: 5px; }
+        pre { background: #000; padding: 10px; overflow-x: auto; }
+        .error { color: #ff0000; }
+        .success { color: #00ff00; }
+        input { background: #2e2e2e; color: #fff; border: 1px solid #00ff00; padding: 8px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 FitMate Auth Debugger</h1>
+    
+    <div class="section">
+        <h2>1. Check LocalStorage</h2>
+        <button onclick="checkLocalStorage()">Check Tokens</button>
+        <pre id="localStorage-result"></pre>
+    </div>
+
+    <div class="section">
+        <h2>2. Decode JWT Token</h2>
+        <button onclick="decodeToken()">Decode Access Token</button>
+        <pre id="token-decode"></pre>
+    </div>
+
+    <div class="section">
+        <h2>3. Test API Connection</h2>
+        <button onclick="testBackend()">Ping Backend</button>
+        <button onclick="testProfile()">Test Profile API</button>
+        <button onclick="testDashboard()">Test Dashboard API</button>
+        <pre id="api-result"></pre>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+
+        function checkLocalStorage() {
+            const accessToken = localStorage.getItem('access_token');
+            const refreshToken = localStorage.getItem('refresh_token');
+            
+            document.getElementById('localStorage-result').innerHTML = 
+                `Access Token: ${accessToken ? '✅ Present (' + accessToken.substring(0, 30) + '...)' : '❌ Missing'}\n` +
+                `Refresh Token: ${refreshToken ? '✅ Present (' + refreshToken.substring(0, 30) + '...)' : '❌ Missing'}`;
+        }
+
+        function decodeToken() {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                document.getElementById('token-decode').innerHTML = '❌ No token found';
+                return;
+            }
+
+            try {
+                const parts = token.split('.');
+                const payload = JSON.parse(atob(parts[1]));
+                const now = Math.floor(Date.now() / 1000);
+                const expired = payload.exp < now;
+                
+                document.getElementById('token-decode').innerHTML = 
+                    `User ID: ${payload.sub || 'N/A'}\n` +
+                    `Role: ${payload.role || 'N/A'}\n` +
+                    `Type: ${payload.type || 'N/A'}\n` +
+                    `Issued: ${new Date(payload.iat * 1000).toLocaleString()}\n` +
+                    `Expires: ${new Date(payload.exp * 1000).toLocaleString()}\n` +
+                    `Status: ${expired ? '❌ EXPIRED' : '✅ Valid'}\n\n` +
+                    `Full Payload:\n${JSON.stringify(payload, null, 2)}`;
+            } catch (e) {
+                document.getElementById('token-decode').innerHTML = `❌ Error: ${e.message}`;
+            }
+        }
+
+        async function testBackend() {
+            const result = document.getElementById('api-result');
+            result.innerHTML = 'Testing backend connection...';
+            
+            try {
+                const response = await fetch(`${API_URL}/`, {
+                    method: 'GET',
+                });
+                const data = await response.text();
+                result.innerHTML = `✅ Backend is responding!\nStatus: ${response.status}\nResponse: ${data}`;
+            } catch (e) {
+                result.innerHTML = `❌ Backend connection failed!\nError: ${e.message}`;
+            }
+        }
+
+        async function testProfile() {
+            const result = document.getElementById('api-result');
+            result.innerHTML = 'Testing profile API...';
+            
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                result.innerHTML = '❌ No access token found!';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/auth/profile`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                result.innerHTML = 
+                    `Status: ${response.status}\n` +
+                    `Response:\n${JSON.stringify(data, null, 2)}`;
+            } catch (e) {
+                result.innerHTML = `❌ Profile API failed!\nError: ${e.message}`;
+            }
+        }
+
+        async function testDashboard() {
+            const result = document.getElementById('api-result');
+            result.innerHTML = 'Testing dashboard API...';
+            
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                result.innerHTML = '❌ No access token found!';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/dashboard/complete`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = 
+                        `✅ Status: ${response.status}\n` +
+                        `Response:\n${JSON.stringify(data, null, 2).substring(0, 500)}...`;
+                } else {
+                    const errorText = await response.text();
+                    result.innerHTML = 
+                        `❌ Status: ${response.status}\n` +
+                        `Error: ${errorText}`;
+                }
+            } catch (e) {
+                result.innerHTML = `❌ Dashboard API failed!\nError: ${e.message}`;
+            }
+        }
+
+        // Auto-check on load
+        window.onload = () => {
+            checkLocalStorage();
+            decodeToken();
+        };
+    </script>
+</body>
+</html>

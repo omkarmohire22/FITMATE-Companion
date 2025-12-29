@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_USER: fitmate
+      POSTGRES_PASSWORD: fitmate123
+      POSTGRES_DB: fitmate
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    command: uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ./backend:/app/backend
+    environment:
+      - DATABASE_URL=postgresql://fitmate:fitmate123@db/fitmate
+      - SECRET_KEY=your-super-secret-key-change-this-in-production-min-32-chars-long
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
+

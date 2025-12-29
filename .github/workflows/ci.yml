@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: fitmate
+          POSTGRES_PASSWORD: fitmate123
+          POSTGRES_DB: fitmate_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      working-directory: ./backend
+      run: 
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+    
+    - name: Run tests
+      working-directory: ./backend
+      env:
+        DATABASE_URL: postgresql://fitmate:fitmate123@localhost/fitmate_test
+        SECRET_KEY: test-secret-key
+      run: |
+        pytest --cov=app --cov-report=term-missing
+
+    - name: Start backend server (background)
+      working-directory: ./backend
+      env:
+        DATABASE_URL: postgresql://fitmate:fitmate123@localhost/fitmate_test
+        SECRET_KEY: test-secret-key
+      run: |
+        nohup uvicorn app.main:app --host 127.0.0.1 --port 8000 &
+        sleep 5
+
+    - name: Health check endpoint
+      run: |
+        curl --fail http://127.0.0.1:8000/health
+
+  frontend-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Run linter
+      working-directory: ./frontend
+      run: npm run lint || true
+    
+    - name: Build
+      working-directory: ./frontend
+      run: npm run build
+
