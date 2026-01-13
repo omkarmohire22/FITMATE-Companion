@@ -137,7 +137,7 @@ const MembershipPlans = () => {
       case 'basic':
         return <Shield className="w-8 h-8 text-blue-500" />;
       default:
-        return <Star className="w-8 h-8 text-orange-500" />;
+        return <Star className="w-8 h-8 text-sky-500" />;
     }
   };
 
@@ -146,7 +146,7 @@ const MembershipPlans = () => {
     const gradients = [
       'from-blue-500 to-cyan-500',
       'from-purple-500 to-pink-500',
-      'from-orange-500 to-red-500',
+      'from-sky-500 to-blue-600',
       'from-green-500 to-emerald-500',
     ];
     if (planType?.toLowerCase() === 'premium' || planType?.toLowerCase() === 'gold') {
@@ -158,7 +158,7 @@ const MembershipPlans = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-sky-500" />
       </div>
     );
   }
@@ -168,7 +168,7 @@ const MembershipPlans = () => {
       {/* Header */}
       <div className="text-center">
         <h1 className="text-3xl font-bold text-white mb-2">Membership Plans</h1>
-        <p className="text-gray-400">Choose the perfect plan for your fitness journey</p>
+        <p className="text-slate-400">Choose the perfect plan for your fitness journey</p>
       </div>
 
       {/* Current Membership Status */}
@@ -184,10 +184,10 @@ const MembershipPlans = () => {
             </div>
             <div>
               <h3 className="text-lg font-bold text-green-400">Active Membership</h3>
-              <p className="text-gray-300">
+              <p className="text-slate-300">
                 {currentMembership.membership_type} • {currentMembership.days_remaining} days remaining
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-slate-500">
                 Expires: {new Date(currentMembership.end_date).toLocaleDateString()}
               </p>
             </div>
@@ -233,22 +233,22 @@ const MembershipPlans = () => {
             <div className="p-6">
               <ul className="space-y-3 mb-6">
                 {(plan.features || []).map((feature, idx) => (
-                  <li key={idx} className="flex items-center gap-2 text-gray-700">
+                  <li key={idx} className="flex items-center gap-2 text-slate-700">
                     <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
                     <span className="text-sm">{feature.trim()}</span>
                   </li>
                 ))}
                 {(!plan.features || plan.features.length === 0) && (
                   <>
-                    <li className="flex items-center gap-2 text-gray-700">
+                    <li className="flex items-center gap-2 text-slate-700">
                       <Check className="w-5 h-5 text-green-500" />
                       <span className="text-sm">Full gym access</span>
                     </li>
-                    <li className="flex items-center gap-2 text-gray-700">
+                    <li className="flex items-center gap-2 text-slate-700">
                       <Check className="w-5 h-5 text-green-500" />
                       <span className="text-sm">Workout tracking</span>
                     </li>
-                    <li className="flex items-center gap-2 text-gray-700">
+                    <li className="flex items-center gap-2 text-slate-700">
                       <Check className="w-5 h-5 text-green-500" />
                       <span className="text-sm">AI coach access</span>
                     </li>
@@ -257,7 +257,7 @@ const MembershipPlans = () => {
               </ul>
 
               {/* Duration info */}
-              <div className="flex items-center gap-2 text-gray-500 text-sm mb-4">
+              <div className="flex items-center gap-2 text-slate-500 text-sm mb-4">
                 <Clock className="w-4 h-4" />
                 <span>{plan.duration_months} month{plan.duration_months > 1 ? 's' : ''} validity</span>
               </div>
@@ -268,7 +268,7 @@ const MembershipPlans = () => {
                 disabled={processingPlanId === plan.id}
                 className={`w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
                   processingPlanId === plan.id
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    ? 'bg-gray-300 text-slate-500 cursor-not-allowed'
                     : `bg-gradient-to-r ${getPlanGradient(plan.membership_type, index)} text-white hover:shadow-lg hover:scale-[1.02]`
                 }`}
               >
@@ -290,16 +290,16 @@ const MembershipPlans = () => {
 
         {plans.length === 0 && (
           <div className="col-span-full text-center py-12 bg-white rounded-2xl">
-            <Crown className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">No Plans Available</h3>
-            <p className="text-gray-400">Contact admin to add membership plans</p>
+            <Crown className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-slate-600 mb-2">No Plans Available</h3>
+            <p className="text-slate-400">Contact admin to add membership plans</p>
           </div>
         )}
       </div>
 
       {/* Payment Info */}
       <div className="bg-white/5 rounded-xl p-6 text-center">
-        <p className="text-gray-400 text-sm">
+        <p className="text-slate-400 text-sm">
           🔒 Secure payments powered by Razorpay. Your payment information is encrypted and secure.
         </p>
       </div>

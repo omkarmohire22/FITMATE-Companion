@@ -117,24 +117,24 @@ const DashboardOverview = ({ dashboardData }) => {
   const maxRevenue = Math.max(...topPlans.map(p => p.revenue), 1)
 
   return (
-    <div className="space-y-6 dark:bg-gray-900 dark:text-white">
+    <div className="space-y-6">
       {/* Header with Auto-Refresh */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-extrabold text-white dark:text-white flex items-center gap-3 tracking-tight">
-            <Sparkles className="w-8 h-8 text-yellow-400" />
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2.5">
+            <Sparkles className="w-7 h-7 text-sky-400" />
             Real-Time Dashboard
           </h2>
-          <p className="text-gray-300 dark:text-gray-300 text-base mt-2 font-medium">
+          <p className="text-slate-400 text-sm mt-1.5 font-medium">
             Last updated: {currentTime.toLocaleTimeString()}
           </p>
         </div>
         <button
           onClick={() => setAutoRefresh(!autoRefresh)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all font-medium text-sm ${
             autoRefresh
-              ? 'bg-green-500/20 text-green-400 border border-green-500/50 dark:bg-green-500/20 dark:text-green-400'
-              : 'bg-gray-500/20 text-gray-400 border border-gray-500/50 dark:bg-gray-500/20 dark:text-gray-400'
+              ? 'bg-green-500/15 text-green-400 border border-green-500/50'
+              : 'bg-slate-700/50 text-slate-400 border border-slate-600/50'
           }`}
         >
           <RefreshCw className={`w-4 h-4 ${autoRefresh ? 'animate-spin' : ''}`} />
@@ -143,7 +143,7 @@ const DashboardOverview = ({ dashboardData }) => {
       </div>
 
       {/* Main Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
         {metrics.map((metric, index) => {
           const Icon = metric.icon
           return (
@@ -154,35 +154,35 @@ const DashboardOverview = ({ dashboardData }) => {
               transition={{ delay: index * 0.05 }}
               className="relative group"
             >
-              <div className="bg-white/95 dark:bg-gray-800/95 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1">
+              <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-5 border border-slate-700/50 hover:border-sky-500/40 transition-all hover:-translate-y-0.5">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-semibold">
+                    <p className="text-xs text-slate-400 uppercase tracking-wide font-semibold">
                       {metric.title}
                     </p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{metric.value}</p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{metric.subtitle}</p>
+                    <p className="text-2xl font-bold text-white mt-2">{metric.value}</p>
+                    <p className="text-xs text-slate-500 mt-1">{metric.subtitle}</p>
                   </div>
                   <div
-                    className={`w-12 h-12 rounded-xl bg-gradient-to-br ${metric.color} flex items-center justify-center shadow-lg`}
+                    className={`w-11 h-11 rounded-lg bg-gradient-to-br ${metric.color} flex items-center justify-center`}
                   >
-                    <Icon className="w-6 h-6 text-white" />
+                    <Icon className="w-5 h-5 text-white" />
                   </div>
                 </div>
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-700/50">
                   {metric.trendUp ? (
                     <TrendingUp className="w-4 h-4 text-green-500" />
                   ) : (
                     <TrendingDown className="w-4 h-4 text-red-500" />
                   )}
                   <span
-                    className={`text-sm font-semibold ${
-                      metric.trendUp ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                    className={`text-xs font-semibold ${
+                      metric.trendUp ? 'text-green-400' : 'text-red-400'
                     }`}
                   >
                     {metric.trend}
                   </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">vs last month</span>
+                  <span className="text-xs text-slate-500">vs last month</span>
                 </div>
               </div>
             </motion.div>
@@ -195,14 +195,14 @@ const DashboardOverview = ({ dashboardData }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6"
+        className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6"
       >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-lg font-bold text-white flex items-center gap-2">
             <DollarSign className="w-5 h-5 text-green-500" />
             Payment Insights
           </h3>
-          <button className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-1">
+          <button className="text-sm text-sky-400 hover:text-sky-300 font-medium flex items-center gap-1">
             View All
             <ArrowRight className="w-4 h-4" />
           </button>
@@ -213,31 +213,31 @@ const DashboardOverview = ({ dashboardData }) => {
             return (
               <div
                 key={idx}
-                className={`p-4 rounded-xl border-2 ${
+                className={`p-4 rounded-lg border ${
                   item.status === 'success'
-                    ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/50'
+                    ? 'bg-green-500/10 border-green-500/40'
                     : item.status === 'warning'
-                    ? 'bg-yellow-50 dark:bg-yellow-500/10 border-yellow-200 dark:border-yellow-500/50'
+                    ? 'bg-yellow-500/10 border-yellow-500/40'
                     : item.status === 'danger'
-                    ? 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/50'
-                    : 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/50'
+                    ? 'bg-red-500/10 border-red-500/40'
+                    : 'bg-blue-500/10 border-blue-500/40'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <Icon
                     className={`w-5 h-5 ${
                       item.status === 'success'
-                        ? 'text-green-600 dark:text-green-400'
+                        ? 'text-green-400'
                         : item.status === 'warning'
-                        ? 'text-yellow-600 dark:text-yellow-400'
+                        ? 'text-yellow-400'
                         : item.status === 'danger'
-                        ? 'text-red-600 dark:text-red-400'
-                        : 'text-blue-600 dark:text-blue-400'
+                        ? 'text-red-400'
+                        : 'text-blue-400'
                     }`}
                   />
                   <div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">{item.label}</p>
-                    <p className="text-lg font-bold text-gray-900 dark:text-white">{item.value}</p>
+                    <p className="text-xs text-slate-400 font-medium">{item.label}</p>
+                    <p className="text-lg font-bold text-white">{item.value}</p>
                   </div>
                 </div>
               </div>
@@ -253,10 +253,10 @@ const DashboardOverview = ({ dashboardData }) => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6"
+          className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6"
         >
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-orange-500" />
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <Zap className="w-5 h-5 text-sky-400" />
             Quick Actions
           </h3>
           <div className="grid grid-cols-2 gap-3">
@@ -265,28 +265,28 @@ const DashboardOverview = ({ dashboardData }) => {
               return (
                 <button
                   key={idx}
-                  className={`p-4 rounded-xl border-2 hover:shadow-lg transition-all group ${
+                  className={`p-4 rounded-lg border transition-all group ${
                     action.color === 'blue'
-                      ? 'border-blue-200 dark:border-blue-500/50 hover:bg-blue-50 dark:hover:bg-blue-500/10'
+                      ? 'border-blue-500/40 hover:bg-blue-500/10'
                       : action.color === 'green'
-                      ? 'border-green-200 dark:border-green-500/50 hover:bg-green-50 dark:hover:bg-green-500/10'
+                      ? 'border-green-500/40 hover:bg-green-500/10'
                       : action.color === 'purple'
-                      ? 'border-purple-200 dark:border-purple-500/50 hover:bg-purple-50 dark:hover:bg-purple-500/10'
-                      : 'border-orange-200 dark:border-orange-500/50 hover:bg-orange-50 dark:hover:bg-orange-500/10'
+                      ? 'border-purple-500/40 hover:bg-purple-500/10'
+                      : 'border-sky-500/40 hover:bg-sky-500/10'
                   }`}
                 >
                   <Icon
-                    className={`w-6 h-6 mb-2 ${
+                    className={`w-5 h-5 mb-2 ${
                       action.color === 'blue'
-                        ? 'text-blue-600 dark:text-blue-400'
+                        ? 'text-blue-400'
                         : action.color === 'green'
-                        ? 'text-green-600 dark:text-green-400'
+                        ? 'text-green-400'
                         : action.color === 'purple'
-                        ? 'text-purple-600 dark:text-purple-400'
-                        : 'text-orange-600 dark:text-orange-400'
+                        ? 'text-purple-400'
+                        : 'text-sky-400'
                     }`}
                   />
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">{action.label}</p>
+                  <p className="text-sm font-semibold text-white">{action.label}</p>
                 </button>
               )
             })}
@@ -298,64 +298,64 @@ const DashboardOverview = ({ dashboardData }) => {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-gradient-to-br from-purple-500 to-pink-500 dark:from-purple-600 dark:to-pink-600 rounded-2xl shadow-xl p-6 text-white"
+          className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-xl border border-purple-500/40 p-6"
         >
-          <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <Sparkles className="w-5 h-5" />
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-purple-400" />
             🤖 FitMate AI Suggestions
           </h3>
           <div className="space-y-3">
             {aiSuggestions.map((suggestion, idx) => (
               <div
                 key={idx}
-                className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20 hover:bg-white/20 transition-all"
+                className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10 hover:bg-white/10 transition-all"
               >
-                <p className="text-sm">{suggestion}</p>
+                <p className="text-sm text-slate-200">{suggestion}</p>
               </div>
             ))}
           </div>
         </motion.div>
       </div>
 
-      {/* Top Performing Plans & Progress */}
+      {/* Top Performing Plans & System Health */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Plans Performance */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6"
+          className="lg:col-span-2 bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
               <Award className="w-5 h-5 text-yellow-500" />
               Top Performing Plans
             </h3>
-            <button className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
+            <button className="text-sm text-sky-400 hover:text-sky-300 font-medium">
               View All
             </button>
           </div>
           <div className="space-y-4">
             {topPlans.map((plan, idx) => (
               <div key={idx} className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-lg ${plan.color} flex items-center justify-center text-white font-bold`}>
+                <div className={`w-11 h-11 rounded-lg ${plan.color} flex items-center justify-center text-white font-bold text-sm`}>
                   #{idx + 1}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
-                    <p className="font-semibold text-gray-900 dark:text-white">{plan.name}</p>
-                    <p className="text-sm font-bold text-green-600 dark:text-green-400">
+                    <p className="font-semibold text-white text-sm">{plan.name}</p>
+                    <p className="text-sm font-bold text-green-400">
                       ₹{plan.revenue.toLocaleString()}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-2 text-xs text-slate-400">
                     <Users className="w-3 h-3" />
                     {plan.members} members
                     {plan.renewalRate > 0 && (
                       <span className="ml-2">• {(plan.renewalRate * 100).toFixed(0)}% renewal</span>
                     )}
                   </div>
-                  <div className="mt-2 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div className="mt-2 h-2 bg-slate-700 rounded-full overflow-hidden">
                     <div
                       className={`h-full ${plan.color}`}
                       style={{ width: `${Math.min((plan.revenue / maxRevenue) * 100, 100)}%` }}
@@ -365,7 +365,7 @@ const DashboardOverview = ({ dashboardData }) => {
               </div>
             ))}
             {topPlans.length === 0 && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">No plans data available</p>
+              <p className="text-sm text-slate-400 text-center py-4">No plans data available</p>
             )}
           </div>
         </motion.div>
@@ -375,18 +375,18 @@ const DashboardOverview = ({ dashboardData }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6"
+          className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6"
         >
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
             <Activity className="w-5 h-5 text-green-500" />
             System Health
           </h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Status</span>
+              <span className="text-sm text-slate-400">Status</span>
               <span className={`text-sm font-semibold flex items-center gap-1 ${
-                systemHealth.status === 'Healthy' ? 'text-green-600 dark:text-green-400' : 
-                systemHealth.status === 'Warning' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
+                systemHealth.status === 'Healthy' ? 'text-green-400' : 
+                systemHealth.status === 'Warning' ? 'text-yellow-400' : 'text-red-400'
               }`}>
                 {systemHealth.status === 'Healthy' && <CheckCircle className="w-4 h-4" />}
                 {systemHealth.status === 'Warning' && <AlertCircle className="w-4 h-4" />}
@@ -394,19 +394,19 @@ const DashboardOverview = ({ dashboardData }) => {
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">New Today</span>
-              <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">{newSignupsToday} signups</span>
+              <span className="text-sm text-slate-400">New Today</span>
+              <span className="text-sm font-semibold text-blue-400">{newSignupsToday} signups</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Active Trainers</span>
-              <span className="text-sm font-semibold text-purple-600 dark:text-purple-400">{activeTrainers} online</span>
+              <span className="text-sm text-slate-400">Active Trainers</span>
+              <span className="text-sm font-semibold text-purple-400">{activeTrainers} online</span>
             </div>
-            <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="pt-4 border-t border-slate-700/50">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Equipment Alert</span>
-                <Wrench className={`w-4 h-4 ${equipmentMaintenance > 0 ? 'text-yellow-500' : 'text-green-500'}`} />
+                <span className="text-xs text-slate-400">Equipment Alert</span>
+                <Wrench className={`w-4 h-4 ${equipmentMaintenance > 0 ? 'text-yellow-400' : 'text-green-400'}`} />
               </div>
-              <p className="text-xs text-gray-600 dark:text-gray-400">
+              <p className="text-xs text-slate-400">
                 {equipmentMaintenance > 0 
                   ? `${equipmentMaintenance} equipment needs maintenance`
                   : 'All equipment in good condition'}
@@ -421,32 +421,32 @@ const DashboardOverview = ({ dashboardData }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7 }}
-        className="bg-gradient-to-r from-blue-500 to-cyan-500 dark:from-blue-600 dark:to-cyan-600 rounded-2xl shadow-xl p-6 text-white"
+        className="bg-gradient-to-r from-sky-600/20 to-blue-600/20 rounded-xl border border-sky-500/40 p-6"
       >
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm uppercase tracking-wide opacity-90">Today's Summary</p>
-            <h3 className="text-2xl font-bold mt-1">Real-Time Metrics</h3>
+            <p className="text-sm uppercase tracking-wide text-sky-300">Today's Summary</p>
+            <h3 className="text-2xl font-bold text-white mt-1">Real-Time Metrics</h3>
             <div className="flex items-center gap-6 mt-4">
               <div>
-                <p className="text-xs opacity-75">New Today</p>
-                <p className="text-xl font-bold">{newSignupsToday} Signups</p>
+                <p className="text-xs text-slate-400">New Today</p>
+                <p className="text-xl font-bold text-white">{newSignupsToday} Signups</p>
               </div>
               <div>
-                <p className="text-xs opacity-75">This Week</p>
-                <p className="text-xl font-bold">{newSignupsWeek} Members</p>
+                <p className="text-xs text-slate-400">This Week</p>
+                <p className="text-xl font-bold text-white">{newSignupsWeek} Members</p>
               </div>
               <div>
-                <p className="text-xs opacity-75">Total Active</p>
-                <p className="text-xl font-bold">{totalMembers}</p>
+                <p className="text-xs text-slate-400">Total Active</p>
+                <p className="text-xl font-bold text-white">{totalMembers}</p>
               </div>
               <div>
-                <p className="text-xs opacity-75">Today's Revenue</p>
-                <p className="text-xl font-bold">₹{todaysRevenue.toLocaleString()}</p>
+                <p className="text-xs text-slate-400">Today's Revenue</p>
+                <p className="text-xl font-bold text-white">₹{todaysRevenue.toLocaleString()}</p>
               </div>
             </div>
           </div>
-          <Eye className="w-16 h-16 opacity-20" />
+          <Eye className="w-16 h-16 text-sky-400/20" />
         </div>
       </motion.div>
     </div>

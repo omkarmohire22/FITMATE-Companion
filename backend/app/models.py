@@ -171,8 +171,9 @@ class Trainer(Base):
     salary_configs = relationship("TrainerSalary", back_populates="trainer")
     schedules = relationship("TrainerSchedule", back_populates="trainer")
     attendance_records = relationship("TrainerAttendance", back_populates="trainer")
-    documents = relationship("TrainerDocument", back_populates="trainer",cascade="all, delete-orphan")    
-    leaves = relationship("TrainerLeave", back_populates="trainer",cascade="all, delete-orphan")
+    # documents = relationship("TrainerDocument", back_populates="trainer",cascade="all, delete-orphan")    
+    # leaves = relationship("TrainerLeave", back_populates="trainer",cascade="all, delete-orphan")
+    # ⚠️ Documents and Leaves relationships disabled due to schema mismatch - using raw SQL for deletion
     
     def __repr__(self):
         return f"<Trainer {self.id}>"
@@ -208,6 +209,7 @@ class TrainerSchedule(Base):
 
     id = Column(Integer, primary_key=True)
     trainer_id = Column(UUID(as_uuid=True), ForeignKey("trainers.id"), nullable=False)
+    trainee_id = Column(Integer, ForeignKey("trainees.id"), nullable=True)  # Assigned trainee
 
     day_of_week = Column(Integer, nullable=False)
     start_time = Column(Time, nullable=False)
@@ -216,6 +218,7 @@ class TrainerSchedule(Base):
     is_available = Column(Boolean, default=True)
     is_recurring = Column(Boolean, default=True)
     specific_date = Column(Date, nullable=True)
+    session_type = Column(String(50), nullable=True)  # personal_training, group, assessment
 
     notes = Column(Text, nullable=True)
 
@@ -223,6 +226,7 @@ class TrainerSchedule(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     trainer = relationship("Trainer", back_populates="schedules")
+    trainee = relationship("Trainee", foreign_keys=[trainee_id])
 
 class TrainerSalary(Base):
     __tablename__ = "trainer_salaries"
@@ -313,7 +317,7 @@ class TrainerDocument(Base):
 
     uploaded_at = Column(DateTime, default=datetime.utcnow)
 
-    trainer = relationship("Trainer", back_populates="documents")
+    # trainer = relationship("Trainer", back_populates="documents")  # Disabled due to schema mismatch
     verifier = relationship("User", foreign_keys=[verified_by])
 
 
@@ -338,8 +342,7 @@ class TrainerLeave(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # 🔥 THIS MUST EXIST (your error shows it's missing)
-    trainer = relationship("Trainer", back_populates="leaves")
+    # trainer = relationship("Trainer", back_populates="leaves")  # Disabled due to schema mismatch
 
     # Approver
     approver = relationship("User", foreign_keys=[approved_by])

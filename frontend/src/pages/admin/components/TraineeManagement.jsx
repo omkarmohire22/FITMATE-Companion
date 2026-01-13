@@ -608,7 +608,7 @@ const TraineeManagement = () => {
       <div className="flex flex-col lg:flex-row justify-between gap-4">
         <div>
           <h2 className="text-3xl font-extrabold text-white tracking-tight">Trainee Management</h2>
-          <p className="text-gray-300 text-base mt-2 font-medium">
+          <p className="text-slate-300 text-base mt-2 font-medium">
             Add, remove trainees, manage memberships and trainer assignments.
           </p>
         </div>
@@ -616,7 +616,7 @@ const TraineeManagement = () => {
         {/* Add Trainee Button */}
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold hover:from-orange-600 hover:to-red-600 transition-all shadow-lg"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold hover:from-orange-600 hover:to-red-600 transition-all shadow-lg"
         >
           <UserPlus className="w-5 h-5" />
           Add New Trainee
@@ -628,7 +628,7 @@ const TraineeManagement = () => {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-orange-500 to-red-500 rounded-t-2xl">
+            <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-sky-500 to-blue-600 rounded-t-2xl">
               <div>
                 <h3 className="text-xl font-bold text-white">
                   {isEditMode ? `Edit Trainee: ${selectedMember?.name}` : 'Add New Trainee'}
@@ -652,14 +652,14 @@ const TraineeManagement = () => {
             <form onSubmit={handleCreateMember} className="p-6 space-y-6">
               {/* Section: Basic Info */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                   <User className="w-4 h-4" /> Basic Information
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1 font-medium">Full Name *</label>
+                    <label className="block text-xs text-slate-600 mb-1 font-medium">Full Name *</label>
                     <input
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       placeholder="e.g. John Doe"
@@ -669,10 +669,10 @@ const TraineeManagement = () => {
                     {form.name && form.name.length > 0 && <span className="text-xs text-green-600 mt-1">✓</span>}
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1 font-medium">Email Address *</label>
+                    <label className="block text-xs text-slate-600 mb-1 font-medium">Email Address *</label>
                     <input
                       type="email"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value.toLowerCase() })}
                       placeholder="e.g. john@example.com"
@@ -680,9 +680,9 @@ const TraineeManagement = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1 font-medium">Phone Number</label>
+                    <label className="block text-xs text-slate-600 mb-1 font-medium">Phone Number</label>
                     <input
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
                       value={form.phone}
                       onChange={(e) => setForm({ ...form, phone: e.target.value })}
                       placeholder="e.g. +91 9876543210"
@@ -690,7 +690,7 @@ const TraineeManagement = () => {
                     />
                   </div>
                   <div>
-                    <label className="flex items-center gap-1 text-xs text-gray-600 mb-1 font-medium">
+                    <label className="flex items-center gap-1 text-xs text-slate-600 mb-1 font-medium">
                       <Lock className="w-3 h-3" />
                       Password
                     </label>
@@ -698,17 +698,17 @@ const TraineeManagement = () => {
                       <>
                         <input
                           type="password"
-                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
                           value={form.password}
                           onChange={(e) => setForm({ ...form, password: e.target.value })}
                           placeholder="Leave blank to auto-generate"
                           minLength="6"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Leave blank for auto-generated password</p>
+                        <p className="text-xs text-slate-500 mt-1">Leave blank for auto-generated password</p>
                       </>
                     )}
                     {isEditMode && (
-                      <p className="text-xs text-gray-500 italic">Password cannot be changed in edit mode. Use admin password reset if needed.</p>
+                      <p className="text-xs text-slate-500 italic">Password cannot be changed in edit mode. Use admin password reset if needed.</p>
                     )}
                   </div>
                 </div>
@@ -716,23 +716,23 @@ const TraineeManagement = () => {
 
               {/* Section: Personal Details */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                   <Calendar className="w-4 h-4" /> Personal Details
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1 font-medium">Date of Birth</label>
+                    <label className="block text-xs text-slate-600 mb-1 font-medium">Date of Birth</label>
                     <input
                       type="date"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
                       value={form.date_of_birth}
                       onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1 font-medium">Gender</label>
+                    <label className="block text-xs text-slate-600 mb-1 font-medium">Gender</label>
                     <select
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
                       value={form.gender}
                       onChange={(e) => setForm({ ...form, gender: e.target.value })}
                     >
@@ -743,9 +743,9 @@ const TraineeManagement = () => {
                     </select>
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block text-xs text-gray-600 mb-1 font-medium">Address</label>
+                    <label className="block text-xs text-slate-600 mb-1 font-medium">Address</label>
                     <input
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
                       value={form.address}
                       onChange={(e) => setForm({ ...form, address: e.target.value })}
                       placeholder="e.g. City, State, Country"
@@ -756,14 +756,14 @@ const TraineeManagement = () => {
 
               {/* Section: Trainer & Plan */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                   <Users className="w-4 h-4" /> Assignment & Membership
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Assign Trainer</label>
+                    <label className="block text-xs text-slate-600 mb-1">Assign Trainer</label>
                     <select
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       value={form.trainer_id}
                       onChange={(e) => setForm({ ...form, trainer_id: e.target.value })}
                     >
@@ -776,9 +776,9 @@ const TraineeManagement = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Membership Plan</label>
+                    <label className="block text-xs text-slate-600 mb-1">Membership Plan</label>
                     <select
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       value={form.membership_plan_id}
                       onChange={(e) => setForm({ ...form, membership_plan_id: e.target.value })}
                     >
@@ -795,23 +795,23 @@ const TraineeManagement = () => {
 
               {/* Section: Emergency Contact */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                   <PhoneIcon className="w-4 h-4" /> Emergency Contact
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Contact Name</label>
+                    <label className="block text-xs text-slate-600 mb-1">Contact Name</label>
                     <input
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       value={form.emergency_contact_name}
                       onChange={(e) => setForm({ ...form, emergency_contact_name: e.target.value })}
                       placeholder="e.g. Parent/Spouse name"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Contact Phone</label>
+                    <label className="block text-xs text-slate-600 mb-1">Contact Phone</label>
                     <input
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       value={form.emergency_contact_phone}
                       onChange={(e) => setForm({ ...form, emergency_contact_phone: e.target.value })}
                       placeholder="e.g. +91 9876543210"
@@ -822,14 +822,14 @@ const TraineeManagement = () => {
 
               {/* Section: Health & Fitness */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                   <Heart className="w-4 h-4" /> Health & Fitness Goals
                 </h4>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Health Conditions / Allergies / Injuries</label>
+                    <label className="block text-xs text-slate-600 mb-1">Health Conditions / Allergies / Injuries</label>
                     <textarea
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       rows={2}
                       value={form.health_conditions}
                       onChange={(e) => setForm({ ...form, health_conditions: e.target.value })}
@@ -837,9 +837,9 @@ const TraineeManagement = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Fitness Goals</label>
+                    <label className="block text-xs text-slate-600 mb-1">Fitness Goals</label>
                     <textarea
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       rows={2}
                       value={form.fitness_goals}
                       onChange={(e) => setForm({ ...form, fitness_goals: e.target.value })}
@@ -857,13 +857,13 @@ const TraineeManagement = () => {
                     setShowModal(false);
                     resetForm();
                   }}
-                  className="px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="px-5 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-semibold hover:from-orange-600 hover:to-red-600 transition-all"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-sky-500 to-blue-600 text-white text-sm font-semibold hover:from-orange-600 hover:to-red-600 transition-all"
                 >
                   {isEditMode ? (
                     <>
@@ -884,15 +884,15 @@ const TraineeManagement = () => {
       )}
 
       {/* TABLE TOOLBAR */}
-      <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+      <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg overflow-hidden border border-slate-200">
         {/* Top Toolbar */}
-        <div className="p-5 border-b border-gray-200 space-y-4">
+        <div className="p-5 border-b border-slate-200 space-y-4">
           {/* Search and Filter Row */}
           <div className="flex gap-3 flex-col lg:flex-row justify-between items-start lg:items-center">
             <div className="relative flex-1 min-w-64">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 text-orange-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 text-sky-400" />
               <input
-                className="w-full border-2 border-gray-200 rounded-xl pl-12 pr-4 py-3 text-sm bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-medium placeholder-gray-400"
+                className="w-full border-2 border-slate-200 rounded-xl pl-12 pr-4 py-3 text-sm bg-white focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all font-medium placeholder-gray-400"
                 placeholder="Search by name or email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -903,7 +903,7 @@ const TraineeManagement = () => {
                   className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-200 rounded-lg transition-colors"
                   title="Clear search"
                 >
-                  <X className="w-5 h-5 text-gray-500" />
+                  <X className="w-5 h-5 text-slate-500" />
                 </button>
               )}
             </div>
@@ -912,7 +912,7 @@ const TraineeManagement = () => {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-bold bg-white cursor-pointer hover:border-gray-300 transition-colors"
+              className="px-4 py-3 border-2 border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 font-bold bg-white cursor-pointer hover:border-slate-300 transition-colors"
             >
               <option value="all">📋 All Trainees</option>
               <option value="active">✓ Active (Trainer + Membership)</option>
@@ -925,7 +925,7 @@ const TraineeManagement = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 bg-white font-bold text-gray-700 cursor-pointer hover:border-gray-300 transition-colors"
+              className="px-4 py-3 border-2 border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 bg-white font-bold text-slate-700 cursor-pointer hover:border-slate-300 transition-colors"
             >
               <option value="name">🔤 Sort: Name</option>
               <option value="email">✉️ Sort: Email</option>
@@ -934,7 +934,7 @@ const TraineeManagement = () => {
 
             <button
               onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-              className="px-4 py-3 border-2 border-gray-200 rounded-xl text-sm bg-white hover:bg-gray-100 transition-colors font-bold text-gray-700 cursor-pointer"
+              className="px-4 py-3 border-2 border-slate-200 rounded-xl text-sm bg-white hover:bg-gray-100 transition-colors font-bold text-slate-700 cursor-pointer"
               title={`Sort ${sortOrder === 'asc' ? 'descending' : 'ascending'}`}
             >
               {sortOrder === 'asc' ? '↑ ASC' : '↓ DESC'}
@@ -964,7 +964,7 @@ const TraineeManagement = () => {
           )}
         </div>
 
-        <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-lg">
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg">
           <table className="w-full text-sm">
             <thead className="bg-gradient-to-r from-gray-900 to-gray-800 text-white sticky top-0">
               <tr>
@@ -991,8 +991,8 @@ const TraineeManagement = () => {
                 <tr>
                   <td colSpan={8} className="py-12 text-center">
                     <div className="flex items-center justify-center gap-3">
-                      <div className="w-5 h-5 rounded-full bg-gradient-to-r from-orange-500 to-red-500 animate-pulse"></div>
-                      <span className="text-gray-600 font-medium">Loading trainees...</span>
+                      <div className="w-5 h-5 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 animate-pulse"></div>
+                      <span className="text-slate-600 font-medium">Loading trainees...</span>
                     </div>
                   </td>
                 </tr>
@@ -1000,9 +1000,9 @@ const TraineeManagement = () => {
                 <tr>
                   <td colSpan={8} className="py-12 text-center">
                     <div className="flex flex-col items-center justify-center">
-                      <Users className="w-16 h-16 text-gray-300 mb-3" />
-                      <p className="text-gray-700 font-semibold text-lg mb-1">No trainees found</p>
-                      <p className="text-gray-500 text-sm">Try adjusting your search or add a new trainee</p>
+                      <Users className="w-16 h-16 text-slate-300 mb-3" />
+                      <p className="text-slate-700 font-semibold text-lg mb-1">No trainees found</p>
+                      <p className="text-slate-500 text-sm">Try adjusting your search or add a new trainee</p>
                     </div>
                   </td>
                 </tr>
@@ -1010,13 +1010,13 @@ const TraineeManagement = () => {
                 filtered.map((m) => {
                   const isActive = m.membership_type && m.trainer_name;
                   return (
-                    <tr key={m.id} className="hover:bg-orange-50/50 transition-colors duration-200 border-b last:border-b-0">
+                    <tr key={m.id} className="hover:bg-sky-50/50 transition-colors duration-200 border-b last:border-b-0">
                       <td className="py-4 px-4">
                         <input
                           type="checkbox"
                           checked={selectedTrainees.has(m.id)}
                           onChange={() => toggleTraineeSelection(m.id)}
-                          className="rounded border-gray-300 cursor-pointer w-5 h-5"
+                          className="rounded border-slate-300 cursor-pointer w-5 h-5"
                         />
                       </td>
                       <td className="py-4 px-4">
@@ -1025,16 +1025,16 @@ const TraineeManagement = () => {
                             {(m.name || "T")[0].toUpperCase()}
                           </div>
                           <div className="min-w-0">
-                            <p className="font-bold text-gray-900 text-base">{m.name}</p>
-                            <p className="text-sm text-gray-600 truncate">{m.email}</p>
+                            <p className="font-bold text-slate-900 text-base">{m.name}</p>
+                            <p className="text-sm text-slate-600 truncate">{m.email}</p>
                           </div>
                         </div>
                       </td>
 
                       <td className="py-4 px-4">
-                        <div className="flex items-center gap-2 text-gray-900 font-semibold text-sm">
-                          <PhoneIcon className="w-5 h-5 text-gray-500" />
-                          {m.phone || <span className="text-gray-400 italic font-normal">Not provided</span>}
+                        <div className="flex items-center gap-2 text-slate-900 font-semibold text-sm">
+                          <PhoneIcon className="w-5 h-5 text-slate-500" />
+                          {m.phone || <span className="text-slate-400 italic font-normal">Not provided</span>}
                         </div>
                       </td>
 
@@ -1053,11 +1053,11 @@ const TraineeManagement = () => {
                         <div className="flex items-center gap-2">
                           {m.trainer_name ? (
                             <>
-                              <Users className="w-5 h-5 text-gray-500" />
-                              <span className="font-semibold text-gray-900 text-sm">{m.trainer_name}</span>
+                              <Users className="w-5 h-5 text-slate-500" />
+                              <span className="font-semibold text-slate-900 text-sm">{m.trainer_name}</span>
                             </>
                           ) : (
-                            <span className="text-gray-400 italic text-sm font-normal">Not assigned</span>
+                            <span className="text-slate-400 italic text-sm font-normal">Not assigned</span>
                           )}
                         </div>
                       </td>
@@ -1066,18 +1066,18 @@ const TraineeManagement = () => {
                         <div className="flex items-center gap-2">
                           {m.membership_type ? (
                             <>
-                              <Activity className="w-5 h-5 text-orange-500" />
-                              <span className="font-semibold text-orange-700 bg-orange-50 px-3 py-1.5 rounded-lg text-sm">{m.membership_type}</span>
+                              <Activity className="w-5 h-5 text-sky-500" />
+                              <span className="font-semibold text-orange-700 bg-sky-50 px-3 py-1.5 rounded-lg text-sm">{m.membership_type}</span>
                             </>
                           ) : (
-                            <span className="text-gray-400 italic text-sm font-normal">No plan</span>
+                            <span className="text-slate-400 italic text-sm font-normal">No plan</span>
                           )}
                         </div>
                       </td>
 
                       <td className="py-4 px-4">
-                        <div className="flex items-center gap-2 text-gray-900 font-semibold text-sm">
-                          <Calendar className="w-5 h-5 text-gray-500" />
+                        <div className="flex items-center gap-2 text-slate-900 font-semibold text-sm">
+                          <Calendar className="w-5 h-5 text-slate-500" />
                           {m.created_at ? new Date(m.created_at).toLocaleDateString() : '—'}
                         </div>
                       </td>
@@ -1093,7 +1093,7 @@ const TraineeManagement = () => {
                           </button>
                           <button
                             onClick={() => handleEditMember(m)}
-                            className="p-2 rounded-lg text-orange-600 bg-orange-50 hover:bg-orange-100 transition-colors font-medium"
+                            className="p-2 rounded-lg text-sky-600 bg-sky-50 hover:bg-sky-100 transition-colors font-medium"
                             title="Edit Trainee"
                           >
                             <Edit className="w-4 h-4" />
@@ -1124,9 +1124,9 @@ const TraineeManagement = () => {
 
         {/* Table Footer with Stats */}
         {filtered.length > 0 && (
-          <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 text-sm text-gray-700 flex justify-between items-center">
+          <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 text-sm text-slate-700 flex justify-between items-center">
             <div className="font-medium">
-              Showing <span className="font-bold text-gray-900">{filtered.length}</span> of <span className="font-bold text-gray-900">{members.length}</span> trainees
+              Showing <span className="font-bold text-slate-900">{filtered.length}</span> of <span className="font-bold text-slate-900">{members.length}</span> trainees
             </div>
             <div className="flex gap-6 text-sm font-medium">
               <span>
@@ -1218,7 +1218,7 @@ const TraineeDetailsDrawer = ({
       {/* drawer */}
       <div className="relative w-full max-w-xl bg-white h-full shadow-2xl flex flex-col overflow-y-auto">
         {/* Header */}
-        <div className="px-6 py-4 border-b flex items-center justify-between bg-gradient-to-r from-orange-500 to-red-500 text-white sticky top-0">
+        <div className="px-6 py-4 border-b flex items-center justify-between bg-gradient-to-r from-sky-500 to-blue-600 text-white sticky top-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-sm font-semibold">
               {(memberInfo.name?.[0] || 'U').toUpperCase()}
@@ -1256,8 +1256,8 @@ const TraineeDetailsDrawer = ({
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-t-md border-b-2 whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'border-orange-500 text-orange-600 bg-orange-50'
-                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'border-sky-500 text-sky-600 bg-sky-50'
+                    : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
                 <Icon className="w-3 h-3" />
@@ -1270,7 +1270,7 @@ const TraineeDetailsDrawer = ({
         {/* Content */}
         <div className="flex-1 p-4 overflow-y-auto">
           {loading && (
-            <p className="text-center text-gray-400 mt-10">Loading details...</p>
+            <p className="text-center text-slate-400 mt-10">Loading details...</p>
           )}
 
           {!loading && (
@@ -1287,7 +1287,7 @@ const TraineeDetailsDrawer = ({
 
                   {/* Personal Info */}
                   <div className="border-t pt-3 mt-3">
-                    <h4 className="text-xs font-semibold text-gray-700 mb-3">Personal Information</h4>
+                    <h4 className="text-xs font-semibold text-slate-700 mb-3">Personal Information</h4>
                     <div className="grid grid-cols-2 gap-3">
                       <InfoCard label="Date of Birth" value={memberInfo.date_of_birth ? new Date(memberInfo.date_of_birth).toLocaleDateString() : '—'} />
                       <InfoCard label="Gender" value={memberInfo.gender || '—'} />
@@ -1299,9 +1299,9 @@ const TraineeDetailsDrawer = ({
 
                   {/* Trainer Assignment */}
                   <div className="border-t pt-3 mt-3">
-                    <h4 className="text-xs font-semibold text-gray-700 mb-2">Assigned Trainer</h4>
+                    <h4 className="text-xs font-semibold text-slate-700 mb-2">Assigned Trainer</h4>
                     <select
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500"
                       value={memberInfo.trainer_name ? trainers.find(t => t.user?.name === memberInfo.trainer_name)?.id || '' : ''}
                       onChange={(e) => onChangeTrainer(e.target.value)}
                     >
@@ -1319,31 +1319,31 @@ const TraineeDetailsDrawer = ({
               {activeTab === 'health' && (
                 <div className="space-y-4">
                   <div>
-                    <h4 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-2">
                       <Heart className="w-4 h-4 text-red-500" />
                       Health Conditions & Allergies
                     </h4>
                     <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                      <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
+                      <p className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">
                         {memberInfo.health_conditions || 'No health conditions recorded'}
                       </p>
                     </div>
                   </div>
 
                   <div className="border-t pt-3">
-                    <h4 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-2">
                       <Activity className="w-4 h-4 text-blue-500" />
                       Fitness Goals
                     </h4>
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
+                      <p className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">
                         {memberInfo.fitness_goals || 'No fitness goals set'}
                       </p>
                     </div>
                   </div>
 
                   <div className="border-t pt-3">
-                    <h4 className="text-xs font-semibold text-gray-700 mb-3">Emergency Contact</h4>
+                    <h4 className="text-xs font-semibold text-slate-700 mb-3">Emergency Contact</h4>
                     <div className="grid grid-cols-1 gap-2">
                       <InfoCard label="Contact Name" value={memberInfo.emergency_contact_name || '—'} />
                       <InfoCard label="Contact Phone" value={memberInfo.emergency_contact_phone || '—'} />
@@ -1400,12 +1400,12 @@ const TraineeDetailsDrawer = ({
 
                   {memberships.length > 1 && (
                     <div className="border-t pt-3">
-                      <h5 className="text-xs font-semibold text-gray-700 mb-2">Previous Memberships</h5>
+                      <h5 className="text-xs font-semibold text-slate-700 mb-2">Previous Memberships</h5>
                       <div className="space-y-2 max-h-40 overflow-y-auto">
                         {memberships.slice(1).map((m, idx) => (
-                          <div key={idx} className="bg-gray-50 border border-gray-200 rounded p-2 text-xs">
+                          <div key={idx} className="bg-slate-50 border border-slate-200 rounded p-2 text-xs">
                             <p className="font-medium text-gray-800">{m.membership_type}</p>
-                            <p className="text-gray-600">{m.status}</p>
+                            <p className="text-slate-600">{m.status}</p>
                           </div>
                         ))}
                       </div>
@@ -1416,7 +1416,7 @@ const TraineeDetailsDrawer = ({
 
               {activeTab === 'attendance' && (
                 <div className="space-y-3 text-xs">
-                  <p className="text-gray-500 text-center py-8">
+                  <p className="text-slate-500 text-center py-8">
                     Attendance data will be displayed here when available
                   </p>
                 </div>
@@ -1424,7 +1424,7 @@ const TraineeDetailsDrawer = ({
 
               {activeTab === 'billing' && (
                 <div className="space-y-3 text-xs">
-                  <p className="text-gray-500 text-center py-8">
+                  <p className="text-slate-500 text-center py-8">
                     Billing information will be displayed here when available
                   </p>
                 </div>
@@ -1441,13 +1441,13 @@ const TraineeDetailsDrawer = ({
                 <Lock className="w-6 h-6 text-purple-600" />
                 <h2 className="text-xl font-bold text-gray-800">Reset Password</h2>
               </div>
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-slate-600 mb-4">
                 Set a new password for <span className="font-semibold">{passwordResetTarget?.name}</span> ({passwordResetTarget?.email})
               </p>
               
               <div className="space-y-4 mb-6">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-2">
+                  <label className="block text-xs font-semibold text-slate-700 mb-2">
                     New Password
                   </label>
                   <input
@@ -1455,7 +1455,7 @@ const TraineeDetailsDrawer = ({
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Enter new password (min 6 characters)"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
               </div>
@@ -1488,15 +1488,15 @@ const TraineeDetailsDrawer = ({
 };
 
 const InfoCard = ({ label, value }) => (
-  <div className="bg-gray-50 rounded-lg p-2">
-    <p className="text-[10px] uppercase text-gray-500">{label}</p>
+  <div className="bg-slate-50 rounded-lg p-2">
+    <p className="text-[10px] uppercase text-slate-500">{label}</p>
     <p className="text-xs font-semibold text-gray-800 mt-1">{value || '—'}</p>
   </div>
 );
 
 const SummaryPill = ({ label, value }) => (
-  <div className="flex-1 bg-gray-50 rounded-lg px-3 py-2">
-    <p className="text-[10px] text-gray-500">{label}</p>
+  <div className="flex-1 bg-slate-50 rounded-lg px-3 py-2">
+    <p className="text-[10px] text-slate-500">{label}</p>
     <p className="text-sm font-semibold text-gray-800 mt-1">{value}</p>
   </div>
 );

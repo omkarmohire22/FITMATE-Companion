@@ -21,12 +21,12 @@ export const StandardDashboard = ({
   className = '',
 }) => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Mobile Header */}
-      <div className="md:hidden sticky top-0 bg-white border-b border-gray-200 z-40">
+      <div className="md:hidden sticky top-0 bg-white border-b border-slate-200 z-40">
         <div className="flex items-center justify-between px-4 py-3 gap-2">
           <div>
-            <h1 className="text-lg font-bold text-gray-900">{title}</h1>
+            <h1 className="text-lg font-bold text-slate-900">{title}</h1>
           </div>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -51,7 +51,7 @@ export const StandardDashboard = ({
       </AnimatePresence>
 
       {/* Sidebar */}
-      <div className="fixed left-0 top-0 h-screen bg-gray-900 text-white w-64 transform transition-transform duration-300 hidden md:block z-40 overflow-y-auto">
+      <div className="fixed left-0 top-0 h-screen bg-slate-900 text-white w-64 transform transition-transform duration-300 hidden md:block z-40 overflow-y-auto">
         {sidebar}
       </div>
 
@@ -63,7 +63,7 @@ export const StandardDashboard = ({
             animate={{ x: 0 }}
             exit={{ x: -256 }}
             transition={{ duration: 0.3 }}
-            className="fixed w-64 h-screen bg-gray-900 text-white overflow-y-auto z-40 md:hidden"
+            className="fixed w-64 h-screen bg-slate-900 text-white overflow-y-auto z-40 md:hidden"
           >
             {sidebar}
           </motion.div>
@@ -74,7 +74,7 @@ export const StandardDashboard = ({
       <div className="md:ml-64">
         {/* Desktop Header */}
         {header && (
-          <div className="hidden md:block sticky top-0 bg-white border-b border-gray-200 shadow-sm z-20">
+          <div className="hidden md:block sticky top-0 bg-white border-b border-slate-200 shadow-sm z-20">
             {header}
           </div>
         )}
@@ -104,7 +104,7 @@ export const DashboardCard = ({
       whileHover={{ y: -2 }}
     >
       {title && (
-        <div className="px-4 md:px-6 py-4 border-b border-gray-200">
+        <div className="px-4 md:px-6 py-4 border-b border-slate-200">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3">
               {Icon && (
@@ -114,7 +114,7 @@ export const DashboardCard = ({
               )}
               <div>
                 <h3 className="heading-3">{title}</h3>
-                {subtitle && <p className="text-small text-gray-500 mt-1">{subtitle}</p>}
+                {subtitle && <p className="text-small text-slate-500 mt-1">{subtitle}</p>}
               </div>
             </div>
             {action && <div>{action}</div>}
@@ -148,8 +148,8 @@ export const StatCard = ({
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-small text-gray-600 font-medium">{label}</p>
-          <p className="heading-2 text-gray-900 mt-2">{value}</p>
+          <p className="text-small text-slate-600 font-medium">{label}</p>
+          <p className="heading-2 text-slate-900 mt-2">{value}</p>
           {trend && (
             <p
               className={`text-small mt-2 ${trendUp ? 'text-green-600' : 'text-red-600'}`}
@@ -197,7 +197,7 @@ export const DashboardSection = ({
       <div className="flex items-start justify-between">
         <div>
           <h2 className="heading-2">{title}</h2>
-          {subtitle && <p className="text-small text-gray-500 mt-1">{subtitle}</p>}
+          {subtitle && <p className="text-small text-slate-500 mt-1">{subtitle}</p>}
         </div>
         {action && <div>{action}</div>}
       </div>

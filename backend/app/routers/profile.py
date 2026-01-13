@@ -11,7 +11,7 @@ router = APIRouter()
 UPLOAD_DIR = os.getenv("PROFILE_UPLOAD_DIR", "./profile_uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-@router.post("/profile/upload-avatar", summary="Upload profile picture/avatar")
+@router.post("/upload-avatar", summary="Upload profile picture/avatar")
 def upload_avatar(user_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
     # You should add authentication and user validation here
     filename = f"user_{user_id}_{file.filename}"

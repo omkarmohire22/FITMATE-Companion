@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Plus, Edit2, Trash2, Crown, Star, Shield, Zap, 
   Users, TrendingUp, Check, X, Eye, EyeOff, DollarSign,
-  Clock, Award, Sparkles, Search, Filter
+  Clock, Award, Sparkles, Search, Filter, AlertTriangle, CalendarX
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -16,6 +16,8 @@ const MembershipPlans = () => {
   const [editingPlan, setEditingPlan] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState('all')
+  const [expiringMembers, setExpiringMembers] = useState([])
+  const [showExpiryAlert, setShowExpiryAlert] = useState(false)
   const [stats, setStats] = useState({
     totalPlans: 0,
     activePlans: 0,
@@ -55,6 +57,9 @@ const MembershipPlans = () => {
         totalSubscribers: plansData.reduce((acc, p) => acc + (p.subscribers_count || 0), 0),
         monthlyRevenue: plansData.reduce((acc, p) => acc + ((p.subscribers_count || 0) * (p.price || 0)), 0)
       })
+
+      // Load expiring memberships
+      loadExpiringMembers()
     } catch (err) {
       console.error(err)
       if (err.code === 'ECONNABORTED') {
@@ -64,6 +69,31 @@ const MembershipPlans = () => {
       }
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadExpiringMembers = async () => {
+    try {
+      const res = await adminApi.getMembers()
+      const members = res.data.members || []
+      
+      // Filter members whose membership expires within 7 days
+      const today = new Date()
+      const sevenDaysFromNow = new Date()
+      sevenDaysFromNow.setDate(today.getDate() + 7)
+      
+      const expiring = members.filter(member => {
+        if (!member.membership_end_date) return false
+        const endDate = new Date(member.membership_end_date)
+        return endDate >= today && endDate <= sevenDaysFromNow
+      })
+      
+      setExpiringMembers(expiring)
+      if (expiring.length > 0) {
+        setShowExpiryAlert(true)
+      }
+    } catch (err) {
+      console.error('Failed to load expiring members:', err)
     }
   }
 
@@ -153,11 +183,12 @@ const MembershipPlans = () => {
     if (!window.confirm('Are you sure you want to delete this plan?')) return
     try {
       await adminApi.deleteMembershipPlan(planId)
-      toast.success('Plan deleted')
-      loadPlans()
+      toast.success('Plan deleted successfully!')
+      loadPlans(true)
     } catch (err) {
       console.error(err)
-      toast.error('Failed to delete plan')
+      const errorMsg = err.response?.data?.detail || err.message || 'Failed to delete plan'
+      toast.error(errorMsg)
     }
   }
 
@@ -204,6 +235,44 @@ const MembershipPlans = () => {
 
   return (
     <div className="space-y-6">
+      {/* Expiry Alert */}
+      {expiringMembers.length > 0 && showExpiryAlert && (
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-5 text-white shadow-xl relative overflow-hidden">
+          <button onClick={() => setShowExpiryAlert(false)} className="absolute top-3 right-3 p-1 hover:bg-white/20 rounded-lg transition-all">
+            <X className="w-5 h-5" />
+          </button>
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
+                <CalendarX className="w-5 h-5" />
+                Membership Expiry Alert
+              </h3>
+              <p className="text-white/90 mb-3 text-sm">
+                {expiringMembers.length} member{expiringMembers.length > 1 ? 's have' : ' has'} membership{expiringMembers.length > 1 ? 's' : ''} expiring within the next 7 days
+              </p>
+              <div className="bg-white/10 rounded-xl p-3 max-h-32 overflow-y-auto backdrop-blur-sm">
+                {expiringMembers.slice(0, 5).map((member, idx) => (
+                  <div key={idx} className="flex items-center justify-between py-2 border-b border-white/10 last:border-0">
+                    <span className="text-sm font-medium">{member.full_name || member.username}</span>
+                    <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
+                      {new Date(member.membership_end_date).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+                {expiringMembers.length > 5 && (
+                  <p className="text-xs text-white/70 text-center mt-2">
+                    +{expiringMembers.length - 5} more members
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>

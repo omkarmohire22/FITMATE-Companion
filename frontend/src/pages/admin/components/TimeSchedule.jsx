@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Calendar, Clock, Plus, Edit2, Trash2, Users, Bell, 
   X, Search, ChevronDown, CheckCircle, AlertCircle,
-  User, Filter, Send
+  User, Filter, Send, RefreshCw, BellRing, Info
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -12,7 +12,7 @@ const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 const SLOT_TYPES = [
   { value: 'general', label: 'General Gym', color: 'bg-blue-100 text-blue-700' },
   { value: 'class', label: 'Group Class', color: 'bg-purple-100 text-purple-700' },
-  { value: 'personal_training', label: 'PT Session', color: 'bg-orange-100 text-orange-700' },
+  { value: 'personal_training', label: 'PT Session', color: 'bg-sky-100 text-orange-700' },
   { value: 'special', label: 'Special Event', color: 'bg-green-100 text-green-700' },
 ]
 
@@ -129,14 +129,14 @@ const TimeSchedule = () => {
     try {
       if (editingSlot) {
         await adminApi.updateGymScheduleSlot(editingSlot.id, payload, notifyOnSave)
-        toast.success(notifyOnSave ? 'Schedule updated & notifications sent!' : 'Schedule updated')
+        toast.success(notifyOnSave ? '✅ Schedule updated & notifications sent to all trainees & trainers!' : 'Schedule updated')
       } else {
         await adminApi.createGymScheduleSlot(payload, notifyOnSave)
-        toast.success(notifyOnSave ? 'Schedule created & notifications sent!' : 'Schedule created')
+        toast.success(notifyOnSave ? '✅ Schedule created & notifications sent to all trainees & trainers!' : 'Schedule created')
       }
       resetForm()
       setShowForm(false)
-      loadData()
+      loadData(true)
     } catch (err) {
       console.error(err)
       toast.error(editingSlot ? 'Failed to update schedule' : 'Failed to create schedule')
@@ -160,20 +160,27 @@ const TimeSchedule = () => {
   }
 
   const handleDelete = async (slot) => {
-    if (!window.confirm(`Delete "${slot.title || 'this schedule'}"?`)) return
+    const confirmMessage = notifyOnSave 
+      ? `Delete "${slot.title || 'this schedule'}"?\n\n⚠️ All trainees and trainers will be notified about this deletion.`
+      : `Delete "${slot.title || 'this schedule'}"?`
+    
+    if (!window.confirm(confirmMessage)) return
+    
+    const toastId = toast.loading('Deleting schedule...')
+    
     try {
       await adminApi.deleteGymScheduleSlot(slot.id, notifyOnSave)
-      toast.success(notifyOnSave ? 'Schedule deleted & notifications sent' : 'Schedule deleted')
-      loadData()
+      toast.success(notifyOnSave ? '✅ Schedule deleted & notifications sent!' : 'Schedule deleted', { id: toastId })
+      loadData(true)
     } catch (err) {
       console.error(err)
-      toast.error('Failed to delete schedule')
+      toast.error('Failed to delete schedule', { id: toastId })
     }
   }
 
   const getSlotTypeStyle = (type) => {
     const found = SLOT_TYPES.find(t => t.value === type)
-    return found?.color || 'bg-gray-100 text-gray-700'
+    return found?.color || 'bg-gray-100 text-slate-700'
   }
 
   const getSlotTypeLabel = (type) => {
@@ -198,7 +205,7 @@ const TimeSchedule = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500"></div>
       </div>
     )
   }
@@ -209,18 +216,28 @@ const TimeSchedule = () => {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
           <h2 className="text-3xl font-extrabold text-white flex items-center gap-3 tracking-tight">
-            <Calendar className="w-8 h-8 text-orange-500" />
+            <Calendar className="w-8 h-8 text-sky-500" />
             Gym Schedule
           </h2>
-          <p className="text-gray-300 text-base mt-2 font-medium">Manage gym hours, classes, and trainer schedules</p>
+          <p className="text-slate-300 text-base mt-2 font-medium">Manage gym hours, classes, and trainer schedules</p>
         </div>
-        <button
-          onClick={() => { resetForm(); setShowForm(true) }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
-        >
-          <Plus className="w-5 h-5" />
-          Add Schedule
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => loadData(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold border border-white/20 hover:border-white/30 transition-all"
+            title="Refresh schedule"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+          <button
+            onClick={() => { resetForm(); setShowForm(true) }}
+            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
+          >
+            <Plus className="w-5 h-5" />
+            Add Schedule
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -267,33 +284,46 @@ const TimeSchedule = () => {
       </div>
 
       {/* Notification Toggle + Day Filter */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white rounded-xl p-4 shadow-lg">
-        <div className="flex items-center gap-3">
-          <Bell className={`w-5 h-5 ${notifyOnSave ? 'text-orange-500' : 'text-gray-400'}`} />
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={notifyOnSave}
-              onChange={(e) => setNotifyOnSave(e.target.checked)}
-              className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
-            />
-            <span className="text-sm font-medium text-gray-700">
-              Notify trainees & trainers on schedule changes
-            </span>
-          </label>
-        </div>
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-gray-400" />
-          <select
-            value={selectedDay}
-            onChange={(e) => setSelectedDay(e.target.value)}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-          >
-            <option value="all">All Days</option>
-            {DAYS.map(day => (
-              <option key={day} value={day}>{day}</option>
-            ))}
-          </select>
+      <div className="bg-gradient-to-r from-sky-50 to-blue-50 rounded-2xl p-5 shadow-lg border border-sky-100">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div className="flex items-start gap-3 flex-1">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${notifyOnSave ? 'bg-sky-500' : 'bg-slate-300'} transition-colors`}>
+              {notifyOnSave ? <BellRing className="w-5 h-5 text-white" /> : <Bell className="w-5 h-5 text-white" />}
+            </div>
+            <div className="flex-1">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={notifyOnSave}
+                  onChange={(e) => setNotifyOnSave(e.target.checked)}
+                  className="w-4 h-4 text-sky-500 border-slate-300 rounded focus:ring-sky-500"
+                />
+                <div>
+                  <span className="text-sm font-semibold text-slate-900 group-hover:text-sky-600 transition-colors">
+                    Send Notifications
+                  </span>
+                  <p className="text-xs text-slate-600 mt-0.5">
+                    {notifyOnSave 
+                      ? '✅ All trainees & trainers will be notified about schedule changes' 
+                      : '⚠️ Changes will be made silently without notifications'}
+                  </p>
+                </div>
+              </label>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-slate-600" />
+            <select
+              value={selectedDay}
+              onChange={(e) => setSelectedDay(e.target.value)}
+              className="border border-slate-300 bg-white rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
+            >
+              <option value="all">📅 All Days</option>
+              {DAYS.map(day => (
+                <option key={day} value={day}>{day}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -310,7 +340,7 @@ const TimeSchedule = () => {
               <h3 className="text-white font-semibold flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 {day}
-                <span className="text-gray-400 text-sm font-normal ml-2">
+                <span className="text-slate-400 text-sm font-normal ml-2">
                   ({slotsByDay[day].length} {slotsByDay[day].length === 1 ? 'slot' : 'slots'})
                 </span>
               </h3>
@@ -318,7 +348,7 @@ const TimeSchedule = () => {
             
             <div className="p-4">
               {slotsByDay[day].length === 0 ? (
-                <p className="text-gray-400 text-sm text-center py-6">No schedules for {day}</p>
+                <p className="text-slate-400 text-sm text-center py-6">No schedules for {day}</p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {slotsByDay[day].map(slot => (
@@ -326,7 +356,7 @@ const TimeSchedule = () => {
                       key={slot.id}
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="border border-gray-200 rounded-xl p-4 hover:border-orange-300 hover:shadow-md transition-all"
+                      className="border border-slate-200 rounded-xl p-4 hover:border-orange-300 hover:shadow-md transition-all"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${getSlotTypeStyle(slot.slot_type)}`}>
@@ -334,26 +364,26 @@ const TimeSchedule = () => {
                         </span>
                         <div className="flex items-center gap-1">
                           <button onClick={() => handleEdit(slot)} className="p-1 hover:bg-gray-100 rounded transition-all">
-                            <Edit2 className="w-3.5 h-3.5 text-gray-500" />
+                            <Edit2 className="w-3.5 h-3.5 text-slate-500" />
                           </button>
                           <button onClick={() => handleDelete(slot)} className="p-1 hover:bg-red-50 rounded transition-all">
                             <Trash2 className="w-3.5 h-3.5 text-red-500" />
                           </button>
                         </div>
                       </div>
-                      <h4 className="font-semibold text-gray-900">{slot.title || 'Open Session'}</h4>
-                      <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
+                      <h4 className="font-semibold text-slate-900">{slot.title || 'Open Session'}</h4>
+                      <div className="flex items-center gap-1 text-sm text-slate-600 mt-1">
                         <Clock className="w-3.5 h-3.5" />
                         {slot.start_time} - {slot.end_time}
                       </div>
                       {slot.trainer_name && (
-                        <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
+                        <div className="flex items-center gap-1 text-sm text-slate-500 mt-1">
                           <User className="w-3.5 h-3.5" />
                           {slot.trainer_name}
                         </div>
                       )}
                       {slot.max_capacity > 0 && (
-                        <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
+                        <div className="flex items-center gap-1 text-sm text-slate-500 mt-1">
                           <Users className="w-3.5 h-3.5" />
                           Max {slot.max_capacity} people
                         </div>
@@ -384,10 +414,10 @@ const TimeSchedule = () => {
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-lg bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
             >
-              <div className="p-6 border-b border-gray-200">
+              <div className="p-6 border-b border-slate-200">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-orange-500" />
+                  <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-sky-500" />
                     {editingSlot ? 'Edit Schedule' : 'Add Schedule'}
                   </h3>
                   <button onClick={() => setShowForm(false)} className="p-2 hover:bg-gray-100 rounded-lg transition-all">
@@ -399,9 +429,9 @@ const TimeSchedule = () => {
               <form onSubmit={handleSubmit} className="p-6 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Day</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Day</label>
                     <select
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       value={form.day_of_week}
                       onChange={(e) => setForm({ ...form, day_of_week: e.target.value })}
                     >
@@ -409,9 +439,9 @@ const TimeSchedule = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Type</label>
                     <select
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       value={form.slot_type}
                       onChange={(e) => setForm({ ...form, slot_type: e.target.value })}
                     >
@@ -422,19 +452,19 @@ const TimeSchedule = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Start Time</label>
                     <input
                       type="time"
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       value={form.start_time}
                       onChange={(e) => setForm({ ...form, start_time: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">End Time</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">End Time</label>
                     <input
                       type="time"
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       value={form.end_time}
                       onChange={(e) => setForm({ ...form, end_time: e.target.value })}
                     />
@@ -442,10 +472,10 @@ const TimeSchedule = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Title</label>
                   <input
                     type="text"
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                     value={form.title}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
                     placeholder="e.g., Morning Cardio Session"
@@ -453,9 +483,9 @@ const TimeSchedule = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description (optional)</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Description (optional)</label>
                   <textarea
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                     rows={2}
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -465,9 +495,9 @@ const TimeSchedule = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Trainer (optional)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Trainer (optional)</label>
                     <select
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       value={form.trainer_id}
                       onChange={(e) => setForm({ ...form, trainer_id: e.target.value })}
                     >
@@ -478,10 +508,10 @@ const TimeSchedule = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Max Capacity</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Max Capacity</label>
                     <input
                       type="number"
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       value={form.max_capacity}
                       onChange={(e) => setForm({ ...form, max_capacity: e.target.value })}
                       min="0"
@@ -491,18 +521,27 @@ const TimeSchedule = () => {
                 </div>
 
                 {/* Notify toggle in modal */}
-                <div className="p-3 bg-orange-50 rounded-xl border border-orange-100">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                <div className={`p-4 rounded-xl border-2 transition-all ${notifyOnSave ? 'bg-sky-50 border-sky-200' : 'bg-slate-50 border-slate-200'}`}>
+                  <label className="flex items-start gap-3 cursor-pointer group">
                     <input
                       type="checkbox"
                       checked={notifyOnSave}
                       onChange={(e) => setNotifyOnSave(e.target.checked)}
-                      className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                      className="w-5 h-5 text-sky-500 border-slate-300 rounded focus:ring-sky-500 mt-0.5"
                     />
-                    <Bell className={`w-4 h-4 ${notifyOnSave ? 'text-orange-500' : 'text-gray-400'}`} />
-                    <span className="text-sm font-medium text-gray-700">
-                      Notify all trainees & trainers
-                    </span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        {notifyOnSave ? <BellRing className="w-5 h-5 text-sky-500" /> : <Bell className="w-5 h-5 text-slate-400" />}
+                        <span className="text-sm font-semibold text-slate-900">
+                          Notify all trainees & trainers
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600 mt-1">
+                        {notifyOnSave 
+                          ? '✅ Everyone will receive a notification about this schedule' 
+                          : 'Changes will be made without sending notifications'}
+                      </p>
+                    </div>
                   </label>
                 </div>
 
@@ -511,13 +550,13 @@ const TimeSchedule = () => {
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
-                    className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-all"
+                    className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-slate-700 rounded-xl font-medium transition-all"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
                   >
                     {notifyOnSave && <Send className="w-4 h-4" />}
                     {editingSlot ? 'Update' : 'Create'} Schedule

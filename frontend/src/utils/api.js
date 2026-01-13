@@ -256,6 +256,10 @@ export const adminApi = {
   getMembershipPlans: () => api.get("/api/admin/membership-plans"),
   createMembershipPlan: (data) =>
     api.post("/api/admin/membership-plans", data),
+  updateMembershipPlan: (id, data) =>
+    api.put(`/api/admin/membership-plans/${id}`, data),
+  deleteMembershipPlan: (id) =>
+    api.delete(`/api/admin/membership-plans/${id}`),
 
   // Equipment
   getEquipment: () => api.get("/api/admin/equipment"),
@@ -413,6 +417,12 @@ export const trainerDashboardApi = {
   addSchedule: (data) => api.post("/api/trainer/schedule", data),
   updateSchedule: (scheduleId, data) => api.put(`/api/trainer/schedule/${scheduleId}`, data),
   deleteSchedule: (scheduleId) => api.delete(`/api/trainer/schedule/${scheduleId}`),
+  
+  // Trainee Schedule Assignment
+  assignTraineeToSchedule: (data) => api.post("/api/trainer/schedule/assign-trainee", data),
+  getAssignedTraineeSchedules: () => api.get("/api/trainer/schedule/assigned-trainees"),
+  unassignTraineeFromSchedule: (scheduleId, sendNotification = true) => 
+    api.delete(`/api/trainer/schedule/unassign-trainee/${scheduleId}?send_notification=${sendNotification}`),
 
   // Reports & Export
   generateProgressReport: (traineeId) => api.get(`/api/trainer/trainees/${traineeId}/report`),

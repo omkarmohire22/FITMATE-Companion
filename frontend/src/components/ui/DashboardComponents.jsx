@@ -55,8 +55,8 @@ export const MetricCard = ({
     <DashboardCard className={`p-6 ${className}`}>
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-2">{label}</p>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white">{value}</p>
+          <p className="text-slate-600 dark:text-slate-400 text-sm font-medium mb-2">{label}</p>
+          <p className="text-3xl font-bold text-slate-900 dark:text-white">{value}</p>
           {trend && (
             <p className={`text-sm mt-2 ${trendUp ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
               {trendUp ? '↑' : '↓'} {trend}
@@ -90,7 +90,7 @@ export const SectionHeader = ({
           {Icon && <Icon className="w-6 h-6 text-primary-600" />}
           <h2 className="heading-3">{title}</h2>
         </div>
-        {subtitle && <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">{subtitle}</p>}
+        {subtitle && <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">{subtitle}</p>}
       </div>
       {action && <div>{action}</div>}
     </div>
@@ -112,7 +112,7 @@ export const DashboardHeader = ({
       <div className="page-container flex-between py-6">
         <div>
           <h1 className="heading-1">{title}</h1>
-          {subtitle && <p className="text-gray-600 dark:text-gray-400 mt-1">{subtitle}</p>}
+          {subtitle && <p className="text-slate-600 dark:text-slate-400 mt-1">{subtitle}</p>}
         </div>
         {actions && <div className="flex gap-3">{actions}</div>}
       </div>
@@ -173,11 +173,11 @@ export const DataTable = ({ columns, data, loading = false }) => {
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
-          <tr className="border-b border-gray-200 dark:border-gray-700">
+          <tr className="border-b border-slate-200 dark:border-slate-700">
             {columns.map((col) => (
               <th
                 key={col.key}
-                className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide"
+                className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide"
               >
                 {col.label}
               </th>
@@ -186,9 +186,9 @@ export const DataTable = ({ columns, data, loading = false }) => {
         </thead>
         <tbody>
           {data.map((row, idx) => (
-            <tr key={idx} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+            <tr key={idx} className="border-b border-gray-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50">
               {columns.map((col) => (
-                <td key={col.key} className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                <td key={col.key} className="px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
                   {col.render ? col.render(row[col.key], row) : row[col.key]}
                 </td>
               ))}
@@ -212,12 +212,12 @@ export const EmptyState = ({
   return (
     <div className="flex flex-col items-center justify-center py-12">
       {Icon && (
-        <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-4">
-          <Icon className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+        <div className="bg-gray-100 dark:bg-slate-700 p-4 rounded-lg mb-4">
+          <Icon className="w-8 h-8 text-slate-400 dark:text-slate-500" />
         </div>
       )}
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{title}</h3>
-      {description && <p className="text-gray-600 dark:text-gray-400 text-center mb-4 max-w-sm">{description}</p>}
+      <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{title}</h3>
+      {description && <p className="text-slate-600 dark:text-slate-400 text-center mb-4 max-w-sm">{description}</p>}
       {action && <div>{action}</div>}
     </div>
   )
@@ -234,12 +234,12 @@ export const LoadingSpinner = ({ size = 'md', fullScreen = false }) => {
   }
 
   const spinner = (
-    <div className={`${sizes[size]} border-4 border-gray-200 dark:border-gray-700 border-t-primary-600 rounded-full animate-spin`} />
+    <div className={`${sizes[size]} border-4 border-slate-200 dark:border-slate-700 border-t-primary-600 rounded-full animate-spin`} />
   )
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 z-50">
+      <div className="fixed inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-900/80 z-50">
         {spinner}
       </div>
     )

@@ -128,7 +128,7 @@ export default function MealConfirmationModal({
                   className={`px-4 py-2 rounded-lg font-medium transition-all capitalize ${
                     mealType === type
                       ? 'bg-green-500 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      : 'bg-gray-100 text-slate-700 hover:bg-gray-200'
                   }`}
                 >
                   {type}
@@ -153,7 +153,7 @@ export default function MealConfirmationModal({
                         {item.name}
                       </h4>
                       {item.detected_as && item.detected_as !== item.name && (
-                        <p className="text-xs text-gray-600 mt-1">
+                        <p className="text-xs text-slate-600 mt-1">
                           Detected as: <span className="italic">{item.detected_as}</span>
                         </p>
                       )}
@@ -165,7 +165,7 @@ export default function MealConfirmationModal({
                               style={{ width: `${item.confidence * 100}%` }}
                             />
                           </div>
-                          <span className="text-xs text-gray-600">
+                          <span className="text-xs text-slate-600">
                             {(item.confidence * 100).toFixed(0)}%
                           </span>
                         </div>
@@ -182,7 +182,7 @@ export default function MealConfirmationModal({
 
                   {/* Portion Size Adjustment */}
                   <div className="bg-white rounded-lg p-3 mb-3">
-                    <label className="text-xs font-semibold text-gray-700 block mb-2">
+                    <label className="text-xs font-semibold text-slate-700 block mb-2">
                       Portion Size (grams)
                     </label>
                     <div className="flex items-center gap-2">
@@ -203,7 +203,7 @@ export default function MealConfirmationModal({
                         onChange={(e) =>
                           updatePortion(index, parseInt(e.target.value) || 100)
                         }
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-center font-semibold focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none"
+                        className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-center font-semibold focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none"
                       />
                       <button
                         onClick={() =>
@@ -221,7 +221,7 @@ export default function MealConfirmationModal({
 
                   {/* Nutrition Breakdown */}
                   <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                    <div className="bg-orange-100 rounded-lg p-2">
+                    <div className="bg-sky-100 rounded-lg p-2">
                       <p className="font-semibold text-orange-900">
                         {item.calories}
                       </p>
@@ -257,28 +257,28 @@ export default function MealConfirmationModal({
               <h4 className="font-semibold text-gray-900 mb-3">Meal Total</h4>
               <div className="grid grid-cols-4 gap-2 text-center">
                 <div>
-                  <p className="text-2xl font-bold text-orange-600">
+                  <p className="text-2xl font-bold text-sky-600">
                     {totals.calories}
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">Calories</p>
+                  <p className="text-xs text-slate-600 mt-1">Calories</p>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-red-600">
                     {totals.protein.toFixed(1)}g
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">Protein</p>
+                  <p className="text-xs text-slate-600 mt-1">Protein</p>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-blue-600">
                     {totals.carbs.toFixed(1)}g
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">Carbs</p>
+                  <p className="text-xs text-slate-600 mt-1">Carbs</p>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-yellow-600">
                     {totals.fats.toFixed(1)}g
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">Fats</p>
+                  <p className="text-xs text-slate-600 mt-1">Fats</p>
                 </div>
               </div>
             </div>

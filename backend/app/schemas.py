@@ -118,6 +118,15 @@ class TraineeAttendanceMarkRequest(BaseModel):
     status: str  # present, absent
     date: Optional[date] = None
 
+class TraineeScheduleAssignRequest(BaseModel):
+    trainee_id: int
+    day_of_week: int  # 0=Monday, 6=Sunday
+    start_time: time
+    end_time: time
+    session_type: str = "personal_training"  # personal_training, group, assessment
+    notes: Optional[str] = None
+    send_notification: bool = True
+
 class PTPackageRequest(BaseModel):
     name: str
     sessions_count: int
@@ -193,6 +202,14 @@ class WorkoutUpdate(BaseModel):
     calories_burned: Optional[float] = None
     avg_accuracy: Optional[float] = None
     summary_json: Optional[Dict[str, Any]] = None
+
+
+class ManualWorkoutCreate(BaseModel):
+    exercise_type: str
+    duration_minutes: int
+    total_reps: Optional[int] = 0
+    calories_burned: Optional[float] = 0
+    notes: Optional[str] = None
 
 
 class WorkoutResponse(BaseModel):

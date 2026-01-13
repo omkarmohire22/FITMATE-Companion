@@ -63,11 +63,11 @@ const Modal = ({
               className={`w-full ${sizes[size]} bg-white rounded-xl shadow-xl max-h-[90vh] overflow-y-auto ${className}`}
             >
               {(title || showCloseButton) && (
-                <div className="sticky top-0 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-white rounded-t-xl">
-                  {title && <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{title}</h3>}
+                <div className="sticky top-0 flex items-center justify-between p-4 sm:p-6 border-b border-slate-200 bg-white rounded-t-xl">
+                  {title && <h3 className="text-lg sm:text-xl font-semibold text-slate-900">{title}</h3>}
                   {showCloseButton && (
                     <button onClick={onClose} className="flex-shrink-0 p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                      <X className="w-5 h-5 text-gray-500" />
+                      <X className="w-5 h-5 text-slate-500" />
                     </button>
                   )}
                 </div>

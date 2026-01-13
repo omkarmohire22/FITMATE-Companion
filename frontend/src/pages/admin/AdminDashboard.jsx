@@ -184,16 +184,16 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-900 font-sans">
+    <div className="min-h-screen bg-slate-950 font-sans">
       {/* Top Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-black via-gray-900 to-gray-900/95 backdrop-blur-md border-b border-gray-800 shadow-2xl">
-        <div className="px-4 sm:px-6 py-3 sm:py-4">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-lg">
+        <div className="px-4 sm:px-6 py-3">
           <div className="flex justify-between items-center gap-4">
             {/* Left Section */}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 hover:bg-gray-800 rounded-lg lg:hidden transition-colors text-gray-400 hover:text-white"
+                className="p-2 hover:bg-slate-800 rounded-lg lg:hidden transition-colors text-slate-400 hover:text-white"
               >
                 {sidebarOpen ? (
                   <X className="w-5 h-5" />
@@ -201,87 +201,87 @@ const AdminDashboard = () => {
                   <Menu className="w-5 h-5" />
                 )}
               </button>
-              <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="w-11 h-11 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-600 to-red-600 rounded-2xl flex items-center justify-center shadow-2xl border-2 border-orange-700">
-                    <Dumbbell className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Dumbbell className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
                   <div>
-                    <span className="text-lg sm:text-2xl font-extrabold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent tracking-wide uppercase">
-                      FitMate
+                    <span className="text-base sm:text-xl font-bold text-white tracking-tight">
+                      FITMATE
                     </span>
-                    <p className="text-[11px] sm:text-sm text-orange-300 font-semibold tracking-wider">
+                    <p className="text-[10px] sm:text-xs text-sky-400 font-medium">
                       Admin Dashboard
                     </p>
                   </div>
                 </div>
             </div>
             {/* Right Section */}
-            <div className="flex items-center gap-3 sm:gap-5">
+            <div className="flex items-center gap-2 sm:gap-4">
               {/* Search Bar */}
-              <div className="hidden md:flex items-center gap-2 bg-gray-800 px-3 py-2 rounded-lg border border-gray-700 shadow-inner">
-                <Search className="w-4 h-4 text-orange-400" />
+              <div className="hidden md:flex items-center gap-2 bg-slate-800/60 px-3 py-2 rounded-lg border border-slate-700/50">
+                <Search className="w-4 h-4 text-sky-400" />
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="bg-transparent outline-none text-xs sm:text-sm w-32 sm:w-40 text-orange-100 placeholder:text-orange-300"
+                  className="bg-transparent outline-none text-xs sm:text-sm w-32 sm:w-40 text-slate-200 placeholder:text-slate-500"
                 />
               </div>
               {/* Refresh Button */}
               <button
                 onClick={handleManualRefresh}
                 disabled={isRefreshing}
-                className="p-2 hover:bg-orange-900/30 rounded-lg transition-colors relative group border border-orange-700"
+                className="p-2 hover:bg-slate-800 rounded-lg transition-colors relative group"
                 title="Refresh Dashboard"
               >
                 <RefreshCw 
-                  className={`w-5 h-5 text-orange-400 ${isRefreshing ? 'animate-spin' : ''}`} 
+                  className={`w-5 h-5 text-sky-400 ${isRefreshing ? 'animate-spin' : ''}`} 
                 />
-                <div className="absolute top-full right-0 mt-2 hidden group-hover:block bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                <div className="absolute top-full right-0 mt-2 hidden group-hover:block bg-slate-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap shadow-lg z-50">
                   Updated: {lastUpdated.toLocaleTimeString()}
                 </div>
               </button>
               {/* Notifications Bell */}
               <div className="relative">
                 <button
-                  className="p-2 hover:bg-orange-900/30 rounded-lg transition-colors relative border border-orange-700"
+                  className="p-2 hover:bg-slate-800 rounded-lg transition-colors relative"
                   onClick={() => setShowNotifications(!showNotifications)}
                 >
-                  <Bell className="w-5 h-5 text-gray-600" />
+                  <Bell className="w-5 h-5 text-slate-400" />
                   {notificationCount > 0 && (
-                    <span className="absolute top-1 right-1 w-5 h-5 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center text-white text-[10px] font-bold animate-pulse shadow-lg border-2 border-white">
+                    <span className="absolute top-0.5 right-0.5 w-5 h-5 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-lg">
                       {notificationCount > 9 ? '9+' : notificationCount}
                     </span>
                   )}
                 </button>
                 {/* Notifications Dropdown */}
                 {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-96 bg-gray-900 border border-orange-700 rounded-xl shadow-2xl z-50 max-h-[600px] flex flex-col">
+                  <div className="absolute right-0 mt-2 w-96 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 max-h-[600px] flex flex-col">
                     {/* Header */}
-                    <div className="px-4 py-3 border-b border-orange-700 flex items-center justify-between bg-gray-950">
-                      <h3 className="font-semibold text-orange-400">Notifications</h3>
+                    <div className="px-4 py-3 border-b border-slate-700 flex items-center justify-between bg-slate-800">
+                      <h3 className="font-semibold text-white text-sm">Notifications</h3>
                       <button
                         onClick={() => setShowNotifications(false)}
-                        className="text-gray-400 hover:text-white transition-colors text-sm"
+                        className="text-slate-400 hover:text-white transition-colors text-sm"
                       >
                         ✕
                       </button>
                     </div>
                     
                     {/* Filter Tabs */}
-                    <div className="px-3 py-2 border-b border-orange-700 flex gap-1 bg-gray-900/50 overflow-x-auto">
+                    <div className="px-3 py-2 border-b border-slate-700 flex gap-1 bg-slate-900/50 overflow-x-auto">
                       {[
-                        { label: 'All', value: 'all', color: 'bg-gray-700' },
+                        { label: 'All', value: 'all', color: 'bg-slate-700' },
                         { label: 'Critical', value: 'critical', color: 'bg-red-900/50' },
-                        { label: 'Important', value: 'important', color: 'bg-orange-900/50' },
+                        { label: 'Important', value: 'important', color: 'bg-sky-900/50' },
                         { label: 'Normal', value: 'normal', color: 'bg-blue-900/50' },
                       ].map(filter => (
                         <button
                           key={filter.value}
                           onClick={() => setNotificationFilter(filter.value)}
-                          className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap transition-all ${
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
                             notificationFilter === filter.value
-                              ? `${filter.color} text-white border border-gray-400`
-                              : 'text-gray-400 hover:text-orange-400'
+                              ? `${filter.color} text-white`
+                              : 'text-slate-400 hover:text-sky-400'
                           }`}
                         >
                           {filter.label}
@@ -293,32 +293,32 @@ const AdminDashboard = () => {
                     <div className="overflow-y-auto flex-1">
                       {!Array.isArray(dashboardData.notifications) || dashboardData.notifications.length === 0 ? (
                         <div className="p-6 text-center">
-                          <p className="text-orange-200 text-sm">No notifications</p>
+                          <p className="text-slate-400 text-sm">No notifications</p>
                         </div>
                       ) : (
-                        <ul className="divide-y divide-orange-700/30">
+                        <ul className="divide-y divide-slate-700/50">
                           {dashboardData.notifications
                             .filter(note => notificationFilter === 'all' || note.importance === notificationFilter)
                             .filter(note => !hiddenNotifications.has(`${note.type}-${note.created_at}`))
                             .map((note, idx) => {
                               const importanceColors = {
-                                critical: 'border-l-red-500 bg-red-950/20',
-                                important: 'border-l-orange-500 bg-orange-950/20',
-                                normal: 'border-l-blue-500 bg-blue-950/20',
-                                info: 'border-l-gray-500 bg-gray-800/20',
+                                critical: 'border-l-red-500 bg-red-950/10',
+                                important: 'border-l-sky-500 bg-sky-950/10',
+                                normal: 'border-l-blue-500 bg-blue-950/10',
+                                info: 'border-l-slate-500 bg-slate-800/20',
                               };
                               
                               const importanceBadge = {
-                                critical: 'bg-red-900 text-red-200',
-                                important: 'bg-orange-900 text-orange-200',
-                                normal: 'bg-blue-900 text-blue-200',
-                                info: 'bg-gray-700 text-gray-200',
+                                critical: 'bg-red-900/80 text-red-200',
+                                important: 'bg-sky-900/80 text-sky-200',
+                                normal: 'bg-blue-900/80 text-blue-200',
+                                info: 'bg-slate-700 text-slate-200',
                               };
                               
                               return (
                                 <li 
                                   key={idx} 
-                                  className={`p-3 border-l-4 ${importanceColors[note.importance] || 'border-l-gray-500 bg-gray-800/20'} hover:bg-gray-800/40 transition-colors group`}
+                                  className={`p-3 border-l-4 ${importanceColors[note.importance] || 'border-l-slate-500 bg-slate-800/20'} hover:bg-slate-800/40 transition-colors group`}
                                 >
                                   <div className="flex items-start justify-between gap-2">
                                     <div className="flex-1 min-w-0">
@@ -326,12 +326,14 @@ const AdminDashboard = () => {
                                         <span className={`text-xs px-2 py-0.5 rounded font-medium ${importanceBadge[note.importance] || importanceBadge.info}`}>
                                           {note.importance || 'info'}
                                         </span>
-                                        {note.type === 'payment' && <span className="text-xs text-green-400">💳</span>}
-                                        {note.type === 'signup' && <span className="text-xs text-blue-400">👤</span>}
-                                        {note.type === 'maintenance' && <span className="text-xs text-red-400">⚠️</span>}
+                                        {note.type === 'payment' && <span className="text-xs">💳</span>}
+                                        {note.type === 'signup' && <span className="text-xs">👤</span>}
+                                        {note.type === 'maintenance' && <span className="text-xs">⚠️</span>}
+                                        {note.type === 'feedback' && <span className="text-xs">💬</span>}
+                                        {note.type === 'general' && <span className="text-xs">📢</span>}
                                       </div>
-                                      <p className="text-orange-100 text-sm break-words">{note.message}</p>
-                                      <p className="text-gray-500 text-xs mt-1">
+                                      <p className="text-slate-200 text-sm break-words">{note.message}</p>
+                                      <p className="text-slate-500 text-xs mt-1">
                                         {note.created_at ? new Date(note.created_at).toLocaleString() : 'Just now'}
                                       </p>
                                     </div>
@@ -344,8 +346,8 @@ const AdminDashboard = () => {
                                           return newSet;
                                         });
                                       }}
-                                      className="text-gray-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0 text-xs"
-                                      title="Mark as not important"
+                                      className="text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0 text-xs"
+                                      title="Dismiss"
                                     >
                                       ✕
                                     </button>
@@ -358,30 +360,30 @@ const AdminDashboard = () => {
                     </div>
                     
                     {/* Footer */}
-                    <div className="px-4 py-2 border-t border-orange-700 bg-gray-950 text-xs text-gray-400 text-center">
+                    <div className="px-4 py-2 border-t border-slate-700 bg-slate-800 text-xs text-slate-400 text-center">
                       {dashboardData.notifications?.length || 0} total notifications
                     </div>
                   </div>
                 )}
               </div>
               {/* User Profile */}
-              <div className="flex items-center gap-2 sm:gap-3 pl-3 sm:pl-4 border-l border-orange-700">
+              <div className="flex items-center gap-2 sm:gap-3 pl-3 border-l border-slate-700">
                 <div className="hidden sm:block text-right">
-                  <p className="text-xs sm:text-sm font-bold text-orange-200">
+                  <p className="text-xs sm:text-sm font-semibold text-white">
                     {user?.name || 'Admin'}
                   </p>
-                  <p className="text-[10px] sm:text-xs text-orange-400 font-semibold">
+                  <p className="text-[10px] sm:text-xs text-sky-400 font-medium">
                     Administrator
                   </p>
                 </div>
-                <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center text-white font-extrabold text-base border-2 border-orange-700 shadow-lg">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-sky-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg">
                   {user?.name?.charAt(0) || 'A'}
                 </div>
               </div>
               {/* Logout Button */}
               <button
                 onClick={logout}
-                className="hidden sm:inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg hover:scale-105 hover:shadow-xl transition-all text-xs sm:text-sm font-bold border border-orange-700"
+                className="hidden sm:inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all text-xs sm:text-sm font-semibold"
               >
                 <LogOut className="w-4 h-4" />
                 Logout
@@ -429,15 +431,15 @@ const AdminDashboard = () => {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-8"
+              className="mb-6"
             >
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                    Welcome back, <span className="text-orange-500">{user?.name || 'Admin'}</span> <span className="inline-block animate-bounce">💪</span>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                    Welcome back, <span className="text-sky-500">{user?.name || 'Admin'}</span>
                   </h1>
-                  <p className="text-gray-400 text-sm sm:text-base mt-2 font-medium max-w-2xl">
-                    Your gym is performing well today. Here's what's happening across your facility.
+                  <p className="text-slate-400 text-sm sm:text-base mt-1.5 font-medium max-w-2xl">
+                    Your gym is performing well. Here's your facility overview.
                   </p>
                 </div>
                 {/* Quick Stats Badge */}
@@ -445,10 +447,10 @@ const AdminDashboard = () => {
                   <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="flex items-center gap-3 bg-orange-500/10 text-orange-500 px-4 py-2.5 rounded-2xl border border-orange-500/20 backdrop-blur-sm"
+                    className="flex items-center gap-2.5 bg-sky-500/10 text-sky-400 px-4 py-2 rounded-lg border border-sky-500/30"
                   >
-                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
-                    <span className="text-sm font-bold">
+                    <div className="w-2 h-2 bg-sky-500 rounded-full animate-pulse" />
+                    <span className="text-sm font-semibold">
                       {dashboardData.new_signups_today} new signup{dashboardData.new_signups_today > 1 ? 's' : ''} today
                     </span>
                   </motion.div>
@@ -457,33 +459,33 @@ const AdminDashboard = () => {
             </motion.div>
             {/* Dashboard Widgets */}
             {activeTab === 'overview' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mb-8">
                 {/* System Health */}
-                <div className="bg-gray-800/40 backdrop-blur-md rounded-3xl p-6 flex items-center gap-5 border border-gray-700/50 hover:border-orange-500/30 transition-all duration-300 group">
-                  <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <HeartPulse className="w-8 h-8 text-red-500" />
+                <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 flex items-center gap-4 border border-slate-700/50 hover:border-sky-500/40 transition-all duration-200 group">
+                  <div className="w-12 h-12 rounded-lg bg-red-500/10 flex items-center justify-center">
+                    <HeartPulse className="w-6 h-6 text-red-500" />
                   </div>
                   <div>
-                    <div className="font-bold text-gray-400 text-sm uppercase tracking-wider">System Health</div>
-                    <div className={`text-2xl font-black mt-1 ${dashboardData.system_health.status === 'Healthy' ? 'text-green-400' : 'text-red-400'}`}>
+                    <div className="font-semibold text-slate-400 text-xs uppercase">System Health</div>
+                    <div className={`text-xl font-bold mt-1 ${dashboardData.system_health.status === 'Healthy' ? 'text-green-400' : 'text-red-400'}`}>
                       {dashboardData.system_health.status}
                     </div>
-                    <div className="text-xs text-gray-500 mt-1 font-medium">{dashboardData.system_health.details || 'All systems operational'}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">{dashboardData.system_health.details || 'All systems operational'}</div>
                   </div>
                 </div>
                 {/* AI Suggestions */}
-                <div className="bg-gray-800/40 backdrop-blur-md rounded-3xl p-6 flex items-center gap-5 border border-gray-700/50 hover:border-orange-500/30 transition-all duration-300 group">
-                  <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Sparkles className="w-8 h-8 text-blue-400" />
+                <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 flex items-center gap-4 border border-slate-700/50 hover:border-sky-500/40 transition-all duration-200 group">
+                  <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-blue-400" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-gray-400 text-sm uppercase tracking-wider">AI Insights</div>
-                    <div className="mt-2 space-y-1">
+                    <div className="font-semibold text-slate-400 text-xs uppercase">AI Insights</div>
+                    <div className="mt-1.5 space-y-1">
                       {!Array.isArray(dashboardData.ai_suggestions) || dashboardData.ai_suggestions.length === 0 ? (
-                        <p className="text-sm text-gray-500 italic">No insights today</p>
+                        <p className="text-xs text-slate-500">No insights today</p>
                       ) : (
                         dashboardData.ai_suggestions.slice(0, 2).map((s, i) => (
-                          <p key={i} className="text-sm text-gray-300 font-medium truncate">
+                          <p key={i} className="text-xs text-slate-300 truncate">
                             • {typeof s === 'string' ? s : s.suggestion || s.message}
                           </p>
                         ))
@@ -492,19 +494,19 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 {/* Top Membership Plans */}
-                <div className="bg-gray-800/40 backdrop-blur-md rounded-3xl p-6 flex items-center gap-5 border border-gray-700/50 hover:border-orange-500/30 transition-all duration-300 group">
-                  <div className="w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Award className="w-8 h-8 text-orange-500" />
+                <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 flex items-center gap-4 border border-slate-700/50 hover:border-sky-500/40 transition-all duration-200 group">
+                  <div className="w-12 h-12 rounded-lg bg-sky-500/10 flex items-center justify-center">
+                    <Award className="w-6 h-6 text-sky-500" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-gray-400 text-sm uppercase tracking-wider">Top Plans</div>
-                    <div className="mt-2 space-y-1">
+                    <div className="font-semibold text-slate-400 text-xs uppercase">Top Plans</div>
+                    <div className="mt-1.5 space-y-1">
                       {!Array.isArray(dashboardData.top_plans) || dashboardData.top_plans.length === 0 ? (
-                        <p className="text-sm text-gray-500 italic">No plan data</p>
+                        <p className="text-xs text-slate-500">No plan data</p>
                       ) : (
                         dashboardData.top_plans.slice(0, 2).map((plan, i) => (
-                          <p key={i} className="text-sm text-gray-300 font-medium truncate">
-                            <span className="text-orange-500 font-bold">{plan.signups || 0}</span> {plan.name || plan}
+                          <p key={i} className="text-xs text-slate-300 truncate">
+                            <span className="text-sky-400 font-semibold">{plan.signups || 0}</span> {plan.name || plan}
                           </p>
                         ))
                       )}
@@ -512,27 +514,27 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 {/* Progress Analytics */}
-                <div className="bg-gray-800/40 backdrop-blur-md rounded-3xl p-6 flex items-center gap-5 border border-gray-700/50 hover:border-orange-500/30 transition-all duration-300 group">
-                  <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <BarChart2 className="w-8 h-8 text-green-400" />
+                <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 flex items-center gap-4 border border-slate-700/50 hover:border-sky-500/40 transition-all duration-200 group">
+                  <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center">
+                    <BarChart2 className="w-6 h-6 text-green-400" />
                   </div>
                   <div>
-                    <div className="font-bold text-gray-400 text-sm uppercase tracking-wider">Analytics</div>
+                    <div className="font-semibold text-slate-400 text-xs uppercase">Analytics</div>
                     <div className="text-lg font-bold text-white mt-1">
                       {dashboardData.progress_analytics.summary || 'Growth: +12%'}
                     </div>
-                    <div className="text-xs text-gray-500 mt-1 font-medium">Monthly performance tracking</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Monthly performance</div>
                   </div>
                 </div>
-                {/* Members & Trainers */}
-                <div className="bg-gray-800/40 backdrop-blur-md rounded-3xl p-6 flex items-center gap-5 border border-gray-700/50 hover:border-orange-500/30 transition-all duration-300 group">
-                  <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Users className="w-8 h-8 text-purple-400" />
+                {/* Community Stats */}
+                <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-5 flex items-center gap-4 border border-slate-700/50 hover:border-sky-500/40 transition-all duration-200 group">
+                  <div className="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                    <Users className="w-6 h-6 text-purple-400" />
                   </div>
                   <div>
-                    <div className="font-bold text-gray-400 text-sm uppercase tracking-wider">Community</div>
-                    <div className="text-2xl font-black text-white mt-1">{dashboardData.total_members} <span className="text-sm font-normal text-gray-500">Members</span></div>
-                    <div className="text-xs text-gray-500 mt-1 font-medium">{dashboardData.active_trainers} Active Trainers</div>
+                    <div className="font-semibold text-slate-400 text-xs uppercase">Community</div>
+                    <div className="text-xl font-bold text-white mt-1">{dashboardData.total_members} <span className="text-sm font-normal text-slate-500">Members</span></div>
+                    <div className="text-xs text-slate-500 mt-0.5">{dashboardData.active_trainers} Active Trainers</div>
                   </div>
                 </div>
               </div>

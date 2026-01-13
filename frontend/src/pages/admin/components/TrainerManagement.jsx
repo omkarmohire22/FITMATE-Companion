@@ -50,7 +50,18 @@ const TrainerManagement = () => {
     try {
       setLoading(true);
       const res = await adminApi.getTrainers();
-      setTrainers(res.data.trainers || []);
+      const trainersData = res.data.trainers || [];
+      
+      // Debug: Log trainer data structure
+      if (trainersData.length > 0) {
+        console.log('Sample trainer data:', {
+          id: trainersData[0].id,
+          name: trainersData[0].user?.name,
+          email: trainersData[0].user?.email
+        });
+      }
+      
+      setTrainers(trainersData);
       setLoaded(true);
     } catch (err) {
       console.error(err);
@@ -203,15 +214,58 @@ const TrainerManagement = () => {
   };
 
   // Deactivate trainer
-  const handleDeactivateTrainer = async (id) => {
-    if (!window.confirm('Deactivate this trainer?')) return;
+  const handleDeactivateTrainer = async (trainerId) => {
+    // Validate trainer ID
+    if (!trainerId) {
+      toast.error('Invalid trainer ID');
+      return;
+    }
+
+    // Enhanced confirmation dialog
+    const trainer = trainers.find(t => t.id === trainerId);
+    const trainerName = trainer?.user?.name || 'this trainer';
+    
+    if (!window.confirm(
+      `⚠️ WARNING: Delete ${trainerName}?\n\n` +
+      `This will permanently delete:\n` +
+      `• Trainer profile and account\n` +
+      `• All salary and revenue records\n` +
+      `• All schedules and attendance\n` +
+      `• All messages and notifications\n\n` +
+      `Assigned trainees will be unassigned.\n\n` +
+      `This action CANNOT be undone!`
+    )) {
+      return;
+    }
+
     try {
       setActionLoading(true);
-      await adminApi.deleteTrainer(id);
-      toast.success('Trainer deactivated');
-      loadTrainers();
+      
+      // Log the ID being sent for debugging
+      console.log('Deleting trainer with ID:', trainerId);
+      
+      const response = await adminApi.deleteTrainer(trainerId);
+      
+      toast.success(`${trainerName} deleted successfully`);
+      
+      // Force refresh the trainers list
+      await loadTrainers(true);
+      
     } catch (err) {
-      toast.error('Failed to deactivate trainer');
+      console.error('Delete trainer error:', err);
+      
+      // Better error messages
+      if (err.response?.status === 401) {
+        toast.error('Unauthorized. Please login again.');
+      } else if (err.response?.status === 404) {
+        toast.error('Trainer not found');
+      } else if (err.response?.status === 400) {
+        toast.error('Invalid trainer ID format');
+      } else if (err.response?.data?.detail) {
+        toast.error(`Error: ${err.response.data.detail}`);
+      } else {
+        toast.error('Failed to delete trainer. Please try again.');
+      }
     } finally {
       setActionLoading(false);
     }
@@ -272,13 +326,13 @@ const TrainerManagement = () => {
       <div className="flex flex-col lg:flex-row justify-between gap-4">
         <div>
           <h2 className="text-3xl font-extrabold text-white tracking-tight">Trainer Management</h2>
-          <p className="text-gray-300 text-base mt-2 font-medium">
+          <p className="text-slate-300 text-base mt-2 font-medium">
             Add trainers, view details, manage payouts, attendance, salary, and assignments.
           </p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:scale-[1.02] transition-all"
+          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:scale-[1.02] transition-all"
         >
           <Plus className="w-5 h-5" />
           Add Trainer
@@ -296,8 +350,8 @@ const TrainerManagement = () => {
           >
             <div className="flex items-center justify-between p-6 border-b">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Add New Trainer</h2>
-                <p className="text-sm text-gray-500">Fill in all trainer details</p>
+                <h2 className="text-xl font-bold text-slate-900">Add New Trainer</h2>
+                <p className="text-sm text-slate-500">Fill in all trainer details</p>
               </div>
               <button onClick={() => setShowAddModal(false)} className="p-2 rounded-lg hover:bg-gray-100">
                 <X className="w-5 h-5" />
@@ -307,10 +361,10 @@ const TrainerManagement = () => {
               {/* Basic Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Full Name *</label>
                   <input
                     type="text"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                     value={trainerForm.name}
                     onChange={(e) => setTrainerForm({ ...trainerForm, name: e.target.value })}
                     placeholder="e.g. Rahul Patil"
@@ -318,10 +372,10 @@ const TrainerManagement = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Email *</label>
                   <input
                     type="email"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                     value={trainerForm.email}
                     onChange={(e) => setTrainerForm({ ...trainerForm, email: e.target.value })}
                     placeholder="e.g. rahul@fitmate.com"
@@ -329,41 +383,41 @@ const TrainerManagement = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
                   <input
                     type="tel"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                     value={trainerForm.phone}
                     onChange={(e) => setTrainerForm({ ...trainerForm, phone: e.target.value })}
                     placeholder="e.g. +91 9876543210"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Specialization</label>
                   <input
                     type="text"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                     value={trainerForm.specialization}
                     onChange={(e) => setTrainerForm({ ...trainerForm, specialization: e.target.value })}
                     placeholder="e.g. Weight Training, Yoga, CrossFit"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Experience (Years)</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Experience (Years)</label>
                   <input
                     type="number"
                     min="0"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                     value={trainerForm.experience_years}
                     onChange={(e) => setTrainerForm({ ...trainerForm, experience_years: e.target.value })}
                     placeholder="e.g. 5"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Certifications</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Certifications</label>
                   <input
                     type="text"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                     value={trainerForm.certifications}
                     onChange={(e) => setTrainerForm({ ...trainerForm, certifications: e.target.value })}
                     placeholder="e.g. ACE, NASM, ISSA"
@@ -376,9 +430,9 @@ const TrainerManagement = () => {
                 <h3 className="text-lg font-semibold text-gray-800 mb-3">Salary Configuration</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Salary Model</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Salary Model</label>
                     <select
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                       value={trainerForm.salary_model}
                       onChange={(e) => setTrainerForm({ ...trainerForm, salary_model: e.target.value })}
                     >
@@ -388,22 +442,22 @@ const TrainerManagement = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Base Salary (₹)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Base Salary (₹)</label>
                     <input
                       type="number"
                       min="0"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                       value={trainerForm.base_salary}
                       onChange={(e) => setTrainerForm({ ...trainerForm, base_salary: e.target.value })}
                       placeholder="e.g. 25000"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Per Session Rate (₹)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Per Session Rate (₹)</label>
                     <input
                       type="number"
                       min="0"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                       value={trainerForm.commission_per_session}
                       onChange={(e) => setTrainerForm({ ...trainerForm, commission_per_session: e.target.value })}
                       placeholder="e.g. 500"
@@ -414,9 +468,9 @@ const TrainerManagement = () => {
 
               {/* Bio */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Bio / About</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Bio / About</label>
                 <textarea
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                   value={trainerForm.bio}
                   onChange={(e) => setTrainerForm({ ...trainerForm, bio: e.target.value })}
                   placeholder="Brief description about the trainer..."
@@ -429,14 +483,14 @@ const TrainerManagement = () => {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                  className="px-4 py-2 text-sm font-medium text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-semibold shadow-md hover:shadow-lg disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-gradient-to-r from-sky-500 to-blue-600 text-white text-sm font-semibold shadow-md hover:shadow-lg disabled:opacity-50"
                 >
                   {loading ? (
                     <>
@@ -470,8 +524,8 @@ const TrainerManagement = () => {
           >
             <div className="flex items-center justify-between p-6 border-b">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Edit Trainer</h2>
-                <p className="text-sm text-gray-500">Update trainer details</p>
+                <h2 className="text-xl font-bold text-slate-900">Edit Trainer</h2>
+                <p className="text-sm text-slate-500">Update trainer details</p>
               </div>
               <button onClick={() => {setShowEditModal(false); setSelectedTrainerForEdit(null);}} className="p-2 rounded-lg hover:bg-gray-100">
                 <X className="w-5 h-5" />
@@ -481,61 +535,61 @@ const TrainerManagement = () => {
               {/* Basic Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
                   <input
                     type="text"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                     value={trainerForm.name}
                     onChange={(e) => setTrainerForm({ ...trainerForm, name: e.target.value })}
                     placeholder="e.g. Rahul Patil"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
                   <input
                     type="email"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                     value={trainerForm.email}
                     onChange={(e) => setTrainerForm({ ...trainerForm, email: e.target.value })}
                     placeholder="e.g. rahul@fitmate.com"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
                   <input
                     type="tel"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                     value={trainerForm.phone}
                     onChange={(e) => setTrainerForm({ ...trainerForm, phone: e.target.value })}
                     placeholder="e.g. +91 9876543210"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Specialization</label>
                   <input
                     type="text"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                     value={trainerForm.specialization}
                     onChange={(e) => setTrainerForm({ ...trainerForm, specialization: e.target.value })}
                     placeholder="e.g. Weight Training, Yoga, CrossFit"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Experience (Years)</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Experience (Years)</label>
                   <input
                     type="number"
                     min="0"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                     value={trainerForm.experience_years}
                     onChange={(e) => setTrainerForm({ ...trainerForm, experience_years: e.target.value })}
                     placeholder="e.g. 5"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Certifications</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Certifications</label>
                   <input
                     type="text"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                     value={trainerForm.certifications}
                     onChange={(e) => setTrainerForm({ ...trainerForm, certifications: e.target.value })}
                     placeholder="e.g. ACE, NASM, ISSA"
@@ -548,9 +602,9 @@ const TrainerManagement = () => {
                 <h3 className="text-lg font-semibold text-gray-800 mb-3">Salary Configuration</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Salary Model</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Salary Model</label>
                     <select
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                       value={trainerForm.salary_model}
                       onChange={(e) => setTrainerForm({ ...trainerForm, salary_model: e.target.value })}
                     >
@@ -560,22 +614,22 @@ const TrainerManagement = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Base Salary (₹)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Base Salary (₹)</label>
                     <input
                       type="number"
                       min="0"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                       value={trainerForm.base_salary}
                       onChange={(e) => setTrainerForm({ ...trainerForm, base_salary: e.target.value })}
                       placeholder="e.g. 25000"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Per Session Rate (₹)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Per Session Rate (₹)</label>
                     <input
                       type="number"
                       min="0"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                       value={trainerForm.commission_per_session}
                       onChange={(e) => setTrainerForm({ ...trainerForm, commission_per_session: e.target.value })}
                       placeholder="e.g. 500"
@@ -586,9 +640,9 @@ const TrainerManagement = () => {
 
               {/* Bio */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Bio / About</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Bio / About</label>
                 <textarea
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                   value={trainerForm.bio}
                   onChange={(e) => setTrainerForm({ ...trainerForm, bio: e.target.value })}
                   placeholder="Brief description about the trainer..."
@@ -601,14 +655,14 @@ const TrainerManagement = () => {
                 <button
                   type="button"
                   onClick={() => {setShowEditModal(false); setSelectedTrainerForEdit(null);}}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                  className="px-4 py-2 text-sm font-medium text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-semibold shadow-md hover:shadow-lg disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-gradient-to-r from-sky-500 to-blue-600 text-white text-sm font-semibold shadow-md hover:shadow-lg disabled:opacity-50"
                 >
                   {actionLoading ? (
                     <>
@@ -634,10 +688,10 @@ const TrainerManagement = () => {
       {/* Search & Filter */}
       <div className="flex items-center gap-3">
         <div className="relative w-full max-w-xs">
-          <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
           <input
             type="text"
-            className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
             placeholder="Search trainers by name or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -654,90 +708,114 @@ const TrainerManagement = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="group bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 overflow-hidden"
+            className="group relative bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-slate-200/50 overflow-hidden"
           >
+            {/* Gradient Background Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-sky-50/50 via-white to-indigo-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            
             {/* Status Badge */}
             <div className="absolute top-4 right-4 z-10">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${
+              <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm backdrop-blur-sm ${
                 t.status === 'active'
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  ? 'bg-emerald-500/90 text-white border border-emerald-400/50'
                   : t.status === 'inactive'
-                  ? 'bg-red-50 text-red-700 border-red-200'
-                  : 'bg-gray-50 text-gray-700 border-gray-200'
+                  ? 'bg-red-500/90 text-white border border-red-400/50'
+                  : 'bg-slate-500/90 text-white border border-slate-400/50'
               }`}>
                 {t.status || 'active'}
               </span>
             </div>
 
-            <div className="p-6 flex flex-col h-full">
-              {/* Header */}
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white shadow-lg flex-shrink-0">
-                  <Award className="w-8 h-8" />
+            <div className="relative p-6 flex flex-col h-full">
+              {/* Header with Avatar */}
+              <div className="flex items-start gap-4 mb-5">
+                <div className="relative flex-shrink-0">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 flex items-center justify-center text-white shadow-xl ring-4 ring-emerald-100 group-hover:ring-emerald-200 transition-all duration-300">
+                    <Award className="w-10 h-10" strokeWidth={2.5} />
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                    <span className="text-xs font-bold text-white">★</span>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-sky-600 transition-colors mb-1 truncate">
                     {t.user?.name || 'Trainer'}
                   </h3>
-                  <p className="text-sm text-gray-500 truncate">{t.user?.email}</p>
+                  <p className="text-sm text-slate-500 truncate mb-2">{t.user?.email}</p>
+                  
+                  {/* Specialization Tag */}
+                  {t.specialization && (
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 bg-gradient-to-r from-indigo-50 to-purple-50 px-3 py-1.5 rounded-full border border-indigo-200/50 shadow-sm">
+                      <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>
+                      {t.specialization}
+                    </span>
+                  )}
                 </div>
               </div>
 
-              {/* Specialization */}
-              {t.specialization && (
-                <div className="mb-4 pb-4 border-b border-gray-100">
-                  <p className="text-xs text-gray-500 font-medium mb-1">Specialization</p>
-                  <p className="text-sm font-semibold text-orange-600 bg-orange-50 inline-block px-3 py-1 rounded-full">
-                    {t.specialization}
-                  </p>
+              {/* Stats Grid with Icons */}
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                <div className="group/stat bg-gradient-to-br from-blue-50 to-blue-100/70 rounded-xl p-4 border border-blue-200/50 hover:shadow-md transition-all duration-300">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                      <Award className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <p className="text-xs text-slate-600 font-semibold">Experience</p>
+                  </div>
+                  <p className="text-2xl font-bold text-blue-700 mb-0.5">{t.experience_years || 0}</p>
+                  <p className="text-xs text-slate-500 font-medium">Years</p>
                 </div>
-              )}
-
-              {/* Experience Grid */}
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 border border-blue-100">
-                  <p className="text-xs text-gray-600 font-medium mb-1">Experience</p>
-                  <p className="text-xl font-bold text-blue-700">{t.experience_years || 0}</p>
-                  <p className="text-xs text-gray-500">Years</p>
-                </div>
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-3 border border-purple-100">
-                  <p className="text-xs text-gray-600 font-medium mb-1">Trainees</p>
-                  <p className="text-xl font-bold text-purple-700">{t.assigned_trainees || 0}</p>
-                  <p className="text-xs text-gray-500">Assigned</p>
+                <div className="group/stat bg-gradient-to-br from-purple-50 to-purple-100/70 rounded-xl p-4 border border-purple-200/50 hover:shadow-md transition-all duration-300">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <p className="text-xs text-slate-600 font-semibold">Trainees</p>
+                  </div>
+                  <p className="text-2xl font-bold text-purple-700 mb-0.5">{t.assigned_trainees || 0}</p>
+                  <p className="text-xs text-slate-500 font-medium">Assigned</p>
                 </div>
               </div>
 
-              {/* Salary Info */}
+              {/* Compensation Section */}
               {(t.base_salary || t.commission_per_session) && (
-                <div className="mb-4 pb-4 border-b border-gray-100">
-                  <p className="text-xs text-gray-500 font-medium mb-2">Compensation</p>
+                <div className="mb-5 p-4 bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-xl border border-slate-200/50">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                      <DollarSign className="w-4 h-4 text-white" />
+                    </div>
+                    <p className="text-xs text-slate-700 font-bold uppercase tracking-wide">Compensation</p>
+                  </div>
                   <div className="flex gap-2 flex-wrap">
                     {t.base_salary && (
-                      <div className="bg-green-50 px-3 py-1 rounded-lg border border-green-100">
-                        <p className="text-xs text-gray-600">Base:</p>
-                        <p className="text-sm font-bold text-green-700">₹{t.base_salary.toLocaleString()}</p>
+                      <div className="flex-1 min-w-[120px] bg-white px-3 py-2.5 rounded-lg border border-green-200/50 shadow-sm hover:shadow-md transition-shadow">
+                        <p className="text-xs text-slate-500 font-medium mb-1">Base Salary</p>
+                        <p className="text-lg font-bold text-green-700">₹{t.base_salary.toLocaleString()}</p>
                       </div>
                     )}
                     {t.commission_per_session && (
-                      <div className="bg-cyan-50 px-3 py-1 rounded-lg border border-cyan-100">
-                        <p className="text-xs text-gray-600">Per Session:</p>
-                        <p className="text-sm font-bold text-cyan-700">₹{t.commission_per_session.toLocaleString()}</p>
+                      <div className="flex-1 min-w-[120px] bg-white px-3 py-2.5 rounded-lg border border-cyan-200/50 shadow-sm hover:shadow-md transition-shadow">
+                        <p className="text-xs text-slate-500 font-medium mb-1">Per Session</p>
+                        <p className="text-lg font-bold text-cyan-700">₹{t.commission_per_session.toLocaleString()}</p>
                       </div>
                     )}
                   </div>
                 </div>
               )}
 
-              {/* Created Date */}
-              <div className="mb-4 pb-4 border-b border-gray-100 flex items-center gap-2 text-xs text-gray-500">
-                <Calendar className="w-4 h-4" />
-                <span>Joined: {t.created_at ? new Date(t.created_at).toLocaleDateString() : '—'}</span>
+              {/* Joined Date */}
+              <div className="mb-5 flex items-center gap-2 px-3 py-2 bg-slate-50/50 rounded-lg border border-slate-200/50">
+                <Calendar className="w-4 h-4 text-slate-400" />
+                <span className="text-xs text-slate-600 font-medium">
+                  Joined {t.created_at ? new Date(t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
+                </span>
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-2 mt-auto">
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-2 mt-auto">
                 <button
-                  className="flex-1 flex items-center justify-center gap-2 p-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors font-medium text-sm"
+                  disabled={actionLoading}
+                  className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200/50 hover:border-blue-300 transition-all font-semibold text-sm shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                   title="View Details"
                   onClick={() => openDetails(t)}
                 >
@@ -745,7 +823,8 @@ const TrainerManagement = () => {
                   View
                 </button>
                 <button
-                  className="flex-1 flex items-center justify-center gap-2 p-2 rounded-lg text-orange-600 bg-orange-50 hover:bg-orange-100 transition-colors font-medium text-sm"
+                  disabled={actionLoading}
+                  className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sky-600 bg-sky-50 hover:bg-sky-100 border border-sky-200/50 hover:border-sky-300 transition-all font-semibold text-sm shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                   title="Edit Trainer"
                   onClick={() => handleEditTrainer(t)}
                 >
@@ -753,7 +832,8 @@ const TrainerManagement = () => {
                   Edit
                 </button>
                 <button
-                  className="flex-1 flex items-center justify-center gap-2 p-2 rounded-lg text-purple-600 bg-purple-50 hover:bg-purple-100 transition-colors font-medium text-sm"
+                  disabled={actionLoading}
+                  className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-purple-600 bg-purple-50 hover:bg-purple-100 border border-purple-200/50 hover:border-purple-300 transition-all font-semibold text-sm shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                   title="Reset Password"
                   onClick={() => openPasswordResetModal(t)}
                 >
@@ -761,11 +841,19 @@ const TrainerManagement = () => {
                   Password
                 </button>
                 <button
-                  className="flex-1 flex items-center justify-center gap-2 p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition-colors font-medium text-sm"
-                  title="Deactivate Trainer"
+                  disabled={actionLoading}
+                  className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-red-600 bg-red-50 hover:bg-red-100 border border-red-200/50 hover:border-red-300 transition-all font-semibold text-sm shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Delete Trainer"
                   onClick={() => handleDeactivateTrainer(t.id)}
                 >
-                  <Trash2 className="w-4 h-4" />
+                  {actionLoading ? (
+                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
                   Delete
                 </button>
               </div>
@@ -775,12 +863,12 @@ const TrainerManagement = () => {
 
         {filteredTrainers.length === 0 && !loading && (
           <div className="col-span-full bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-xl p-12 text-center border border-blue-100">
-            <Award className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="font-semibold text-gray-700 text-lg mb-2">No Trainers Found</p>
-            <p className="text-gray-500 text-sm mb-6">Start managing your gym by adding trainers</p>
+            <Award className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+            <p className="font-semibold text-slate-700 text-lg mb-2">No Trainers Found</p>
+            <p className="text-slate-500 text-sm mb-6">Start managing your gym by adding trainers</p>
             <button 
               onClick={() => setShowAddModal(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:shadow-lg transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all"
             >
               <UserPlus className="w-5 h-5" />
               Add First Trainer
@@ -849,8 +937,8 @@ const TrainerDetailsDrawer = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Trainer Details</h2>
-            <p className="text-xs text-gray-500">{profile.name} ({profile.email})</p>
+            <h2 className="text-xl font-bold text-slate-900">Trainer Details</h2>
+            <p className="text-xs text-slate-500">{profile.name} ({profile.email})</p>
           </div>
           <div className="flex items-center gap-2">
             <button 
@@ -874,45 +962,45 @@ const TrainerDetailsDrawer = ({
           {/* Profile */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="font-semibold text-gray-700">Specialization</div>
-              <div className="text-sm text-gray-500">{profile.specialization || '—'}</div>
+              <div className="font-semibold text-slate-700">Specialization</div>
+              <div className="text-sm text-slate-500">{profile.specialization || '—'}</div>
             </div>
             <div>
-              <div className="font-semibold text-gray-700">Experience</div>
-              <div className="text-sm text-gray-500">{profile.experience_years || 0} yrs</div>
+              <div className="font-semibold text-slate-700">Experience</div>
+              <div className="text-sm text-slate-500">{profile.experience_years || 0} yrs</div>
             </div>
             <div>
-              <div className="font-semibold text-gray-700">Certifications</div>
-              <div className="text-sm text-gray-500">{profile.certifications || '—'}</div>
+              <div className="font-semibold text-slate-700">Certifications</div>
+              <div className="text-sm text-slate-500">{profile.certifications || '—'}</div>
             </div>
             <div>
-              <div className="font-semibold text-gray-700">Status</div>
-              <div className="text-sm text-gray-500">{profile.is_active ? 'Active' : 'Inactive'}</div>
+              <div className="font-semibold text-slate-700">Status</div>
+              <div className="text-sm text-slate-500">{profile.is_active ? 'Active' : 'Inactive'}</div>
             </div>
           </div>
 
           {/* Salary Config */}
-          <div className="bg-orange-50 rounded-lg p-4">
+          <div className="bg-sky-50 rounded-lg p-4">
             <div className="font-semibold text-orange-700 mb-1">Salary Model</div>
-            <div className="text-sm text-gray-700">{salary.model || '—'}</div>
+            <div className="text-sm text-slate-700">{salary.model || '—'}</div>
             <div className="font-semibold text-orange-700 mt-2">Base Salary</div>
-            <div className="text-sm text-gray-700">₹{salary.base_salary || 0}</div>
+            <div className="text-sm text-slate-700">₹{salary.base_salary || 0}</div>
           </div>
 
           {/* Assigned Trainees */}
           <div>
-            <div className="font-semibold text-gray-700 mb-2">Assigned Trainees</div>
+            <div className="font-semibold text-slate-700 mb-2">Assigned Trainees</div>
             <div className="space-y-2">
               {trainees.length === 0 ? (
-                <div className="text-gray-400 text-sm">No trainees assigned</div>
+                <div className="text-slate-400 text-sm">No trainees assigned</div>
               ) : (
                 trainees.map((t) => (
-                  <div key={t.id} className="bg-gray-50 rounded-lg p-2 flex items-center justify-between">
+                  <div key={t.id} className="bg-slate-50 rounded-lg p-2 flex items-center justify-between">
                     <div>
                       <div className="font-medium text-gray-800">{t.name}</div>
-                      <div className="text-xs text-gray-500">{t.email}</div>
+                      <div className="text-xs text-slate-500">{t.email}</div>
                     </div>
-                    <div className="text-xs text-gray-400">{t.membership_status}</div>
+                    <div className="text-xs text-slate-400">{t.membership_status}</div>
                   </div>
                 ))
               )}
@@ -921,7 +1009,7 @@ const TrainerDetailsDrawer = ({
 
           {/* Attendance */}
           <div>
-            <div className="font-semibold text-gray-700 mb-2">Attendance (This Month)</div>
+            <div className="font-semibold text-slate-700 mb-2">Attendance (This Month)</div>
             <div className="overflow-x-auto">
               <table className="min-w-full text-xs">
                 <thead>
@@ -935,7 +1023,7 @@ const TrainerDetailsDrawer = ({
                 </thead>
                 <tbody>
                   {attendance.length === 0 ? (
-                    <tr><td colSpan={5} className="text-center text-gray-400 py-2">No attendance records</td></tr>
+                    <tr><td colSpan={5} className="text-center text-slate-400 py-2">No attendance records</td></tr>
                   ) : (
                     attendance.map((a, idx) => (
                       <tr key={idx}>
@@ -954,7 +1042,7 @@ const TrainerDetailsDrawer = ({
 
           {/* Payouts */}
           <div>
-            <div className="font-semibold text-gray-700 mb-2">Payouts</div>
+            <div className="font-semibold text-slate-700 mb-2">Payouts</div>
             <div className="overflow-x-auto">
               <table className="min-w-full text-xs">
                 <thead>
@@ -966,7 +1054,7 @@ const TrainerDetailsDrawer = ({
                 </thead>
                 <tbody>
                   {payouts.length === 0 ? (
-                    <tr><td colSpan={3} className="text-center text-gray-400 py-2">No payouts</td></tr>
+                    <tr><td colSpan={3} className="text-center text-slate-400 py-2">No payouts</td></tr>
                   ) : (
                     payouts.map((p, idx) => (
                       <tr key={idx}>
@@ -983,7 +1071,7 @@ const TrainerDetailsDrawer = ({
 
           {/* PT Sessions */}
           <div>
-            <div className="font-semibold text-gray-700 mb-2">Recent PT Sessions</div>
+            <div className="font-semibold text-slate-700 mb-2">Recent PT Sessions</div>
             <div className="overflow-x-auto">
               <table className="min-w-full text-xs">
                 <thead>
@@ -995,7 +1083,7 @@ const TrainerDetailsDrawer = ({
                 </thead>
                 <tbody>
                   {ptSessions.length === 0 ? (
-                    <tr><td colSpan={3} className="text-center text-gray-400 py-2">No PT sessions</td></tr>
+                    <tr><td colSpan={3} className="text-center text-slate-400 py-2">No PT sessions</td></tr>
                   ) : (
                     ptSessions.map((s, idx) => (
                       <tr key={idx}>
@@ -1012,16 +1100,16 @@ const TrainerDetailsDrawer = ({
 
           {/* Weekly Schedule */}
           <div>
-            <div className="font-semibold text-gray-700 mb-2">Weekly Schedule</div>
+            <div className="font-semibold text-slate-700 mb-2">Weekly Schedule</div>
             <div className="grid grid-cols-2 gap-2">
               {schedule.length === 0 ? (
-                <div className="text-gray-400 text-sm">No schedule set</div>
+                <div className="text-slate-400 text-sm">No schedule set</div>
               ) : (
                 schedule.map((s) => (
-                  <div key={s.id} className="bg-gray-50 rounded-lg p-2">
+                  <div key={s.id} className="bg-slate-50 rounded-lg p-2">
                     <div className="font-medium text-gray-800">{s.day_name}</div>
-                    <div className="text-xs text-gray-500">{s.start_time} - {s.end_time}</div>
-                    <div className="text-xs text-gray-400">{s.is_available ? 'Available' : 'Not Available'}</div>
+                    <div className="text-xs text-slate-500">{s.start_time} - {s.end_time}</div>
+                    <div className="text-xs text-slate-400">{s.is_available ? 'Available' : 'Not Available'}</div>
                   </div>
                 ))
               )}
@@ -1038,13 +1126,13 @@ const TrainerDetailsDrawer = ({
               <Lock className="w-6 h-6 text-purple-600" />
               <h2 className="text-xl font-bold text-gray-800">Reset Password</h2>
             </div>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-slate-600 mb-4">
               Set a new password for <span className="font-semibold">{passwordResetTarget?.user?.name}</span> ({passwordResetTarget?.user?.email})
             </p>
             
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-2">
                   New Password
                 </label>
                 <input
@@ -1052,7 +1140,7 @@ const TrainerDetailsDrawer = ({
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Enter new password (min 6 characters)"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
             </div>

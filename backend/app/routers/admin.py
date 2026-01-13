@@ -2,7 +2,6 @@
 # ====================== ADMIN MESSAGING ======================
 
 from typing import List
-from app.models import Message
 from pydantic import BaseModel
 
 
@@ -49,6 +48,25 @@ from app.models import (
     Equipment,           # ✅ Import Equipment for dashboard
     TrainerRevenue,      # ✅ Import TrainerRevenue for billing/payments
     TrainerSalary,       # ✅ Import TrainerSalary for trainer creation
+    Message,             # ✅ Import Message for deletion
+    Notification,        # ✅ Import Notification for admin notifications
+    # Models for deletion
+    AIReport,
+    Measurement,
+    ProgressMeasurement,
+    NutritionLog,
+    DietPlan,
+    WorkoutPlan,
+    Attendance,
+    ProgressPhoto,
+    AdminSession,
+    TrainerSchedule,
+    TrainerAttendance,
+    # TrainerDocument,     # ❌ Removed - schema mismatch, using raw SQL instead
+    # TrainerLeave,        # ❌ Removed - schema mismatch, using raw SQL instead
+    TrainerMessage,      # ✅ Import TrainerMessage for deletion
+    PTSession,           # ✅ Import PTSession for deletion
+    GymScheduleSlot,     # ✅ Import GymScheduleSlot for deletion
 )
 from app.auth_util import get_admin_user, get_password_hash
 
@@ -729,27 +747,31 @@ async def get_complete_dashboard(
         
         
         # ===== NOTIFICATIONS =====
+        # Fetch real notifications from database (including feedback)
         notifications = []
         try:
-            recent_signups = db.query(User).filter(User.role == UserRole.TRAINEE).order_by(User.created_at.desc()).limit(5).all()
-            for u in recent_signups:
-                notifications.append({
-                    "type": "signup",
-                    "message": f"New trainee: {u.name}",
-                    "created_at": u.created_at.isoformat() if u.created_at else None,
-                    "importance": "normal",
-                })
+            # Get actual notifications for the admin user
+            db_notifications = db.query(Notification).filter(
+                Notification.user_id == current_user.id
+            ).order_by(Notification.created_at.desc()).limit(15).all()
             
-            recent_payments = db.query(Payment).order_by(Payment.created_at.desc()).limit(3).all()
-            for p in recent_payments:
+            for n in db_notifications:
+                # Format message to show title and content
+                display_message = f"{n.title}"
+                if n.message and n.message != n.title:
+                    display_message = f"{n.title}: {n.message[:100]}"  # Truncate long messages
+                    
                 notifications.append({
-                    "type": "payment",
-                    "message": f"Payment: ₹{p.amount} from {p.trainee.name if p.trainee else 'Unknown'}",
-                    "created_at": p.created_at.isoformat() if p.created_at else None,
-                    "importance": "important",
+                    "id": n.id,
+                    "type": n.notification_type or "general",
+                    "title": n.title,
+                    "message": display_message,
+                    "is_read": n.is_read,
+                    "created_at": n.created_at.isoformat() if n.created_at else None,
+                    "importance": "important" if n.notification_type == "feedback" else "normal",
                 })
-        except:
-            pass
+        except Exception as e:
+            print(f"Error fetching notifications: {e}")
         
         # ===== SYSTEM HEALTH =====
         health_status = {
@@ -1490,7 +1512,7 @@ async def delete_user(
     current_user: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
-    """Delete/deactivate a user (soft delete - sets is_active to False)"""
+    """Permanently delete a user and all related data"""
     try:
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
@@ -1504,11 +1526,101 @@ async def delete_user(
         if user.role == UserRole.ADMIN:
             raise HTTPException(status_code=403, detail="Cannot delete admin users")
         
-        # Soft delete: deactivate user
-        user.is_active = False
-        db.commit()
+        # Permanently delete user and all related data
+        # IMPORTANT: Delete in correct order to avoid foreign key constraint errors
         
-        return {"message": "User deactivated successfully"}
+        # 1. Get trainee profile first (needed for AIReport and TrainerMessage)
+        trainee = db.query(Trainee).filter(Trainee.user_id == user_id).first()
+        
+        # 2. Delete trainer messages (references trainee.id and trainer.id)
+        if trainee:
+            db.query(TrainerMessage).filter(
+                (TrainerMessage.trainee_id == trainee.id) | 
+                (TrainerMessage.sender_id == user_id) | 
+                (TrainerMessage.receiver_id == user_id)
+            ).delete(synchronize_session=False)
+        
+        # 3. Delete AI reports (references trainee.id, not user.id)
+        if trainee:
+            db.query(AIReport).filter(AIReport.trainee_id == trainee.id).delete(synchronize_session=False)
+        
+        # 4. Delete workouts (references user.id)
+        db.query(Workout).filter(Workout.trainee_id == user_id).delete(synchronize_session=False)
+        
+        # 5. Delete measurements
+        db.query(Measurement).filter(Measurement.trainee_id == user_id).delete(synchronize_session=False)
+        
+        # 6. Delete progress measurements
+        db.query(ProgressMeasurement).filter(ProgressMeasurement.trainee_id == user_id).delete(synchronize_session=False)
+        
+        # 7. Delete nutrition logs
+        db.query(NutritionLog).filter(NutritionLog.trainee_id == user_id).delete(synchronize_session=False)
+        
+        # 8. Delete diet plans
+        db.query(DietPlan).filter(DietPlan.trainee_id == user_id).delete(synchronize_session=False)
+        
+        # 9. Delete workout plans
+        db.query(WorkoutPlan).filter(WorkoutPlan.trainee_id == user_id).delete(synchronize_session=False)
+        
+        # 10. Delete payments
+        db.query(Payment).filter(Payment.trainee_id == user_id).delete(synchronize_session=False)
+        
+        # 11. Delete memberships
+        db.query(Membership).filter(Membership.trainee_id == user_id).delete(synchronize_session=False)
+        
+        # 12. Delete attendance records
+        db.query(Attendance).filter(Attendance.trainee_id == user_id).delete(synchronize_session=False)
+        
+        # 13. Delete progress photos
+        db.query(ProgressPhoto).filter(ProgressPhoto.trainee_id == user_id).delete(synchronize_session=False)
+        
+        # 14. Delete messages (sent and received)
+        db.query(Message).filter(
+            (Message.sender_id == user_id) | (Message.receiver_id == user_id)
+        ).delete(synchronize_session=False)
+        
+        # 15. Delete admin sessions
+        db.query(AdminSession).filter(AdminSession.user_id == user_id).delete(synchronize_session=False)
+        
+        # 16. Delete trainer profile if exists (must be before user)
+        trainer = db.query(Trainer).filter(Trainer.user_id == user_id).first()
+        if trainer:
+            # Delete trainer-related data
+            db.query(TrainerRevenue).filter(TrainerRevenue.trainer_id == trainer.id).delete(synchronize_session=False)
+            db.query(TrainerSalary).filter(TrainerSalary.trainer_id == trainer.id).delete(synchronize_session=False)
+            db.query(TrainerSchedule).filter(TrainerSchedule.trainer_id == trainer.id).delete(synchronize_session=False)
+            db.query(TrainerAttendance).filter(TrainerAttendance.trainer_id == trainer.id).delete(synchronize_session=False)
+            
+            # Use raw SQL for tables with schema mismatches
+            from sqlalchemy import text
+            trainer_id_str = str(trainer.id)
+            try:
+                db.execute(text("DELETE FROM trainer_documents WHERE trainer_id = :tid"), {"tid": trainer_id_str})
+            except Exception:
+                pass  # Table may not exist or have schema mismatch
+            try:
+                db.execute(text("DELETE FROM trainer_leaves WHERE trainer_id = :tid"), {"tid": trainer_id_str})
+            except Exception:
+                pass  # Table may not exist or have schema mismatch
+            
+            # Update trainees assigned to this trainer (set trainer_id to NULL)
+            db.query(Trainee).filter(Trainee.trainer_id == trainer.id).update(
+                {Trainee.trainer_id: None},
+                synchronize_session=False
+            )
+            
+            # Delete trainer profile
+            db.delete(trainer)
+        
+        # 17. Delete trainee profile (must be before user)
+        if trainee:
+            db.delete(trainee)
+        
+        # 18. Finally, delete the user
+        db.delete(user)
+        
+        db.commit()
+        return {"message": "User and all related data deleted permanently"}
     
     except HTTPException:
         raise
@@ -1653,58 +1765,77 @@ async def get_members(
     """List members (trainees) with trainer + membership info - OPTIMIZED"""
     from sqlalchemy.orm import joinedload
     
-    # Eager load relationships to prevent N+1 queries
-    trainees = db.query(Trainee).options(
-        joinedload(Trainee.user),
-        joinedload(Trainee.trainer).joinedload(Trainer.user)
-    ).offset(skip).limit(limit).all()
-    
-    # Get all memberships for these trainees in one query
-    trainee_ids = [t.user.id for t in trainees]
-    memberships_dict = {}
-    if trainee_ids:
-        memberships = db.query(Membership).filter(
-            Membership.trainee_id.in_(trainee_ids)
-        ).order_by(Membership.created_at.desc()).all()
+    try:
+        # Eager load relationships to prevent N+1 queries
+        # Join with User to ensure only trainees with valid user accounts
+        trainees = db.query(Trainee).join(User).options(
+            joinedload(Trainee.user),
+            joinedload(Trainee.trainer).joinedload(Trainer.user)
+        ).offset(skip).limit(limit).all()
         
-        for m in memberships:
-            if m.trainee_id not in memberships_dict:
-                memberships_dict[m.trainee_id] = []
-            memberships_dict[m.trainee_id].append(m)
+        # Get all memberships for these trainees in one query
+        trainee_ids = [t.user.id for t in trainees if t.user]
+        memberships_dict = {}
+        if trainee_ids:
+            memberships = db.query(Membership).filter(
+                Membership.trainee_id.in_(trainee_ids)
+            ).order_by(Membership.created_at.desc()).all()
+            
+            for m in memberships:
+                if m.trainee_id not in memberships_dict:
+                    memberships_dict[m.trainee_id] = []
+                memberships_dict[m.trainee_id].append(m)
 
-    result = []
-    for trainee in trainees:
-        user = trainee.user
-        trainer_name = trainee.trainer.user.name if trainee.trainer else None
+        result = []
+        for trainee in trainees:
+            try:
+                # Skip if user is None (orphaned trainee record)
+                if not trainee.user:
+                    print(f"Warning: Trainee {trainee.id} has no associated user, skipping")
+                    continue
+                    
+                user = trainee.user
+                trainer_name = trainee.trainer.user.name if trainee.trainer and trainee.trainer.user else None
 
-        memberships = memberships_dict.get(user.id, [])
+                memberships = memberships_dict.get(user.id, [])
 
-        memberships_data = [
-            {
-                "id": m.id,
-                "membership_type": m.membership_type,
-                "status": m.status,
-                "start_date": m.start_date.isoformat() if m.start_date else None,
-                "end_date": m.end_date.isoformat() if m.end_date else None,
-                "created_at": m.created_at.isoformat() if m.created_at else None,
-                "price": m.price,
-            }
-            for m in memberships
-        ]
+                memberships_data = [
+                    {
+                        "id": m.id,
+                        "membership_type": m.membership_type,
+                        "status": m.status,
+                        "start_date": m.start_date.isoformat() if m.start_date else None,
+                        "end_date": m.end_date.isoformat() if m.end_date else None,
+                        "created_at": m.created_at.isoformat() if m.created_at else None,
+                        "price": m.price,
+                    }
+                    for m in memberships
+                ]
 
-        result.append(
-            {
-                "id": user.id,
-                "name": user.name,
-                "email": user.email,
-                "phone": user.phone,
-                "trainer_name": trainer_name,
-                "memberships": memberships_data,
-                "created_at": user.created_at.isoformat() if user.created_at else None,
-            }
-        )
+                result.append(
+                    {
+                        "id": user.id,
+                        "name": user.name,
+                        "email": user.email,
+                        "phone": user.phone,
+                        "trainer_name": trainer_name,
+                        "memberships": memberships_data,
+                        "created_at": user.created_at.isoformat() if user.created_at else None,
+                    }
+                )
+            except Exception as e:
+                print(f"Error processing trainee {trainee.id}: {e}")
+                import traceback
+                traceback.print_exc()
+                continue
 
-    return {"members": result}
+        return {"members": result}
+        
+    except Exception as e:
+        print(f"ERROR in get_members: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Error fetching members: {str(e)}")
 
 
 @router.put("/members/{member_id}")
@@ -1733,7 +1864,7 @@ async def update_member(
 
 
 @router.get("/members/{member_id}")
-async def get_member_details(
+def get_member_details(
     member_id: int,
     current_user: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
@@ -1807,12 +1938,12 @@ async def get_member_details(
 
 
 @router.delete("/members/{member_id}")
-async def delete_member(
+def delete_member(
     member_id: int,
     current_user: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
-    """Soft-delete: deactivate member (trainee)"""
+    """Permanently delete member (trainee) and all related data"""
     
     try:
         user = db.query(User).filter(User.id == member_id).first()
@@ -1823,14 +1954,61 @@ async def delete_member(
         if user.role == UserRole.ADMIN:
             raise HTTPException(status_code=403, detail="Cannot delete admin users")
         
-        # Soft delete: just deactivate
-        user.is_active = False
+        # Get trainee profile first (needed for foreign key references)
+        trainee = db.query(Trainee).filter(Trainee.user_id == member_id).first()
+        trainee_id = trainee.id if trainee else None
+        
+        # Batch delete all related data in optimal order
+        # Using synchronize_session=False for better performance
+        
+        # Delete records referencing trainee.id
+        if trainee_id:
+            db.query(TrainerMessage).filter(
+                TrainerMessage.trainee_id == trainee_id
+            ).delete(synchronize_session=False)
+            
+            db.query(AIReport).filter(
+                AIReport.trainee_id == trainee_id
+            ).delete(synchronize_session=False)
+        
+        # Delete records referencing user_id as trainee_id
+        db.query(Workout).filter(Workout.trainee_id == member_id).delete(synchronize_session=False)
+        db.query(Measurement).filter(Measurement.trainee_id == member_id).delete(synchronize_session=False)
+        db.query(ProgressMeasurement).filter(ProgressMeasurement.trainee_id == member_id).delete(synchronize_session=False)
+        db.query(NutritionLog).filter(NutritionLog.trainee_id == member_id).delete(synchronize_session=False)
+        db.query(DietPlan).filter(DietPlan.trainee_id == member_id).delete(synchronize_session=False)
+        db.query(WorkoutPlan).filter(WorkoutPlan.trainee_id == member_id).delete(synchronize_session=False)
+        db.query(Payment).filter(Payment.trainee_id == member_id).delete(synchronize_session=False)
+        db.query(Membership).filter(Membership.trainee_id == member_id).delete(synchronize_session=False)
+        db.query(Attendance).filter(Attendance.trainee_id == member_id).delete(synchronize_session=False)
+        db.query(ProgressPhoto).filter(ProgressPhoto.trainee_id == member_id).delete(synchronize_session=False)
+        
+        # Delete messages (sender or receiver)
+        db.query(Message).filter(
+            (Message.sender_id == member_id) | (Message.receiver_id == member_id)
+        ).delete(synchronize_session=False)
+        
+        # Delete trainer messages by user_id
+        db.query(TrainerMessage).filter(
+            (TrainerMessage.sender_id == member_id) | (TrainerMessage.receiver_id == member_id)
+        ).delete(synchronize_session=False)
+        
+        # Delete admin sessions
+        db.query(AdminSession).filter(AdminSession.user_id == member_id).delete(synchronize_session=False)
+        
+        # Delete trainee profile
+        if trainee:
+            db.delete(trainee)
+        
+        # Finally delete the user
+        db.delete(user)
+        
+        # Commit all changes at once
         db.commit()
         
-        return {"message": "Member deactivated successfully"}
+        return {"success": True, "message": "Member and all related data deleted permanently"}
     
     except HTTPException:
-        # Re-raise HTTP exceptions
         raise
     except Exception as e:
         db.rollback()
@@ -2182,11 +2360,59 @@ async def get_membership_plans(
     }
 
 
+@router.put("/membership-plans/{plan_id}")
+async def update_membership_plan(
+    plan_id: int,
+    plan_data: MembershipPlanCreate,
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db),
+):
+    """Update a membership plan"""
+    plan = db.query(MembershipPlan).filter(MembershipPlan.id == plan_id).first()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Membership plan not found")
+    
+    for key, value in plan_data.dict().items():
+        setattr(plan, key, value)
+    
+    db.commit()
+    db.refresh(plan)
+    return {"message": "Membership plan updated", "plan_id": plan.id}
+
+
+@router.delete("/membership-plans/{plan_id}")
+async def delete_membership_plan(
+    plan_id: int,
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db),
+):
+    """Delete a membership plan"""
+    plan = db.query(MembershipPlan).filter(MembershipPlan.id == plan_id).first()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Membership plan not found")
+    
+    # Check if any active memberships are using this plan type
+    active_memberships = db.query(Membership).filter(
+        Membership.membership_type == plan.membership_type,
+        Membership.status == "active"
+    ).count()
+    
+    if active_memberships > 0:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Cannot delete plan. {active_memberships} active membership(s) are using this plan."
+        )
+    
+    db.delete(plan)
+    db.commit()
+    return {"message": "Membership plan deleted successfully"}
+
+
 # ====================== TRAINER MANAGEMENT ======================
 
 
 @router.post("/create-trainer")
-async def create_trainer(
+def create_trainer(
     data: CreateTrainerRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_admin_user),
@@ -2257,7 +2483,7 @@ async def create_trainer(
 
 
 @router.get("/trainers")
-async def get_trainers(
+def get_trainers(
     current_user: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
@@ -2265,67 +2491,89 @@ async def get_trainers(
     from sqlalchemy.orm import joinedload
     from sqlalchemy import func
     
-    # Single query with eager loading - prevents N+1 problem
-    trainers = db.query(Trainer).options(
-        joinedload(Trainer.user),
-        joinedload(Trainer.salary_configs)
-    ).all()
-    
-    # Batch count trainees for all trainers in one query
-    trainee_counts = dict(
-        db.query(Trainee.trainer_id, func.count(Trainee.id))
-        .group_by(Trainee.trainer_id)
-        .all()
-    )
-    
-    trainer_list = []
-    for t in trainers:
-        try:
-            salary = t.salary_configs[0] if t.salary_configs else None
-            assigned_count = trainee_counts.get(str(t.id), 0)
-            
-            trainer_list.append({
-                "id": str(t.id),
-                "user": {
-                    "id": t.user.id,
-                    "name": t.user.name,
-                    "email": t.user.email,
-                    "phone": t.user.phone if hasattr(t.user, 'phone') else None,
-                },
-                "specialization": t.specialization,
-                "experience_years": getattr(t, "experience_years", 0) or 0,
-                "certifications": getattr(t, "certifications", None),
-                "bio": t.bio if hasattr(t, 'bio') else None,
-                "is_active": getattr(t, "is_active", True),
-                "status": "active" if t.user.is_active else "inactive",
-                "base_salary": float(salary.base_salary) if salary and salary.base_salary else 0,
-                "commission_per_session": float(salary.commission_per_session) if salary and salary.commission_per_session else 0,
-                "salary_model": salary.salary_model if salary else "fixed",
-                "assigned_trainees": assigned_count,
-                "created_at": (t.created_at.isoformat() if getattr(t, "created_at", None) else 
-                              (t.user.created_at.isoformat() if t.user.created_at else None)),
-            })
-        except Exception as e:
-            print(f"Error processing trainer {t.id}: {e}")
-            continue
+    try:
+        # Single query with eager loading - prevents N+1 problem
+        # Filter to only include trainers with valid user relationships
+        trainers = db.query(Trainer).join(User).options(
+            joinedload(Trainer.user),
+            joinedload(Trainer.salary_configs)
+        ).all()
+        
+        # Batch count trainees for all trainers in one query
+        trainee_counts = dict(
+            db.query(Trainee.trainer_id, func.count(Trainee.id))
+            .group_by(Trainee.trainer_id)
+            .all()
+        )
+        
+        trainer_list = []
+        for t in trainers:
+            try:
+                # Skip if user is None (orphaned trainer record)
+                if not t.user:
+                    print(f"Warning: Trainer {t.id} has no associated user, skipping")
+                    continue
+                    
+                salary = t.salary_configs[0] if t.salary_configs else None
+                # Use UUID object directly for lookup, not string
+                assigned_count = trainee_counts.get(t.id, 0)
+                
+                trainer_list.append({
+                    "id": str(t.id),
+                    "user": {
+                        "id": t.user.id,
+                        "name": t.user.name,
+                        "email": t.user.email,
+                        "phone": t.user.phone if hasattr(t.user, 'phone') else None,
+                    },
+                    "specialization": t.specialization,
+                    "experience_years": getattr(t, "experience_years", 0) or 0,
+                    "certifications": getattr(t, "certifications", None),
+                    "bio": t.bio if hasattr(t, 'bio') else None,
+                    "is_active": getattr(t, "is_active", True),
+                    "status": "active" if t.user.is_active else "inactive",
+                    "base_salary": float(salary.base_salary) if salary and salary.base_salary else 0,
+                    "commission_per_session": float(salary.commission_per_session) if salary and salary.commission_per_session else 0,
+                    "salary_model": salary.salary_model if salary else "fixed",
+                    "assigned_trainees": assigned_count,
+                    "created_at": (t.created_at.isoformat() if getattr(t, "created_at", None) else 
+                                  (t.user.created_at.isoformat() if t.user.created_at else None)),
+                })
+            except Exception as e:
+                print(f"Error processing trainer {t.id}: {e}")
+                import traceback
+                traceback.print_exc()
+                continue
 
-    return {"trainers": trainer_list}
+        return {"trainers": trainer_list}
+        
+    except Exception as e:
+        print(f"ERROR in get_trainers: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Error fetching trainers: {str(e)}")
 
 
 @router.get("/trainers/{trainer_id}")
-async def get_trainer_details(
+def get_trainer_details(
     trainer_id: str,
     current_user: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
     """Get detailed information about a specific trainer"""
+    from uuid import UUID as PyUUID
+    
+    try:
+        trainer_uuid = PyUUID(trainer_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid trainer ID format")
 
-    trainer = db.query(Trainer).filter(Trainer.id == trainer_id).first()
+    trainer = db.query(Trainer).filter(Trainer.id == trainer_uuid).first()
     if not trainer:
         raise HTTPException(status_code=404, detail="Trainer not found")
 
     # Get trainer salary info
-    salary = db.query(TrainerSalary).filter(TrainerSalary.trainer_id == trainer_id).first()
+    salary = db.query(TrainerSalary).filter(TrainerSalary.trainer_id == trainer_uuid).first()
 
     return {
         "id": str(trainer.id),
@@ -2346,15 +2594,22 @@ async def get_trainer_details(
 
 
 @router.put("/trainers/{trainer_id}")
-async def update_trainer(
-    trainer_id: int,
+def update_trainer(
+    trainer_id: str,
     trainer_data: TrainerUpdateRequest,
     current_user: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
     """Update trainer information (name, email, phone, specialization, etc.)"""
+    from uuid import UUID as PyUUID
+    
     try:
-        trainer = db.query(Trainer).filter(Trainer.id == trainer_id).first()
+        try:
+            trainer_uuid = PyUUID(trainer_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid trainer ID format")
+            
+        trainer = db.query(Trainer).filter(Trainer.id == trainer_uuid).first()
         if not trainer:
             raise HTTPException(status_code=404, detail="Trainer not found")
 
@@ -2385,9 +2640,9 @@ async def update_trainer(
 
         # Update salary info if provided
         if any([trainer_data.salary_model, trainer_data.base_salary, trainer_data.commission_per_session]):
-            salary = db.query(TrainerSalary).filter(TrainerSalary.trainer_id == trainer_id).first()
+            salary = db.query(TrainerSalary).filter(TrainerSalary.trainer_id == trainer_uuid).first()
             if not salary:
-                salary = TrainerSalary(trainer_id=trainer_id)
+                salary = TrainerSalary(trainer_id=trainer_uuid)
                 db.add(salary)
 
             if trainer_data.salary_model:
@@ -2401,7 +2656,7 @@ async def update_trainer(
 
         return {
             "message": "Trainer updated successfully",
-            "trainer_id": trainer.id,
+            "trainer_id": str(trainer.id),
             "name": trainer.user.name,
         }
     except HTTPException:
@@ -2415,26 +2670,143 @@ async def update_trainer(
 
 
 @router.delete("/trainers/{trainer_id}")
-async def deactivate_trainer(
+def delete_trainer(
     trainer_id: str,
     current_user: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
-    """Deactivate a trainer (they lose dashboard access)"""
-
-    trainer = db.query(Trainer).filter(Trainer.id == trainer_id).first()
-    if not trainer:
-        raise HTTPException(status_code=404, detail="Trainer not found")
-
-    trainer.user.is_active = False
-    db.commit()
-
-    return {"message": "Trainer deactivated successfully"}
+    """Permanently delete a trainer and all related data using raw SQL to avoid schema mismatches"""
+    from sqlalchemy import text
+    
+    try:
+        # Validate UUID format
+        from uuid import UUID as PyUUID
+        try:
+            trainer_uuid = PyUUID(trainer_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid trainer ID format")
+        
+        # Get trainer info using raw SQL to avoid model loading issues
+        result = db.execute(
+            text("SELECT id, user_id FROM trainers WHERE id = :tid"),
+            {"tid": trainer_id}
+        ).fetchone()
+        
+        if not result:
+            raise HTTPException(status_code=404, detail="Trainer not found")
+        
+        user_id = result[1]
+        
+        # Use raw SQL for ALL deletions to avoid schema mismatch issues
+        # Delete in correct order to avoid foreign key constraints
+        
+        # 1. Delete trainer messages
+        try:
+            db.execute(text("DELETE FROM trainer_messages WHERE trainer_id = :tid OR sender_id = :uid OR receiver_id = :uid"), 
+                      {"tid": trainer_id, "uid": user_id})
+        except Exception as e:
+            print(f"Note: trainer_messages deletion: {e}")
+        
+        # 2. Delete trainer revenue
+        try:
+            db.execute(text("DELETE FROM trainer_revenue WHERE trainer_id = :tid"), {"tid": trainer_id})
+        except Exception as e:
+            print(f"Note: trainer_revenue deletion: {e}")
+        
+        # 3. Delete trainer salary
+        try:
+            db.execute(text("DELETE FROM trainer_salaries WHERE trainer_id = :tid"), {"tid": trainer_id})
+        except Exception as e:
+            print(f"Note: trainer_salaries deletion: {e}")
+        
+        # 4. Delete trainer schedules
+        try:
+            db.execute(text("DELETE FROM trainer_schedules WHERE trainer_id = :tid"), {"tid": trainer_id})
+        except Exception as e:
+            print(f"Note: trainer_schedules deletion: {e}")
+        
+        # 5. Delete trainer attendance
+        try:
+            db.execute(text("DELETE FROM trainer_attendance WHERE trainer_id = :tid"), {"tid": trainer_id})
+        except Exception as e:
+            print(f"Note: trainer_attendance deletion: {e}")
+        
+        # 6. Delete PT sessions
+        try:
+            db.execute(text("DELETE FROM pt_sessions WHERE trainer_id = :tid"), {"tid": trainer_id})
+        except Exception as e:
+            print(f"Note: pt_sessions deletion: {e}")
+        
+        # 7. Update gym schedule slots (set trainer_id to NULL)
+        try:
+            db.execute(text("UPDATE gym_schedule_slots SET trainer_id = NULL WHERE trainer_id = :tid"), {"tid": trainer_id})
+        except Exception as e:
+            print(f"Note: gym_schedule_slots update: {e}")
+        
+        # 8. Delete trainer documents
+        try:
+            db.execute(text("DELETE FROM trainer_documents WHERE trainer_id = :tid"), {"tid": trainer_id})
+        except Exception as e:
+            print(f"Note: trainer_documents deletion: {e}")
+        
+        # 9. Delete trainer leaves
+        try:
+            db.execute(text("DELETE FROM trainer_leaves WHERE trainer_id = :tid"), {"tid": trainer_id})
+        except Exception as e:
+            print(f"Note: trainer_leaves deletion: {e}")
+        
+        # 10. Update trainees (set trainer_id to NULL)
+        try:
+            db.execute(text("UPDATE trainees SET trainer_id = NULL WHERE trainer_id = :tid"), {"tid": trainer_id})
+        except Exception as e:
+            print(f"Note: trainees update: {e}")
+        
+        # 11. Delete workout plans
+        try:
+            db.execute(text("DELETE FROM workout_plans WHERE trainer_id = :tid"), {"tid": trainer_id})
+        except Exception as e:
+            print(f"Note: workout_plans deletion: {e}")
+        
+        # 12. Delete messages
+        try:
+            db.execute(text("DELETE FROM messages WHERE sender_id = :uid OR receiver_id = :uid"), {"uid": user_id})
+        except Exception as e:
+            print(f"Note: messages deletion: {e}")
+        
+        # 13. Delete admin sessions
+        try:
+            db.execute(text("DELETE FROM admin_sessions WHERE user_id = :uid"), {"uid": user_id})
+        except Exception as e:
+            print(f"Note: admin_sessions deletion: {e}")
+        
+        # 14. Delete notifications
+        try:
+            db.execute(text("DELETE FROM notifications WHERE user_id = :uid"), {"uid": user_id})
+        except Exception as e:
+            print(f"Note: notifications deletion: {e}")
+        
+        # 15. Delete trainer profile
+        db.execute(text("DELETE FROM trainers WHERE id = :tid"), {"tid": trainer_id})
+        
+        # 16. Delete user
+        db.execute(text("DELETE FROM users WHERE id = :uid"), {"uid": user_id})
+        
+        # Commit all changes
+        db.commit()
+        
+        return {"success": True, "message": "Trainer and all related data deleted permanently"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"ERROR in delete_trainer: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Error deleting trainer: {str(e)}")
 
 
 # ====================== GYM SCHEDULE SLOTS ======================
-
-from app.models import GymScheduleSlot, Notification
 
 class GymScheduleSlotCreate(BaseModel):
     day_of_week: str

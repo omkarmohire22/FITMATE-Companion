@@ -11,14 +11,14 @@ export const Card = ({
 }) => {
   const variants = {
     default: dark
-      ? 'bg-gray-800 border border-gray-700'
-      : 'bg-white border border-gray-200',
+      ? 'bg-slate-800 border border-slate-700'
+      : 'bg-white border border-slate-200',
     elevated: dark
-      ? 'bg-gray-800 border border-gray-700 shadow-lg'
-      : 'bg-white border border-gray-200 shadow-lg',
+      ? 'bg-slate-800 border border-slate-700 shadow-lg'
+      : 'bg-white border border-slate-200 shadow-lg',
     subtle: dark
-      ? 'bg-gray-850 border border-gray-700/50'
-      : 'bg-gray-50 border border-gray-100',
+      ? 'bg-gray-850 border border-slate-700/50'
+      : 'bg-slate-50 border border-gray-100',
   }
 
   return (
@@ -39,7 +39,7 @@ export const Card = ({
 
 export const CardHeader = ({ title, subtitle, icon: Icon, action }) => {
   return (
-    <div className="flex items-start justify-between mb-4 pb-4 border-b border-gray-200">
+    <div className="flex items-start justify-between mb-4 pb-4 border-b border-slate-200">
       <div className="flex items-start gap-3">
         {Icon && (
           <div className="p-2 bg-primary-100 rounded-lg">
@@ -48,7 +48,7 @@ export const CardHeader = ({ title, subtitle, icon: Icon, action }) => {
         )}
         <div>
           <h3 className="heading-3">{title}</h3>
-          {subtitle && <p className="text-gray-500 text-sm mt-1">{subtitle}</p>}
+          {subtitle && <p className="text-slate-500 text-sm mt-1">{subtitle}</p>}
         </div>
       </div>
       {action && <div>{action}</div>}
@@ -62,7 +62,7 @@ export const CardContent = ({ children, className = '' }) => {
 
 export const CardFooter = ({ children, className = '' }) => {
   return (
-    <div className={`flex items-center justify-between gap-3 mt-4 pt-4 border-t border-gray-200 ${className}`}>
+    <div className={`flex items-center justify-between gap-3 mt-4 pt-4 border-t border-slate-200 ${className}`}>
       {children}
     </div>
   )
@@ -81,9 +81,9 @@ export const MetricCard = ({
     <Card className={`metric-card ${className}`} variant="default">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-gray-500 text-sm font-medium">{title}</p>
+          <p className="text-slate-500 text-sm font-medium">{title}</p>
           <p className="text-2xl md:text-3xl font-bold mt-2">{value}</p>
-          {subtitle && <p className="text-gray-400 text-xs mt-1">{subtitle}</p>}
+          {subtitle && <p className="text-slate-400 text-xs mt-1">{subtitle}</p>}
           {trend && (
             <div className={`flex items-center gap-1 mt-2 text-sm ${trendUp ? 'text-green-600' : 'text-red-600'}`}>
               <span>{trendUp ? '↑' : '↓'}</span>

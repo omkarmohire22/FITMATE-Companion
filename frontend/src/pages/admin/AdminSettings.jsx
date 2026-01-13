@@ -75,7 +75,7 @@ const AdminSettings = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-orange-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-sky-500"></div>
       </div>
     );
   }
@@ -84,7 +84,6 @@ const AdminSettings = () => {
     { id: 'general', label: 'General', icon: Globe },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'security', label: 'Security', icon: Shield },
-    { id: 'data', label: 'Data & Storage', icon: Database },
   ];
 
   const ToggleSwitch = ({ checked, onChange }) => (
@@ -95,7 +94,7 @@ const AdminSettings = () => {
         checked={checked}
         onChange={onChange}
       />
-      <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+      <div className="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-sky-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
     </label>
   );
 
@@ -108,12 +107,12 @@ const AdminSettings = () => {
       >
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center shadow-lg">
+          <div className="w-12 h-12 bg-gradient-to-br from-sky-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
             <Settings className="w-6 h-6 text-white" />
           </div>
           <div>
             <h1 className="text-4xl font-bold text-white">Settings</h1>
-            <p className="text-gray-400 text-sm mt-1">Manage your gym preferences and configurations</p>
+            <p className="text-slate-400 text-sm mt-1">Manage your gym preferences and configurations</p>
           </div>
         </div>
 
@@ -129,8 +128,8 @@ const AdminSettings = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-3 rounded-xl font-semibold transition-all ${
                   activeTab === tab.id
-                    ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                    ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg'
+                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                 }`}
               >
                 <Icon className="w-5 h-5" />
@@ -148,48 +147,48 @@ const AdminSettings = () => {
             className="space-y-6"
           >
             {/* Gym Information */}
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 shadow-xl">
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-slate-700 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <Globe className="w-6 h-6 text-orange-400" />
+                <Globe className="w-6 h-6 text-sky-400" />
                 Gym Information
               </h2>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Gym Name</label>
+                  <label className="block text-sm font-semibold text-slate-300 mb-2">Gym Name</label>
                   <input
                     type="text"
                     value={settings.gym_name}
                     onChange={e => setSettings({ ...settings, gym_name: e.target.value })}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
                     placeholder="Enter gym name"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Contact Email</label>
+                  <label className="block text-sm font-semibold text-slate-300 mb-2">Contact Email</label>
                   <input
                     type="email"
                     value={settings.email}
                     onChange={e => setSettings({ ...settings, email: e.target.value })}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
                     placeholder="admin@fitmate.com"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Phone Number</label>
+                  <label className="block text-sm font-semibold text-slate-300 mb-2">Phone Number</label>
                   <input
                     type="tel"
                     value={settings.phone}
                     onChange={e => setSettings({ ...settings, phone: e.target.value })}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
                     placeholder="+1-800-FITMATE"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Currency</label>
+                  <label className="block text-sm font-semibold text-slate-300 mb-2">Currency</label>
                   <select
                     value={settings.currency}
                     onChange={e => setSettings({ ...settings, currency: e.target.value })}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
                   >
                     <option value="USD">USD ($)</option>
                     <option value="EUR">EUR (€)</option>
@@ -199,30 +198,30 @@ const AdminSettings = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2 mt-4">Gym Address</label>
+                <label className="block text-sm font-semibold text-slate-300 mb-2 mt-4">Gym Address</label>
                 <textarea
                   value={settings.address}
                   onChange={e => setSettings({ ...settings, address: e.target.value })}
                   rows="3"
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                  className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
                   placeholder="Enter complete gym address"
                 />
               </div>
             </div>
 
             {/* Display & Regional Settings */}
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 shadow-xl">
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-slate-700 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <Palette className="w-6 h-6 text-orange-400" />
+                <Palette className="w-6 h-6 text-sky-400" />
                 Display & Regional
               </h2>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Theme</label>
+                  <label className="block text-sm font-semibold text-slate-300 mb-2">Theme</label>
                   <select
                     value={settings.theme}
                     onChange={e => setSettings({ ...settings, theme: e.target.value })}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
                   >
                     <option value="dark">Dark Mode</option>
                     <option value="light">Light Mode</option>
@@ -230,11 +229,11 @@ const AdminSettings = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Timezone</label>
+                  <label className="block text-sm font-semibold text-slate-300 mb-2">Timezone</label>
                   <select
                     value={settings.timezone}
                     onChange={e => setSettings({ ...settings, timezone: e.target.value })}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
                   >
                     <option value="UTC">UTC (GMT+0)</option>
                     <option value="EST">EST (GMT-5)</option>
@@ -253,10 +252,10 @@ const AdminSettings = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 shadow-xl"
+            className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-slate-700 shadow-xl"
           >
             <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-              <Bell className="w-6 h-6 text-orange-400" />
+              <Bell className="w-6 h-6 text-sky-400" />
               Notification Preferences
             </h2>
             <div className="space-y-4">
@@ -266,12 +265,12 @@ const AdminSettings = () => {
                 { key: 'maintenance_reminders', label: 'Equipment Maintenance Reminders', icon: AlertCircle, desc: 'Alerts when equipment needs maintenance' },
                 { key: 'schedule_notifications', label: 'Schedule & Class Notifications', icon: Clock, desc: 'Notifications for schedule changes' },
               ].map((item) => (
-                <div key={item.key} className="flex items-center justify-between p-4 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition">
+                <div key={item.key} className="flex items-center justify-between p-4 bg-slate-700/50 rounded-xl hover:bg-slate-700 transition">
                   <div className="flex items-center gap-3">
-                    <item.icon className="w-5 h-5 text-orange-400" />
+                    <item.icon className="w-5 h-5 text-sky-400" />
                     <div>
                       <label className="text-gray-200 font-semibold cursor-pointer block">{item.label}</label>
-                      <p className="text-xs text-gray-400">{item.desc}</p>
+                      <p className="text-xs text-slate-400">{item.desc}</p>
                     </div>
                   </div>
                   <ToggleSwitch
@@ -291,19 +290,21 @@ const AdminSettings = () => {
             animate={{ opacity: 1 }}
             className="space-y-6"
           >
-            {/* Two Factor Authentication */}
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 shadow-xl">
+            {/* Security Settings */}
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 sm:p-8 border border-slate-700 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <Shield className="w-6 h-6 text-orange-400" />
-                Security Settings
+                <Shield className="w-6 h-6 text-sky-400" />
+                Security & Authentication
               </h2>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition">
+                <div className="flex items-center justify-between p-5 bg-slate-700/50 rounded-xl hover:bg-slate-700 transition border border-slate-600">
                   <div className="flex items-center gap-3">
-                    <Key className="w-5 h-5 text-orange-400" />
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                      <Key className="w-6 h-6 text-white" />
+                    </div>
                     <div>
-                      <label className="text-gray-200 font-semibold cursor-pointer block">Two-Factor Authentication</label>
-                      <p className="text-xs text-gray-400">Add extra security to your account</p>
+                      <label className="text-gray-200 font-bold cursor-pointer block text-lg">Two-Factor Authentication</label>
+                      <p className="text-sm text-slate-400">Enhance account security with 2FA</p>
                     </div>
                   </div>
                   <ToggleSwitch
@@ -312,98 +313,20 @@ const AdminSettings = () => {
                   />
                 </div>
 
-                <div className="p-4 bg-gray-700/50 rounded-xl">
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Max Failed Login Attempts</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={settings.max_failed_logins}
-                    onChange={e => setSettings({ ...settings, max_failed_logins: parseInt(e.target.value) })}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-orange-500"
-                  />
-                  <p className="text-xs text-gray-400 mt-1">Account locks after this many failed attempts</p>
-                </div>
-
-                <div className="p-4 bg-gray-700/50 rounded-xl">
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Session Timeout (minutes)</label>
-                  <input
-                    type="number"
-                    min="5"
-                    max="480"
+                <div className="p-5 bg-slate-700/50 rounded-xl border border-slate-600">
+                  <label className="block text-sm font-semibold text-slate-300 mb-3">Session Timeout</label>
+                  <select
                     value={settings.session_timeout_minutes}
                     onChange={e => setSettings({ ...settings, session_timeout_minutes: parseInt(e.target.value) })}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-orange-500"
-                  />
-                  <p className="text-xs text-gray-400 mt-1">Auto logout if inactive for this duration</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Data & Storage Settings */}
-        {activeTab === 'data' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-6"
-          >
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 shadow-xl">
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <Database className="w-6 h-6 text-orange-400" />
-                Data & Backup Management
-              </h2>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition">
-                  <div className="flex items-center gap-3">
-                    <RefreshCw className="w-5 h-5 text-orange-400" />
-                    <div>
-                      <label className="text-gray-200 font-semibold cursor-pointer block">Automatic Backups</label>
-                      <p className="text-xs text-gray-400">Enable automatic database backups</p>
-                    </div>
-                  </div>
-                  <ToggleSwitch
-                    checked={settings.auto_backup_enabled}
-                    onChange={e => setSettings({ ...settings, auto_backup_enabled: e.target.checked })}
-                  />
-                </div>
-
-                {settings.auto_backup_enabled && (
-                  <div className="p-4 bg-gray-700/50 rounded-xl">
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Backup Frequency</label>
-                    <select
-                      value={settings.backup_frequency}
-                      onChange={e => setSettings({ ...settings, backup_frequency: e.target.value })}
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-orange-500"
-                    >
-                      <option value="daily">Daily</option>
-                      <option value="weekly">Weekly</option>
-                      <option value="monthly">Monthly</option>
-                    </select>
-                  </div>
-                )}
-
-                <div className="p-4 bg-gray-700/50 rounded-xl">
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Data Retention Period (days)</label>
-                  <input
-                    type="number"
-                    min="30"
-                    max="3650"
-                    value={settings.data_retention_days}
-                    onChange={e => setSettings({ ...settings, data_retention_days: parseInt(e.target.value) })}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-orange-500"
-                  />
-                  <p className="text-xs text-gray-400 mt-1">Keep data for this many days before archiving</p>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-3 mt-4">
-                  <button className="px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:shadow-lg transition">
-                    💾 Backup Now
-                  </button>
-                  <button className="px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-semibold hover:shadow-lg transition">
-                    ⬇️ Restore Backup
-                  </button>
+                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 transition"
+                  >
+                    <option value="15">15 minutes</option>
+                    <option value="30">30 minutes</option>
+                    <option value="60">1 hour</option>
+                    <option value="120">2 hours</option>
+                    <option value="240">4 hours</option>
+                  </select>
+                  <p className="text-xs text-slate-400 mt-2">Auto logout if inactive</p>
                 </div>
               </div>
             </div>
@@ -419,7 +342,7 @@ const AdminSettings = () => {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 min-w-[200px]"
+            className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 min-w-[200px]"
           >
             {saving ? (
               <>

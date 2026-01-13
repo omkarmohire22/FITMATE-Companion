@@ -139,8 +139,19 @@ Give accurate fitness advice. Be motivational and clear. Keep responses concise 
 
 # ====================== STATUS ======================
 
+@router.get("/")
+async def chat_root():
+    """Root endpoint for chat API status check"""
+    return {
+        "status": "running",
+        "openai_configured": client is not None,
+        "fallback_available": True,
+        "message": "AI chatbot with intelligent fallback responses always available"
+    }
+
 @router.get("/status")
 async def chat_status():
+    """Detailed status endpoint"""
     return {
         "status": "running",
         "openai_configured": client is not None,

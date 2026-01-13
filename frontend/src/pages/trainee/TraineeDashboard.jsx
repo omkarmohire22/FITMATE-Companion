@@ -11,11 +11,11 @@ import {
   MapPin, Timer, List, Grid, BarChart3, PieChart, Download, Share2, Filter,
   Maximize2, Minimize2, Info, AlertCircle, CreditCard, User, Mail, Phone,
   MapPinned, Edit, Save, DollarSign, Check, Home, Battery, ChevronLeft,
-  UserCheck, LogIn, LogOut as LogOutIcon, History, CalendarCheck, Fingerprint, Shield
+  UserCheck, LogIn, LogOut as LogOutIcon, History, CalendarCheck, Fingerprint, Shield, Scale, Ruler
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
-import EnhancedProgressTracker from '../../components/progress/EnhancedProgressTracker'
+import ProgressTracker from '../../components/progress/ProgressTracker'
 import TraineeProfile from '../../components/trainee/TraineeProfile'
 import AIChatbot from '../../components/chat/AIChatbot'
 import NutritionTracker from '../../components/nutrition/NutritionTracker'
@@ -31,6 +31,8 @@ const TraineeDashboard = () => {
   const [selectedExercise, setSelectedExercise] = useState('push-ups')
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState(new Date())
   const videoRef = useRef(null)
 
   // User Data (from backend)
@@ -100,6 +102,7 @@ const TraineeDashboard = () => {
           emergencyContactPhone: p.emergency_contact_phone || '',
           healthConditions: p.health_conditions || '',
         })
+        setLastUpdated(new Date())
       } catch (err) {
         console.error('Dashboard load error:', err)
         setLoadError(err.message || 'Failed to load dashboard')
@@ -112,6 +115,66 @@ const TraineeDashboard = () => {
     }
     fetchData()
   }, [])
+
+  // Manual refresh handler
+  const handleManualRefresh = async () => {
+    if (isRefreshing) return
+    setIsRefreshing(true)
+    try {
+      const [statsRes, profileRes] = await Promise.all([
+        traineeApi.getDashboard(),
+        traineeApi.getProfile()
+      ])
+      
+      const s = statsRes.data || statsRes
+      setStats({
+        weeklyWorkouts: s.weeklyWorkouts ?? s.weekly_workouts ?? 0,
+        totalWorkouts: s.totalWorkouts ?? s.total_workouts ?? 0,
+        calories: s.calories ?? 0,
+        caloriesBudget: s.caloriesBudget ?? s.calories_budget ?? 2200,
+        caloriesBurned: s.caloriesBurned ?? s.calories_burned ?? 0,
+        waterIntake: s.waterIntake ?? s.water_intake ?? 0,
+        waterGoal: s.waterGoal ?? s.water_goal ?? 8,
+        streak: s.streak ?? s.day_streak ?? 0,
+        achievements: s.achievements ?? 0,
+        avgFormScore: s.avgFormScore ?? s.avg_form_score ?? 0,
+        bestStreak: s.bestStreak ?? s.best_streak ?? 0,
+        currentWeight: s.currentWeight ?? s.current_weight ?? '--'
+      })
+      
+      const p = profileRes.data || profileRes
+      setUserData({
+        name: p.name || '',
+        email: p.email || '',
+        phone: p.phone || '',
+        location: p.address || p.location || '',
+        memberSince: p.created_at?.split('T')[0] || '',
+        plan: p.plan || p.membership_plan || '',
+        height: p.height !== undefined && p.height !== null ? p.height + ' cm' : '',
+        weight: p.weight !== undefined && p.weight !== null ? p.weight + ' kg' : '',
+        age: p.age || '',
+        goal: p.goal || '',
+        targetWeight: p.target_weight !== undefined && p.target_weight !== null ? p.target_weight + ' kg' : '',
+        fitnessLevel: p.fitness_level || '',
+        trainerId: p.trainer_id || '',
+        fitnessGoals: p.fitness_goals || '',
+        dateOfBirth: p.date_of_birth || '',
+        gender: p.gender || '',
+        address: p.address || '',
+        emergencyContactName: p.emergency_contact_name || '',
+        emergencyContactPhone: p.emergency_contact_phone || '',
+        healthConditions: p.health_conditions || '',
+      })
+      
+      setLastUpdated(new Date())
+      toast.success('Dashboard refreshed!', { duration: 2000 })
+    } catch (err) {
+      console.error('Refresh error:', err)
+      toast.error('Failed to refresh dashboard')
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
 
   // Workout History (from backend)
   const [workoutHistory, setWorkoutHistory] = useState([])
@@ -539,11 +602,11 @@ const TraineeDashboard = () => {
     { id: 'dashboard', label: 'Dashboard', icon: Home, color: 'text-blue-600 bg-blue-50' },
     { id: 'attendance', label: 'Attendance', icon: CalendarCheck, color: 'text-emerald-600 bg-emerald-50' },
     { id: 'nutrition', label: 'Nutrition', icon: Utensils, color: 'text-green-600 bg-green-50' },
-    { id: 'progress', label: 'Progress', icon: BarChart, color: 'text-orange-600 bg-orange-50' },
+    { id: 'progress', label: 'Progress', icon: BarChart, color: 'text-sky-600 bg-sky-50' },
     { id: 'coach', label: 'AI Coach', icon: MessageCircle, color: 'text-pink-600 bg-pink-50' },
     { id: 'messages', label: 'Messages', icon: Mail, color: 'text-teal-600 bg-teal-50' },
     { id: 'payment', label: 'Plans', icon: CreditCard, color: 'text-indigo-600 bg-indigo-50' },
-    { id: 'profile', label: 'Profile', icon: User, color: 'text-gray-600 bg-gray-50' }
+    { id: 'profile', label: 'Profile', icon: User, color: 'text-slate-600 bg-gray-50' }
   ]
 
   // Loading state - show spinner while data loads
@@ -560,8 +623,8 @@ const TraineeDashboard = () => {
             transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
             className="w-16 h-16 border-4 border-gray-200 border-t-primary-600 rounded-full mb-6"
           />
-          <h2 className="text-lg sm:text-xl font-bold mb-2 text-gray-900">Loading Dashboard</h2>
-          <p className="text-gray-600 text-center text-sm">Getting your fitness data ready...</p>
+          <h2 className="text-lg sm:text-xl font-bold mb-2 text-slate-900">Loading Dashboard</h2>
+          <p className="text-slate-600 text-center text-sm">Getting your fitness data ready...</p>
         </motion.div>
       </div>
     )
@@ -577,8 +640,8 @@ const TraineeDashboard = () => {
           className="max-w-md w-full bg-white rounded-2xl shadow-xl p-6 sm:p-8 flex flex-col items-center border border-gray-200"
         >
           <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-          <h2 className="text-lg sm:text-xl font-bold mb-2 text-gray-900">Dashboard Unavailable</h2>
-          <p className="text-gray-600 mb-6 text-center text-sm">
+          <h2 className="text-lg sm:text-xl font-bold mb-2 text-slate-900">Dashboard Unavailable</h2>
+          <p className="text-slate-600 mb-6 text-center text-sm">
             {loadError || "We couldn't load your dashboard data. Please check your login or try again later."}
           </p>
           <div className="flex gap-3 flex-wrap justify-center">
@@ -594,7 +657,7 @@ const TraineeDashboard = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={logout}
-              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all text-sm border border-gray-200" 
+              className="px-6 py-3 bg-gray-100 text-slate-700 rounded-xl font-semibold hover:bg-gray-200 transition-all text-sm border border-gray-200" 
             >
               Logout
             </motion.button>
@@ -605,29 +668,29 @@ const TraineeDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans">
+    <div className="min-h-screen bg-slate-950 font-sans">
       {/* Top Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 backdrop-blur-md border-b border-slate-700/50 shadow-xl">
         <div className="px-3 sm:px-6 py-3 sm:py-4">
           <div className="flex justify-between items-center gap-2 sm:gap-4">
             {/* Left Section */}
             <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg lg:hidden transition-colors duration-200"
+                className="p-2 hover:bg-slate-700/50 rounded-lg lg:hidden transition-colors duration-200"
                 aria-label="Toggle sidebar"
               >
-                {sidebarOpen ? <X className="w-5 h-5 text-primary-600" /> : <Menu className="w-5 h-5 text-primary-600" />}
+                {sidebarOpen ? <X className="w-5 h-5 text-indigo-400" /> : <Menu className="w-5 h-5 text-indigo-400" />}
               </button>
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary-600 to-secondary-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
                   <Dumbbell className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div>
-                  <span className="text-lg sm:text-2xl font-extrabold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent tracking-wide">
+                  <span className="text-lg sm:text-2xl font-extrabold bg-gradient-to-r from-indigo-400 to-pink-400 bg-clip-text text-transparent tracking-wide">
                     FitMate
                   </span>
-                  <p className="text-[10px] sm:text-xs text-primary-600 font-semibold tracking-wider hidden xs:block">
+                  <p className="text-[10px] sm:text-xs text-indigo-400 font-semibold tracking-wider hidden xs:block">
                     Trainee Portal
                   </p>
                 </div>
@@ -636,27 +699,40 @@ const TraineeDashboard = () => {
 
             {/* Right Section */}
             <div className="flex items-center gap-2 sm:gap-4">
+              {/* Refresh Button */}
+              <button
+                onClick={handleManualRefresh}
+                disabled={isRefreshing}
+                className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors relative group disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Refresh Dashboard"
+              >
+                <RefreshCw className={`w-5 h-5 text-sky-400 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <div className="absolute top-full right-0 mt-2 hidden group-hover:block bg-slate-800 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg z-50 border border-slate-700">
+                  Updated: {lastUpdated.toLocaleTimeString()}
+                </div>
+              </button>
+
               {/* Notifications Bell */}
               <button 
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group"
+                className="relative p-2 hover:bg-slate-700/50 rounded-lg transition-colors group"
               >
-                <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-primary-600" />
+                <Bell className="w-5 h-5 text-slate-400 group-hover:text-indigo-400" />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
               </button>
 
               {/* User Profile */}
               {userData && (
-                <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-slate-700/50">
                   <div className="hidden sm:block text-right">
-                    <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">
+                    <p className="text-xs sm:text-sm font-bold text-white">
                       {userData.name.split(' ')[0]}
                     </p>
-                    <p className="text-[10px] sm:text-xs text-primary-600 font-semibold">
+                    <p className="text-[10px] sm:text-xs text-indigo-400 font-semibold">
                       {userData.plan || 'Member'}
                     </p>
                   </div>
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-lg flex items-center justify-center text-white font-extrabold text-sm shadow-lg">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-extrabold text-sm shadow-lg">
                     {userData.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
                   </div>
                 </div>
@@ -665,7 +741,7 @@ const TraineeDashboard = () => {
               {/* Logout Button */}
               <button
                 onClick={logout}
-                className="hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 btn-danger text-xs sm:text-sm font-bold"
+                className="hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg transition-all duration-200 border border-red-500/20 hover:border-red-500/40 text-xs sm:text-sm font-bold"
               >
                 <LogOut className="w-4 h-4" />
                 Logout
@@ -680,17 +756,17 @@ const TraineeDashboard = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute right-4 sm:right-6 top-full mt-2 w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-xl z-50 border border-gray-200 dark:border-gray-700 max-h-[500px] flex flex-col"
+            className="absolute right-4 sm:right-6 top-full mt-2 w-96 bg-slate-900 rounded-2xl shadow-xl z-50 border border-slate-800 max-h-[500px] flex flex-col"
           >
             {/* Header */}
-            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-t-2xl">
-              <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <Bell className="w-5 h-5 text-primary-600" />
+            <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-700/50 rounded-t-2xl">
+              <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Bell className="w-5 h-5 text-indigo-400" />
                 Notifications
               </h3>
               <button
                 onClick={() => setShowNotifications(false)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -704,8 +780,8 @@ const TraineeDashboard = () => {
                 </div>
               ) : notifications.length === 0 ? (
                 <div className="p-8 text-center">
-                  <Bell className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" />
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">No notifications yet</p>
+                  <Bell className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">No notifications yet</p>
                 </div>
               ) : (
                 <div className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -713,7 +789,7 @@ const TraineeDashboard = () => {
                     <motion.div
                       key={notif.id || idx}
                       whileHover={{ x: 4 }}
-                      className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                      className="px-4 py-3 hover:bg-slate-700/30 transition-colors cursor-pointer"
                     >
                       <div className="flex items-start gap-3">
                         <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
@@ -726,9 +802,9 @@ const TraineeDashboard = () => {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 dark:text-white text-sm">{notif.title}</p>
-                          <p className="text-gray-600 dark:text-gray-400 text-xs mt-1 truncate">{notif.message}</p>
-                          <p className="text-gray-500 dark:text-gray-500 text-xs mt-1">
+                          <p className="font-semibold text-slate-900 dark:text-white text-sm">{notif.title}</p>
+                          <p className="text-slate-600 dark:text-slate-400 text-xs mt-1 truncate">{notif.message}</p>
+                          <p className="text-slate-500 dark:text-slate-500 text-xs mt-1">
                             {notif.timestamp ? new Date(notif.timestamp).toLocaleString() : 'Just now'}
                           </p>
                         </div>
@@ -742,7 +818,7 @@ const TraineeDashboard = () => {
         )}
 
         {/* Bottom Mobile Tab Bar */}
-        <div className="lg:hidden flex items-center justify-around px-1 py-2 bg-white/95 dark:bg-gray-800/95 border-t border-gray-200 dark:border-gray-700 overflow-x-auto">
+        <div className="lg:hidden flex items-center justify-around px-1 py-2 bg-white/95 dark:bg-slate-800/95 border-t border-slate-800 overflow-x-auto">
           {navTabs.slice(0, 5).map((tab) => {
             const Icon = tab.icon
             const isActive = activeTab === tab.id
@@ -752,8 +828,8 @@ const TraineeDashboard = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex flex-col items-center justify-center px-2 py-2 rounded-lg transition-all duration-200 whitespace-nowrap text-xs ${
                   isActive 
-                    ? 'text-primary-600 bg-primary-50 border border-primary-200' 
-                    : 'text-gray-500 hover:text-primary-600'
+                    ? 'text-indigo-400 bg-primary-50 border border-primary-200' 
+                    : 'text-slate-500 hover:text-indigo-400'
                 }`}
               >
                 <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''}`} />
@@ -768,14 +844,14 @@ const TraineeDashboard = () => {
       <div className="flex pt-[88px] sm:pt-[100px] lg:pt-20">
         {/* Sidebar */}
         <aside className={`
-          fixed lg:sticky top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700
+          fixed lg:sticky top-0 left-0 h-screen w-64 bg-slate-900 border-r border-slate-800
           z-40 transition-transform duration-300 ease-in-out lg:translate-x-0 pt-[88px] sm:pt-[100px] lg:pt-0
           ${sidebarOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full lg:translate-x-0'}
         `}>
           <div className="p-6 h-full overflow-y-auto">
             {/* Navigation Section */}
             <div className="mb-8">
-              <h2 className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-4 tracking-wider uppercase">Navigation</h2>
+              <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-4 tracking-wider uppercase">Navigation</h2>
               <nav className="space-y-2">
                 {navTabs.map((tab) => {
                   const Icon = tab.icon
@@ -792,7 +868,7 @@ const TraineeDashboard = () => {
                         w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
                         ${isActive 
                           ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 font-semibold border border-primary-200 dark:border-primary-700/50 shadow-sm' 
-                          : 'text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-indigo-400 dark:hover:text-primary-400 hover:bg-slate-700/30'
                         }
                       `}
                     >
@@ -818,31 +894,31 @@ const TraineeDashboard = () => {
               {stats ? (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100 hover:border-primary-300 transition-colors">
-                    <span className="text-xs text-gray-600">Calories Left</span>
-                    <span className="font-bold text-lg text-primary-600">
+                    <span className="text-xs text-slate-600">Calories Left</span>
+                    <span className="font-bold text-lg text-indigo-400">
                       {typeof stats.caloriesBudget === 'number' && typeof stats.calories === 'number' && typeof stats.caloriesBurned === 'number' 
                         ? (stats.caloriesBudget - stats.calories + stats.caloriesBurned) 
                         : '--'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100 hover:border-blue-300 transition-colors">
-                    <span className="text-xs text-gray-600">Water</span>
+                    <span className="text-xs text-slate-600">Water</span>
                     <div className="flex items-center gap-2">
                       <Droplet className="w-4 h-4 text-blue-500" />
                       <span className="font-bold text-lg text-blue-600">
                         {typeof stats.waterIntake === 'number' ? stats.waterIntake : '--'}
                       </span>
-                      <span className="text-gray-400">/</span>
-                      <span className="text-gray-500 text-sm">
+                      <span className="text-slate-400">/</span>
+                      <span className="text-slate-500 text-sm">
                         {typeof stats.waterGoal === 'number' ? stats.waterGoal : '--'}
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-100 dark:border-gray-600 hover:border-orange-300 transition-colors">
-                    <span className="text-xs text-gray-600 dark:text-gray-400">Streak</span>
+                  <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-700 rounded-lg border border-gray-100 dark:border-gray-600 hover:border-orange-300 transition-colors">
+                    <span className="text-xs text-slate-600 dark:text-slate-400">Streak</span>
                     <div className="flex items-center gap-2">
-                      <Flame className="w-4 h-4 text-orange-500" />
-                      <span className="font-bold text-lg text-orange-600 dark:text-orange-400">
+                      <Flame className="w-4 h-4 text-sky-500" />
+                      <span className="font-bold text-lg text-sky-600 dark:text-sky-400">
                         {typeof stats.streak === 'number' ? stats.streak : '--'} days
                       </span>
                     </div>
@@ -860,7 +936,7 @@ const TraineeDashboard = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 min-h-screen bg-gray-50 dark:bg-gray-900">
+        <main className="flex-1 min-h-screen bg-slate-950">
           <div className="p-3 sm:p-6 max-w-7xl mx-auto">
             {/* Dashboard Tab */}
             {activeTab === 'dashboard' && (
@@ -869,7 +945,7 @@ const TraineeDashboard = () => {
                 <motion.div 
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-600 rounded-3xl p-5 sm:p-8 text-white shadow-xl relative overflow-hidden"
+                  className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden"
                 >
                   <div className="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
                   <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
@@ -878,19 +954,23 @@ const TraineeDashboard = () => {
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 sm:gap-6">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <span className="text-3xl sm:text-4xl">💪</span>
-                          <h1 className="text-xl sm:text-3xl font-extrabold">
-                            Welcome back, {userData ? userData.name.split(' ')[0] : 'Champ'}!
-                          </h1>
+                          <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                            <Trophy className="w-7 h-7 text-yellow-300" />
+                          </div>
+                          <div>
+                            <h1 className="text-2xl sm:text-3xl font-bold">
+                              Welcome back, {userData ? userData.name.split(' ')[0] : 'Champ'}!
+                            </h1>
+                            <p className="text-white/80 text-sm font-medium">
+                              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-primary-100 text-sm sm:text-base font-medium">
-                          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-                        </p>
                         {stats?.streak > 0 && (
                           <motion.div 
                             initial={{ scale: 0.9 }}
                             animate={{ scale: 1 }}
-                            className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 hover:bg-white/30 transition-all"
+                            className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 hover:bg-white/30 transition-all"
                           >
                             <Flame className="w-5 h-5 text-yellow-300 animate-pulse" />
                             <span className="font-bold text-sm">{stats.streak} day streak! 🔥</span>
@@ -901,16 +981,16 @@ const TraineeDashboard = () => {
                       {/* Quick Check-in Card */}
                       <motion.div 
                         whileHover={{ y: -4 }}
-                        className="bg-white/15 backdrop-blur-md rounded-2xl p-4 sm:p-6 border border-white/30 shadow-xl w-full sm:w-auto sm:min-w-[240px]"
+                        className="bg-white/15 backdrop-blur-md rounded-xl p-5 border border-white/30 shadow-xl w-full sm:w-auto sm:min-w-[240px]"
                       >
-                        <p className="text-xs sm:text-sm text-primary-100 mb-3 font-bold uppercase tracking-wide">Quick Check-in</p>
+                        <p className="text-xs font-bold text-white/90 mb-3 uppercase tracking-wide">Quick Check-in</p>
                         {attendanceStatus === 'not_checked_in' && (
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={handleCheckIn}
                             disabled={attendanceLoading}
-                            className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-white text-primary-600 rounded-xl font-bold shadow-xl hover:shadow-2xl transition-all disabled:opacity-50 text-sm sm:text-base"
+                            className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-white text-indigo-600 rounded-lg font-bold shadow-xl hover:shadow-2xl transition-all disabled:opacity-50 text-sm"
                           >
                             {attendanceLoading ? (
                               <RefreshCw className="w-5 h-5 animate-spin" />
@@ -931,7 +1011,7 @@ const TraineeDashboard = () => {
                               whileTap={{ scale: 0.95 }}
                               onClick={handleCheckOut}
                               disabled={attendanceLoading}
-                              className="w-full flex items-center justify-center gap-2 px-5 py-2 bg-red-500/90 text-white rounded-xl font-bold hover:bg-red-500 transition-all disabled:opacity-50 text-xs sm:text-sm"
+                              className="w-full flex items-center justify-center gap-2 px-5 py-2 bg-red-500/90 text-white rounded-lg font-bold hover:bg-red-500 transition-all disabled:opacity-50 text-sm"
                             >
                               {attendanceLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <LogOutIcon className="w-4 h-4" />}
                               Check Out
@@ -939,12 +1019,12 @@ const TraineeDashboard = () => {
                           </div>
                         )}
                         {attendanceStatus === 'checked_out' && (
-                          <div className="flex items-center gap-3 bg-white/10 px-3 py-3 rounded-xl">
+                          <div className="flex items-center gap-3 bg-white/10 px-3 py-3 rounded-lg">
                             <CheckCircle className="w-5 h-5 text-green-300 flex-shrink-0" />
                             <div>
                               <span className="font-bold block text-sm text-white">Done Today! 🎉</span>
                               {attendanceData?.duration_minutes && (
-                                <span className="text-xs text-primary-200">{attendanceData.duration_minutes} min</span>
+                                <span className="text-xs text-white/70">{attendanceData.duration_minutes} min</span>
                               )}
                             </div>
                           </div>
@@ -962,10 +1042,10 @@ const TraineeDashboard = () => {
                   className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
                 >
                   {stats ? [
-                    { label: "This Week", value: stats.weeklyWorkouts, icon: Activity, color: 'from-blue-500 to-cyan-500' },
-                    { label: 'Total', value: stats.totalWorkouts, icon: Target, color: 'from-purple-500 to-pink-500' },
-                    { label: 'Streak', value: stats.streak, icon: Flame, color: 'from-orange-500 to-red-500' },
-                    { label: 'Achievements', value: stats.achievements, icon: Trophy, color: 'from-green-500 to-emerald-500' }
+                    { label: "This Week", value: stats.weeklyWorkouts, icon: Activity, gradient: 'from-blue-500 to-cyan-500', iconBg: 'bg-blue-500/20', iconColor: 'text-blue-400', textColor: 'text-blue-400', desc: 'workouts' },
+                    { label: 'Total', value: stats.totalWorkouts, icon: Target, gradient: 'from-purple-500 to-pink-500', iconBg: 'bg-purple-500/20', iconColor: 'text-purple-400', textColor: 'text-purple-400', desc: 'completed' },
+                    { label: 'Streak', value: stats.streak, icon: Flame, gradient: 'from-orange-500 to-red-500', iconBg: 'bg-orange-500/20', iconColor: 'text-orange-400', textColor: 'text-orange-400', desc: 'days' },
+                    { label: 'Achievements', value: stats.achievements, icon: Trophy, gradient: 'from-yellow-500 to-amber-500', iconBg: 'bg-yellow-500/20', iconColor: 'text-yellow-400', textColor: 'text-yellow-400', desc: 'unlocked' }
                   ].map((stat, i) => {
                     const Icon = stat.icon
                     return (
@@ -974,22 +1054,69 @@ const TraineeDashboard = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}
-                        whileHover={{ y: -4 }}
-                        className="dashboard-card p-4 transition-all"
+                        whileHover={{ y: -6, scale: 1.02 }}
+                        className="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-lg hover:shadow-xl hover:border-slate-700 transition-all cursor-pointer group"
                       >
-                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3 shadow-lg`}>
-                          <Icon className="w-5 h-5 text-white" />
+                        <div className={`w-12 h-12 rounded-xl ${stat.iconBg} flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform`}>
+                          <Icon className={`w-6 h-6 ${stat.iconColor}`} />
                         </div>
-                        <div className="text-2xl sm:text-3xl font-extrabold text-gray-900">{stat.value}</div>
-                        <div className="text-xs sm:text-sm text-gray-500 mt-1 font-medium">{stat.label}</div>
+                        <div className={`text-3xl font-extrabold ${stat.textColor} mb-1`}>{stat.value}</div>
+                        <div className="text-sm text-slate-400 font-medium">{stat.label}</div>
+                        <div className="text-xs text-slate-500 mt-1">{stat.desc}</div>
                       </motion.div>
                     )
                   }) : (
                     [...Array(4)].map((_, i) => (
-                      <div key={i} className="h-32 bg-gray-100 rounded-2xl animate-pulse" />
+                      <div key={i} className="h-40 bg-slate-900/50 rounded-2xl animate-pulse border border-slate-800" />
                     ))
                   )}
                 </motion.div>
+
+                {/* Quick Insights */}
+                {stats && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gradient-to-br from-indigo-900/50 to-purple-900/50 rounded-2xl p-6 border border-indigo-800/50 shadow-lg"
+                  >
+                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-yellow-400" />
+                      Today's Insights
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                          <TrendingUp className="w-5 h-5 text-green-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-slate-300">Best Streak</p>
+                          <p className="text-xl font-bold text-white">{stats.bestStreak || stats.streak} Days</p>
+                          <p className="text-xs text-slate-400 mt-1">Keep it up!</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                          <Scale className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-slate-300">Current Weight</p>
+                          <p className="text-xl font-bold text-white">{stats.currentWeight || '--'} kg</p>
+                          <p className="text-xs text-slate-400 mt-1">Track progress</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                          <Award className="w-5 h-5 text-purple-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-slate-300">Avg Form Score</p>
+                          <p className="text-xl font-bold text-white">{stats.avgFormScore || 0}%</p>
+                          <p className="text-xs text-slate-400 mt-1">Technique matters</p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
 
                 {/* Calories & Water Section */}
                 <motion.div 
@@ -998,58 +1125,58 @@ const TraineeDashboard = () => {
                   className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6"
                 >
                   {/* Calories Card */}
-                  <DashboardCard className="p-5 sm:p-6">
-                    <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-5 flex items-center gap-2">
-                      <Utensils className="w-5 h-5 text-primary-600" />
+                  <div className="bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-800 shadow-lg">
+                    <h3 className="text-base sm:text-lg font-bold text-white mb-5 flex items-center gap-2">
+                      <Utensils className="w-5 h-5 text-green-400" />
                       Calorie Tracker
                     </h3>
                     {stats ? (
                       <div className="space-y-4">
                         {/* Consumed */}
-                        <motion.div whileHover={{ x: 4 }} className="p-4 bg-green-50 rounded-xl border border-green-100 hover:border-green-300 transition-colors">
+                        <motion.div whileHover={{ x: 4 }} className="p-4 bg-green-500/10 rounded-xl border border-green-500/30 hover:border-green-500/50 transition-colors">
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-lg bg-green-100 flex items-center justify-center border border-green-200">
-                                <Utensils className="w-4 h-4 text-green-600" />
+                              <div className="w-9 h-9 rounded-lg bg-green-500/20 flex items-center justify-center">
+                                <Utensils className="w-4 h-4 text-green-400" />
                               </div>
-                              <span className="text-xs sm:text-sm text-gray-700 font-medium">Consumed</span>
+                              <span className="text-xs sm:text-sm text-slate-300 font-medium">Consumed</span>
                             </div>
-                            <span className="text-lg sm:text-xl font-bold text-green-600">{stats.calories}</span>
+                            <span className="text-lg sm:text-xl font-bold text-green-400">{stats.calories}</span>
                           </div>
-                          <div className="w-full h-2 bg-green-100 rounded-full overflow-hidden">
+                          <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
                             <motion.div 
                               initial={{ width: 0 }}
                               animate={{ width: `${Math.min((stats.calories / stats.caloriesBudget) * 100, 100)}%` }}
                               className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full"
                             />
                           </div>
-                          <p className="text-xs text-gray-500 mt-2">of {stats.caloriesBudget} cal budget</p>
+                          <p className="text-xs text-slate-400 mt-2">of {stats.caloriesBudget} cal budget</p>
                         </motion.div>
 
                         {/* Burned */}
-                        <motion.div whileHover={{ x: 4 }} className="p-4 bg-orange-50 rounded-xl border border-orange-100 hover:border-orange-300 transition-colors">
+                        <motion.div whileHover={{ x: 4 }} className="p-4 bg-orange-500/10 rounded-xl border border-orange-500/30 hover:border-orange-500/50 transition-colors">
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-lg bg-orange-100 flex items-center justify-center border border-orange-200">
-                                <Flame className="w-4 h-4 text-orange-600" />
+                              <div className="w-9 h-9 rounded-lg bg-orange-500/20 flex items-center justify-center">
+                                <Flame className="w-4 h-4 text-orange-400" />
                               </div>
-                              <span className="text-xs sm:text-sm text-gray-700 font-medium">Burned</span>
+                              <span className="text-xs sm:text-sm text-slate-300 font-medium">Burned</span>
                             </div>
-                            <span className="text-lg sm:text-xl font-bold text-orange-600">{stats.caloriesBurned}</span>
+                            <span className="text-lg sm:text-xl font-bold text-orange-400">{stats.caloriesBurned}</span>
                           </div>
-                          <p className="text-xs text-gray-500 mt-2">from workouts</p>
+                          <p className="text-xs text-slate-400 mt-2">from workouts</p>
                         </motion.div>
 
                         {/* Remaining */}
-                        <motion.div whileHover={{ x: 4 }} className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                        <motion.div whileHover={{ x: 4 }} className="p-4 bg-blue-500/10 rounded-xl border border-blue-500/30">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center border border-blue-200">
-                                <Target className="w-4 h-4 text-blue-600" />
+                              <div className="w-9 h-9 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                                <Target className="w-4 h-4 text-blue-400" />
                               </div>
-                              <span className="text-xs sm:text-sm text-gray-700 font-medium">Remaining</span>
+                              <span className="text-xs sm:text-sm text-slate-300 font-medium">Remaining</span>
                             </div>
-                            <span className="text-lg sm:text-xl font-bold text-blue-600">
+                            <span className="text-lg sm:text-xl font-bold text-blue-400">
                               {stats.caloriesBudget - stats.calories + stats.caloriesBurned}
                             </span>
                           </div>
@@ -1057,15 +1184,15 @@ const TraineeDashboard = () => {
                       </div>
                     ) : (
                       <div className="space-y-3 animate-pulse">
-                        {[1, 2, 3].map(i => <div key={i} className="h-16 bg-gray-100 rounded-xl" />)}
+                        {[1, 2, 3].map(i => <div key={i} className="h-16 bg-slate-800 rounded-xl" />)}
                       </div>
                     )}
-                  </DashboardCard>
+                  </div>
 
                   {/* Water Card */}
-                  <DashboardCard className="p-5 sm:p-6">
+                  <div className="bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-800 shadow-lg">
                     <div className="flex items-center justify-between mb-5">
-                      <h3 className="text-base sm:text-lg font-bold text-blue-600 flex items-center gap-2">
+                      <h3 className="text-base sm:text-lg font-bold text-cyan-400 flex items-center gap-2">
                         <Droplet className="w-5 h-5" />
                         Water Intake
                       </h3>
@@ -1073,7 +1200,7 @@ const TraineeDashboard = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={logWater}
-                        className="px-3 sm:px-4 py-1.5 sm:py-2 btn-primary text-xs sm:text-sm flex items-center gap-1 sm:gap-2"
+                        className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg text-xs sm:text-sm flex items-center gap-1 sm:gap-2 font-semibold shadow-lg hover:shadow-xl transition-all"
                       >
                         <Plus className="w-4 h-4" />
                         <span className="hidden sm:inline">Add Glass</span>
@@ -1086,7 +1213,7 @@ const TraineeDashboard = () => {
                           <div className="relative">
                             <svg className="w-32 h-32 sm:w-40 sm:h-40 transform -rotate-90" viewBox="0 0 120 120">
                               {/* Background Circle */}
-                              <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" strokeWidth="8" />
+                              <circle cx="60" cy="60" r="54" fill="none" stroke="#1e293b" strokeWidth="8" />
                               {/* Progress Circle */}
                               <motion.circle
                                 cx="60"
@@ -1105,21 +1232,21 @@ const TraineeDashboard = () => {
                               />
                               <defs>
                                 <linearGradient id="waterGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                  <stop offset="0%" stopColor="#3B82F6" />
-                                  <stop offset="100%" stopColor="#06B6D4" />
+                                  <stop offset="0%" stopColor="#06B6D4" />
+                                  <stop offset="100%" stopColor="#3B82F6" />
                                 </linearGradient>
                               </defs>
                             </svg>
                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                              <span className="text-2xl sm:text-3xl font-extrabold text-blue-600">
+                              <span className="text-2xl sm:text-3xl font-extrabold text-cyan-400">
                                 {typeof stats.waterIntake === 'number' ? stats.waterIntake : '--'}
                               </span>
-                              <span className="text-xs sm:text-sm text-gray-500">/{typeof stats.waterGoal === 'number' ? stats.waterGoal : '--'}</span>
+                              <span className="text-xs sm:text-sm text-slate-400">/{typeof stats.waterGoal === 'number' ? stats.waterGoal : '--'} glasses</span>
                             </div>
                           </div>
                         </div>
                         <div className="text-center">
-                          <p className="text-xs sm:text-sm text-gray-500">
+                          <p className="text-xs sm:text-sm text-slate-400">
                             {stats.waterIntake >= stats.waterGoal 
                               ? '🎉 Goal Reached! Great hydration.' 
                               : `${stats.waterGoal - stats.waterIntake} more glasses to go`
@@ -1128,19 +1255,22 @@ const TraineeDashboard = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+                      <div className="h-40 bg-slate-800 rounded-xl animate-pulse" />
                     )}
-                  </DashboardCard>
+                  </div>
                 </motion.div>
 
                 {/* Recent Workouts */}
-                <DashboardCard className="p-5 sm:p-6">
+                <div className="bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-800 shadow-lg">
                   <div className="flex items-center justify-between mb-5">
-                    <h3 className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
-                      <Dumbbell className="w-5 h-5 text-primary-600" />
+                    <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                      <Dumbbell className="w-5 h-5 text-purple-400" />
                       Recent Workouts
                     </h3>
-                    <button className="text-xs sm:text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1 transition-colors">
+                    <button 
+                      onClick={() => setActiveTab('progress')}
+                      className="text-xs sm:text-sm font-medium text-purple-400 hover:text-purple-300 flex items-center gap-1 transition-colors"
+                    >
                       View All
                       <ChevronRight className="w-4 h-4" />
                     </button>
@@ -1150,31 +1280,38 @@ const TraineeDashboard = () => {
                       {workoutHistory.slice(0, 5).map((workout, index) => (
                         <motion.div 
                           key={workout.id} 
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
                           whileHover={{ x: 4 }}
-                          className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-primary-400 transition-colors"
+                          className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-purple-500/50 transition-all group"
                         >
                           <div className="flex items-center gap-3 flex-1 min-w-0">
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                              index === 0 ? 'bg-blue-100 text-blue-600' :
-                              index === 1 ? 'bg-green-100 text-green-600' :
-                              index === 2 ? 'bg-orange-100 text-orange-600' :
-                              'bg-purple-100 text-purple-600'
+                              index === 0 ? 'bg-blue-500/20 text-blue-400' :
+                              index === 1 ? 'bg-green-500/20 text-green-400' :
+                              index === 2 ? 'bg-purple-500/20 text-purple-400' :
+                              'bg-pink-500/20 text-pink-400'
                             }`}>
                               <Dumbbell className="w-5 h-5" />
                             </div>
                             <div className="min-w-0">
-                              <p className="font-semibold text-gray-900 text-sm sm:text-base">{workout.type}</p>
-                              <p className="text-xs sm:text-sm text-gray-500">{workout.date}</p>
+                              <p className="font-semibold text-white text-sm sm:text-base">{workout.type}</p>
+                              <p className="text-xs sm:text-sm text-slate-400">{workout.date}</p>
                             </div>
                           </div>
                           <div className="text-right flex-shrink-0 ml-2">
-                            <p className="font-bold text-primary-600 text-sm sm:text-base">
+                            <p className="font-bold text-purple-400 text-sm sm:text-base">
                               {workout.reps ? `${workout.reps} reps` : workout.duration}
                             </p>
                             <div className="flex items-center gap-2 text-xs sm:text-sm justify-end">
-                              <span className="text-green-600 font-medium">Form: {workout.formScore}%</span>
-                              <span className="text-gray-400">•</span>
-                              <span className="text-gray-500">{workout.calories} cal</span>
+                              {workout.formScore && (
+                                <>
+                                  <span className="text-green-400 font-medium">{workout.formScore}%</span>
+                                  <span className="text-slate-600">•</span>
+                                </>
+                              )}
+                              <span className="text-slate-400">{workout.calories} cal</span>
                             </div>
                           </div>
                         </motion.div>
@@ -1182,11 +1319,12 @@ const TraineeDashboard = () => {
                     </div>
                   ) : (
                     <div className="text-center py-8">
-                      <Dumbbell className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                      <p className="text-gray-500 text-sm">No workouts yet. Start tracking!</p>
+                      <Dumbbell className="w-12 h-12 mx-auto text-slate-600 mb-3" />
+                      <p className="text-slate-400 text-sm mb-2">No workouts yet</p>
+                      <p className="text-slate-500 text-xs">Start tracking your fitness journey!</p>
                     </div>
                   )}
-                </DashboardCard>
+                </div>
               </div>
             )}
             
@@ -1266,8 +1404,8 @@ const TraineeDashboard = () => {
                 {/* Today's Status Card */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Current Status */}
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-sm">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                       <Clock className="w-5 h-5 text-emerald-500" />
                       Today's Status
                     </h3>
@@ -1277,7 +1415,7 @@ const TraineeDashboard = () => {
                           ? 'bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/30' 
                           : attendanceStatus === 'checked_out'
                           ? 'bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30'
-                          : 'bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600'
+                          : 'bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-gray-600'
                       }`}>
                         <div className="flex items-center gap-3">
                           <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg ${
@@ -1296,18 +1434,18 @@ const TraineeDashboard = () => {
                             )}
                           </div>
                           <div>
-                            <p className="font-bold text-gray-900 dark:text-white">
+                            <p className="font-bold text-slate-900 dark:text-white">
                               {attendanceStatus === 'checked_in' ? 'Currently at Gym' :
                                attendanceStatus === 'checked_out' ? 'Session Completed' :
                                'Not Checked In'}
                             </p>
                             {attendanceData?.check_in_time && (
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                              <p className="text-sm text-slate-500 dark:text-slate-400">
                                 Check-in: {new Date(attendanceData.check_in_time).toLocaleTimeString()}
                               </p>
                             )}
                             {attendanceData?.check_out_time && (
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                              <p className="text-sm text-slate-500 dark:text-slate-400">
                                 Check-out: {new Date(attendanceData.check_out_time).toLocaleTimeString()}
                               </p>
                             )}
@@ -1354,19 +1492,19 @@ const TraineeDashboard = () => {
                 </div>
 
                 {/* Attendance History */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-                  <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 dark:from-gray-800 to-white dark:to-gray-800/50">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                      <History className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-sm overflow-hidden">
+                  <div className="p-6 border-b border-slate-800 bg-gradient-to-r from-gray-50 dark:from-gray-800 to-white dark:to-gray-800/50">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <History className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                       Recent Visits
                     </h3>
                   </div>
                   
                   {attendanceHistory.length === 0 ? (
                     <div className="p-12 text-center">
-                      <CalendarCheck className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">No attendance records yet</h3>
-                      <p className="text-gray-400 dark:text-gray-500">Start tracking your gym visits by checking in!</p>
+                      <CalendarCheck className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold text-slate-600 dark:text-slate-300 mb-2">No attendance records yet</h3>
+                      <p className="text-slate-400 dark:text-slate-500">Start tracking your gym visits by checking in!</p>
                     </div>
                   ) : (
                     <div className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -1376,7 +1514,7 @@ const TraineeDashboard = () => {
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: idx * 0.05 }}
-                          className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                          className="p-4 hover:bg-slate-700/30 transition-colors"
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
@@ -1388,14 +1526,14 @@ const TraineeDashboard = () => {
                                 <CalendarCheck className="w-6 h-6 text-white" />
                               </div>
                               <div>
-                                <p className="font-semibold text-gray-900 dark:text-white">
+                                <p className="font-semibold text-slate-900 dark:text-white">
                                   {new Date(record.date).toLocaleDateString('en-US', { 
                                     weekday: 'long', 
                                     month: 'short', 
                                     day: 'numeric' 
                                   })}
                                 </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                <p className="text-sm text-slate-500 dark:text-slate-400">
                                   {record.check_in_time && new Date(record.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                   {record.check_out_time && ` - ${new Date(record.check_out_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
                                 </p>
@@ -1404,8 +1542,8 @@ const TraineeDashboard = () => {
                             <div className="text-right">
                               {record.duration_minutes ? (
                                 <div className="flex items-center gap-2">
-                                  <Timer className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                                  <span className="font-bold text-gray-900 dark:text-white">{record.duration_minutes} min</span>
+                                  <Timer className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                                  <span className="font-bold text-slate-900 dark:text-white">{record.duration_minutes} min</span>
                                 </div>
                               ) : (
                                 <span className="px-3 py-1 bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 rounded-full text-sm font-medium">
@@ -1424,26 +1562,26 @@ const TraineeDashboard = () => {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700"
+                  className="bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-800"
                 >
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-primary-600" />
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-indigo-400" />
                       Monthly Attendance
                     </h3>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500 dark:text-gray-400 px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">
+                      <span className="text-xs text-slate-500 dark:text-slate-400 px-3 py-1 bg-gray-100 dark:bg-slate-700 rounded-full">
                         {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                       </span>
                     </div>
                   </div>
 
                   {/* Calendar Grid */}
-                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                  <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800">
                     {/* Days Header */}
                     <div className="grid grid-cols-7 gap-2 mb-4">
                       {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                        <div key={day} className="text-center text-xs font-bold text-gray-500 dark:text-gray-400 py-2">
+                        <div key={day} className="text-center text-xs font-bold text-slate-500 dark:text-slate-400 py-2">
                           {day}
                         </div>
                       ))}
@@ -1483,7 +1621,7 @@ const TraineeDashboard = () => {
                                   ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
                                   : isToday
                                   ? 'bg-primary-600 text-white border border-primary-400 shadow-md'
-                                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                  : 'bg-gray-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                               }`}
                               title={isCheckedIn ? 'Checked In' : isToday ? 'Today' : 'Not checked in'}
                             >
@@ -1501,15 +1639,15 @@ const TraineeDashboard = () => {
                   <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-4">
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-gradient-to-br from-green-500 to-emerald-500" />
-                      <span className="text-xs text-gray-600 dark:text-gray-400">Checked In</span>
+                      <span className="text-xs text-slate-600 dark:text-slate-400">Checked In</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-primary-600" />
-                      <span className="text-xs text-gray-600 dark:text-gray-400">Today</span>
+                      <span className="text-xs text-slate-600 dark:text-slate-400">Today</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded bg-gray-200 dark:bg-gray-700" />
-                      <span className="text-xs text-gray-600 dark:text-gray-400">Not Checked</span>
+                      <div className="w-4 h-4 rounded bg-gray-200 dark:bg-slate-700" />
+                      <span className="text-xs text-slate-600 dark:text-slate-400">Not Checked</span>
                     </div>
                   </div>
 
@@ -1522,16 +1660,16 @@ const TraineeDashboard = () => {
                       <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                         {attendanceStats?.current_streak || 0}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Current Streak</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Current Streak</p>
                     </motion.div>
                     <motion.div 
                       whileHover={{ y: -2 }}
                       className="bg-primary-50 dark:bg-primary-500/10 rounded-lg p-3 border border-primary-200 dark:border-primary-500/30 text-center"
                     >
-                      <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                      <p className="text-2xl font-bold text-indigo-400 dark:text-primary-400">
                         {attendanceHistory?.length || 0}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Total Visits</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Total Visits</p>
                     </motion.div>
                     <motion.div 
                       whileHover={{ y: -2 }}
@@ -1540,7 +1678,7 @@ const TraineeDashboard = () => {
                       <p className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">
                         {attendanceStats?.best_streak || 0}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Best Streak</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Best Streak</p>
                     </motion.div>
                   </div>
                 </motion.div>
@@ -1570,9 +1708,9 @@ const TraineeDashboard = () => {
             {/* Nutrition Tab - Real AI-powered nutrition tracker */}
             {activeTab === 'nutrition' && <NutritionTracker />}
 
-            {/* Progress Tab - Using Enhanced Progress Tracker */}
+            {/* Progress Tab - Using Simplified Progress Tracker */}
             {activeTab === 'progress' && (
-              <EnhancedProgressTracker />
+              <ProgressTracker />
             )}
 
             {/* AI Coach Tab - Using Enhanced AIChatbot */}
@@ -1605,10 +1743,10 @@ const TraineeDashboard = () => {
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-green-700 dark:text-green-400">Active Membership</h3>
-                        <p className="text-gray-700 dark:text-gray-300">
+                        <p className="text-slate-700 dark:text-slate-300">
                           {currentMembership.membership_type} • {currentMembership.days_remaining} days remaining
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
                           Expires: {new Date(currentMembership.end_date).toLocaleDateString()}
                         </p>
                       </div>
@@ -1619,10 +1757,10 @@ const TraineeDashboard = () => {
                 {/* Plans Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {plans.length === 0 ? (
-                    <div className="col-span-full text-center py-12 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
-                      <CreditCard className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">No Plans Available</h3>
-                      <p className="text-gray-400 dark:text-gray-500">Contact admin to add membership plans</p>
+                    <div className="col-span-full text-center py-12 bg-slate-900 rounded-2xl border border-slate-800">
+                      <CreditCard className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold text-slate-600 dark:text-slate-300 mb-2">No Plans Available</h3>
+                      <p className="text-slate-400 dark:text-slate-500">Contact admin to add membership plans</p>
                     </div>
                   ) : (
                     plans.map((plan, index) => (
@@ -1632,10 +1770,10 @@ const TraineeDashboard = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
                         whileHover={{ y: -4, scale: 1.02 }}
-                        className={`bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 transition-all duration-300 hover:shadow-xl ${
+                        className={`bg-slate-900 rounded-2xl p-6 border-2 transition-all duration-300 hover:shadow-xl ${
                           selectedPlan === plan.id
                             ? 'border-purple-500 shadow-lg shadow-purple-500/20'
-                            : 'border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-500/50'
+                            : 'border-slate-800 hover:border-purple-300 dark:hover:border-purple-500/50'
                         }`}
                       >
                         {/* Popular Badge */}
@@ -1646,12 +1784,12 @@ const TraineeDashboard = () => {
                         )}
                         
                         <div className="text-center mb-6">
-                          <div className="inline-block px-4 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+                          <div className="inline-block px-4 py-1.5 bg-gray-100 dark:bg-slate-700 rounded-full text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
                             {plan.name}
                           </div>
                           <div className="flex items-baseline justify-center gap-1">
-                            <span className="text-4xl font-bold text-gray-900 dark:text-white">₹{plan.price?.toLocaleString()}</span>
-                            <span className="text-gray-500 dark:text-gray-400">/{plan.duration_months} mo</span>
+                            <span className="text-4xl font-bold text-slate-900 dark:text-white">₹{plan.price?.toLocaleString()}</span>
+                            <span className="text-slate-500 dark:text-slate-400">/{plan.duration_months} mo</span>
                           </div>
                         </div>
 
@@ -1661,7 +1799,7 @@ const TraineeDashboard = () => {
                               <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                                 <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
                               </div>
-                              <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+                              <span className="text-slate-700 dark:text-slate-300">{feature}</span>
                             </li>
                           ))}
                           {(!plan.features || plan.features.length === 0) && (
@@ -1670,13 +1808,13 @@ const TraineeDashboard = () => {
                                 <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                                   <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
                                 </div>
-                                <span className="text-gray-700 dark:text-gray-300">Full gym access</span>
+                                <span className="text-slate-700 dark:text-slate-300">Full gym access</span>
                               </li>
                               <li className="flex items-start gap-3">
                                 <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                                   <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
                                 </div>
-                                <span className="text-gray-700 dark:text-gray-300">AI workout tracking</span>
+                                <span className="text-slate-700 dark:text-slate-300">AI workout tracking</span>
                               </li>
                             </>
                           )}
@@ -1687,7 +1825,7 @@ const TraineeDashboard = () => {
                           disabled={paymentLoading && selectedPlan === plan.id}
                           className={`w-full py-3.5 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
                             paymentLoading && selectedPlan === plan.id
-                              ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                              ? 'bg-gray-300 dark:bg-gray-600 text-slate-500 dark:text-slate-400 cursor-not-allowed'
                               : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-500/30'
                           }`}
                         >
@@ -1709,8 +1847,8 @@ const TraineeDashboard = () => {
                 </div>
 
                 {/* Payment Security Note */}
-                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 text-center border border-gray-200 dark:border-gray-700">
-                  <p className="text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center gap-2">
+                <div className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-4 text-center border border-slate-800">
+                  <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center justify-center gap-2">
                     <Shield className="w-4 h-4" />
                     Secure payments powered by Razorpay. Your payment information is encrypted.
                   </p>
@@ -1742,8 +1880,8 @@ const TraineeDashboard = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Contacts / Conversations List */}
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-                    <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                  <div className="bg-slate-900 rounded-2xl shadow-lg overflow-hidden border border-slate-800">
+                    <div className="p-4 border-b border-slate-800 bg-gray-50 dark:bg-slate-800/50">
                       <h3 className="font-semibold text-gray-800 dark:text-white flex items-center gap-2">
                         <Users className="w-4 h-4 text-teal-500" />
                         Conversations
@@ -1755,7 +1893,7 @@ const TraineeDashboard = () => {
                         <button
                           key={conv.user_id}
                           onClick={() => selectConversation({ id: conv.user_id, name: conv.user_name, role: conv.user_role })}
-                          className={`w-full p-4 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b border-gray-100 dark:border-gray-700 ${
+                          className={`w-full p-4 flex items-center gap-3 hover:bg-slate-700/30 transition-colors border-b border-gray-100 dark:border-slate-700 ${
                             selectedConversation?.id === conv.user_id ? 'bg-teal-50 dark:bg-teal-900/20' : ''
                           }`}
                         >
@@ -1771,7 +1909,7 @@ const TraineeDashboard = () => {
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{conv.last_message || 'No messages yet'}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{conv.last_message || 'No messages yet'}</p>
                             <span className="text-[10px] text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 rounded-full">{conv.user_role}</span>
                           </div>
                         </button>
@@ -1779,20 +1917,20 @@ const TraineeDashboard = () => {
                       
                       {/* New Contacts */}
                       {contacts.filter(c => !conversations.find(conv => conv.user_id === c.id)).length > 0 && (
-                        <div className="p-3 bg-gray-50 dark:bg-gray-800/50">
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 font-medium">Start a new conversation</p>
+                        <div className="p-3 bg-gray-50 dark:bg-slate-800/50">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">Start a new conversation</p>
                           {contacts.filter(c => !conversations.find(conv => conv.user_id === c.id)).map((contact) => (
                             <button
                               key={contact.id}
                               onClick={() => selectConversation(contact)}
-                              className="w-full p-3 flex items-center gap-3 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-colors mb-1"
+                              className="w-full p-3 flex items-center gap-3 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors mb-1"
                             >
                               <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-white font-bold text-xs">
                                 {contact.name?.charAt(0) || '?'}
                               </div>
                               <div className="flex-1 text-left">
-                                <p className="font-medium text-gray-700 dark:text-gray-200 text-sm">{contact.name}</p>
-                                <span className="text-[10px] text-gray-500 dark:text-gray-400">{contact.label}</span>
+                                <p className="font-medium text-slate-700 dark:text-gray-200 text-sm">{contact.name}</p>
+                                <span className="text-[10px] text-slate-500 dark:text-slate-400">{contact.label}</span>
                               </div>
                             </button>
                           ))}
@@ -1800,7 +1938,7 @@ const TraineeDashboard = () => {
                       )}
                       
                       {conversations.length === 0 && contacts.length === 0 && (
-                        <div className="p-6 text-center text-gray-400 dark:text-gray-500">
+                        <div className="p-6 text-center text-slate-400 dark:text-slate-500">
                           <Mail className="w-12 h-12 mx-auto mb-2 opacity-50" />
                           <p>No contacts available</p>
                         </div>
@@ -1809,11 +1947,11 @@ const TraineeDashboard = () => {
                   </div>
 
                   {/* Chat Area */}
-                  <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden flex flex-col h-[600px] border border-gray-200 dark:border-gray-700">
+                  <div className="lg:col-span-2 bg-slate-900 rounded-2xl shadow-lg overflow-hidden flex flex-col h-[600px] border border-slate-800">
                     {selectedConversation ? (
                       <>
                         {/* Chat Header */}
-                        <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-teal-500 to-cyan-500 text-white">
+                        <div className="p-4 border-b border-slate-800 bg-gradient-to-r from-teal-500 to-cyan-500 text-white">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold">
                               {selectedConversation.name?.charAt(0) || '?'}
@@ -1826,13 +1964,13 @@ const TraineeDashboard = () => {
                         </div>
 
                         {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-gray-900/50">
+                        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-950/50">
                           {messagesLoading ? (
                             <div className="flex items-center justify-center h-full">
                               <RefreshCw className="w-6 h-6 animate-spin text-teal-500" />
                             </div>
                           ) : conversationMessages.length === 0 ? (
-                            <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500">
+                            <div className="flex items-center justify-center h-full text-slate-400 dark:text-slate-500">
                               <p>No messages yet. Start the conversation!</p>
                             </div>
                           ) : (
@@ -1845,11 +1983,11 @@ const TraineeDashboard = () => {
                                   className={`max-w-[70%] p-3 rounded-2xl ${
                                     msg.is_mine
                                       ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-br-md shadow-md'
-                                      : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-bl-md shadow-sm border border-gray-200 dark:border-gray-700'
+                                      : 'bg-slate-900 text-gray-800 dark:text-gray-200 rounded-bl-md shadow-sm border border-slate-800'
                                   }`}
                                 >
                                   <p className="text-sm">{msg.message}</p>
-                                  <p className={`text-[10px] mt-1 ${msg.is_mine ? 'text-teal-100' : 'text-gray-400 dark:text-gray-500'}`}>
+                                  <p className={`text-[10px] mt-1 ${msg.is_mine ? 'text-teal-100' : 'text-slate-400 dark:text-slate-500'}`}>
                                     {msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                                   </p>
                                 </div>
@@ -1860,7 +1998,7 @@ const TraineeDashboard = () => {
                         </div>
 
                         {/* Message Input */}
-                        <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                        <div className="p-4 border-t border-slate-800 bg-slate-900">
                           <div className="flex items-center gap-2">
                             <input
                               type="text"
@@ -1868,7 +2006,7 @@ const TraineeDashboard = () => {
                               onChange={(e) => setNewMessage(e.target.value)}
                               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                               placeholder="Type a message..."
-                              className="flex-1 px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-400 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                              className="flex-1 px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-400 bg-gray-50 dark:bg-slate-700 text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                             />
                             <button
                               onClick={handleSendMessage}
@@ -1881,7 +2019,7 @@ const TraineeDashboard = () => {
                         </div>
                       </>
                     ) : (
-                      <div className="flex-1 flex items-center justify-center text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900/50">
+                      <div className="flex-1 flex items-center justify-center text-slate-400 dark:text-slate-500 bg-slate-950/50">
                         <div className="text-center">
                           <MessageCircle className="w-16 h-16 mx-auto mb-4 opacity-50" />
                           <p className="text-lg font-medium">Select a conversation</p>

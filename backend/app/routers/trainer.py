@@ -22,6 +22,7 @@ from app.schemas import UpdateSalaryRequest
 from app.schemas import PTPackageRequest
 from app.schemas import TrainerScheduleRequest
 from app.schemas import TraineeAttendanceMarkRequest
+from app.schemas import TraineeScheduleAssignRequest
 from app.models import (
     User,
     UserRole,
@@ -1398,6 +1399,166 @@ async def delete_my_schedule(
     db.delete(schedule)
     db.commit()
     return {"message": "Schedule deleted successfully"}
+
+
+# ==================== TRAINEE SCHEDULE ASSIGNMENT ====================
+
+@router.post("/schedule/assign-trainee")
+async def assign_trainee_to_schedule(
+    data: TraineeScheduleAssignRequest,
+    current_user: User = Depends(require_trainer_or_admin),
+    db: Session = Depends(get_db)
+):
+    """Assign a trainee to a schedule slot and send notification"""
+    trainer = get_trainer_profile(db, current_user)
+    if not trainer:
+        raise HTTPException(status_code=403, detail="Not a trainer")
+    
+    # Verify trainee access
+    trainee = ensure_trainee_access(db, current_user, data.trainee_id)
+    
+    # Create or update schedule slot
+    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    day_name = days[data.day_of_week] if data.day_of_week < 7 else "Unknown"
+    
+    # Check if slot already exists
+    existing = db.query(TrainerSchedule).filter(
+        TrainerSchedule.trainer_id == trainer.id,
+        TrainerSchedule.day_of_week == data.day_of_week,
+        TrainerSchedule.start_time == data.start_time,
+        TrainerSchedule.end_time == data.end_time
+    ).first()
+    
+    if existing:
+        existing.is_available = False  # Mark as booked
+        existing.trainee_id = data.trainee_id
+        existing.session_type = data.session_type
+        existing.notes = data.notes
+        schedule_id = existing.id
+    else:
+        # Create new schedule slot (booked)
+        schedule = TrainerSchedule(
+            trainer_id=trainer.id,
+            day_of_week=data.day_of_week,
+            start_time=data.start_time,
+            end_time=data.end_time,
+            is_available=False,  # Booked
+            trainee_id=data.trainee_id,
+            session_type=data.session_type,
+            notes=data.notes
+        )
+        db.add(schedule)
+        db.commit()
+        db.refresh(schedule)
+        schedule_id = schedule.id
+    
+    db.commit()
+    
+    # Send notification to trainee
+    if data.send_notification:
+        from app.models import Notification
+        notification = Notification(
+            user_id=trainee.user_id,
+            title="📅 New Training Session Scheduled",
+            message=f"Your trainer {trainer.user.name} has scheduled a {data.session_type.replace('_', ' ')} session for you on {day_name} from {data.start_time.strftime('%H:%M')} to {data.end_time.strftime('%H:%M')}.{' Notes: ' + data.notes if data.notes else ''}",
+            notification_type="schedule"
+        )
+        db.add(notification)
+        db.commit()
+    
+    return {
+        "message": "Trainee assigned to schedule successfully",
+        "schedule_id": schedule_id,
+        "notification_sent": data.send_notification
+    }
+
+
+@router.get("/schedule/assigned-trainees")
+async def get_assigned_trainee_schedules(
+    current_user: User = Depends(require_trainer_or_admin),
+    db: Session = Depends(get_db)
+):
+    """Get all schedules with assigned trainees for this trainer"""
+    trainer = get_trainer_profile(db, current_user)
+    if not trainer:
+        raise HTTPException(status_code=403, detail="Not a trainer")
+    
+    # Get schedules with assigned trainees
+    schedules = db.query(TrainerSchedule).filter(
+        TrainerSchedule.trainer_id == trainer.id,
+        TrainerSchedule.trainee_id.isnot(None)
+    ).order_by(TrainerSchedule.day_of_week).all()
+    
+    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    
+    result = []
+    for s in schedules:
+        trainee = db.query(Trainee).filter(Trainee.id == s.trainee_id).first()
+        result.append({
+            "id": s.id,
+            "day_of_week": s.day_of_week,
+            "day_name": days[s.day_of_week] if s.day_of_week < 7 else "Unknown",
+            "start_time": s.start_time.strftime("%H:%M") if s.start_time else None,
+            "end_time": s.end_time.strftime("%H:%M") if s.end_time else None,
+            "session_type": getattr(s, 'session_type', 'personal_training'),
+            "notes": getattr(s, 'notes', None),
+            "trainee": {
+                "id": trainee.id,
+                "name": trainee.user.name,
+                "email": trainee.user.email,
+                "phone": trainee.user.phone
+            } if trainee else None
+        })
+    
+    return {"assigned_schedules": result}
+
+
+@router.delete("/schedule/unassign-trainee/{schedule_id}")
+async def unassign_trainee_from_schedule(
+    schedule_id: int,
+    send_notification: bool = True,
+    current_user: User = Depends(require_trainer_or_admin),
+    db: Session = Depends(get_db)
+):
+    """Remove trainee assignment from a schedule slot"""
+    trainer = get_trainer_profile(db, current_user)
+    if not trainer:
+        raise HTTPException(status_code=403, detail="Not a trainer")
+    
+    schedule = db.query(TrainerSchedule).filter(
+        TrainerSchedule.id == schedule_id,
+        TrainerSchedule.trainer_id == trainer.id
+    ).first()
+    
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+    
+    trainee_id = getattr(schedule, 'trainee_id', None)
+    
+    # Send cancellation notification
+    if send_notification and trainee_id:
+        trainee = db.query(Trainee).filter(Trainee.id == trainee_id).first()
+        if trainee:
+            days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+            day_name = days[schedule.day_of_week] if schedule.day_of_week < 7 else "Unknown"
+            
+            from app.models import Notification
+            notification = Notification(
+                user_id=trainee.user_id,
+                title="⚠️ Training Session Cancelled",
+                message=f"Your training session on {day_name} from {schedule.start_time.strftime('%H:%M')} to {schedule.end_time.strftime('%H:%M')} has been cancelled by your trainer.",
+                notification_type="schedule"
+            )
+            db.add(notification)
+    
+    # Clear the trainee assignment but keep the slot available
+    schedule.trainee_id = None
+    schedule.is_available = True
+    schedule.session_type = None
+    schedule.notes = None
+    
+    db.commit()
+    return {"message": "Trainee unassigned from schedule successfully"}
     
     return {
         "schedule": [{

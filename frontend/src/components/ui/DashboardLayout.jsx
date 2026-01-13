@@ -11,10 +11,10 @@ export const DashboardLayout = ({
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Mobile Toggle Button */}
       <div className="md:hidden fixed top-0 left-0 right-0 bg-white shadow-md z-40 flex items-center justify-between px-4 py-3">
-        <h1 className="text-xl font-bold text-gray-900">FitMate</h1>
+        <h1 className="text-xl font-bold text-slate-900">FitMate</h1>
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="p-2 hover:bg-gray-100 rounded-lg"
@@ -37,7 +37,7 @@ export const DashboardLayout = ({
       </AnimatePresence>
 
       {/* Sidebar */}
-      <div className="fixed md:fixed md:w-64 h-screen bg-gray-900 text-white overflow-y-auto transition-all duration-300 z-40 hidden md:block">
+      <div className="fixed md:fixed md:w-64 h-screen bg-slate-900 text-white overflow-y-auto transition-all duration-300 z-40 hidden md:block">
         {sidebar}
       </div>
 
@@ -49,7 +49,7 @@ export const DashboardLayout = ({
             animate={{ x: 0 }}
             exit={{ x: -256 }}
             transition={{ duration: 0.3 }}
-            className="fixed w-64 h-screen bg-gray-900 text-white overflow-y-auto z-40 md:hidden"
+            className="fixed w-64 h-screen bg-slate-900 text-white overflow-y-auto z-40 md:hidden"
           >
             {sidebar}
           </motion.div>
@@ -59,10 +59,10 @@ export const DashboardLayout = ({
       {/* Main Content */}
       <div className="md:ml-64">
         {/* Header */}
-        {header && <div className="sticky top-0 bg-white border-b border-gray-200 shadow-sm z-20 hidden md:block">{header}</div>}
+        {header && <div className="sticky top-0 bg-white border-b border-slate-200 shadow-sm z-20 hidden md:block">{header}</div>}
 
         {/* Mobile Top Spacing */}
-        <div className="h-16 md:h-0 bg-gray-50" />
+        <div className="h-16 md:h-0 bg-slate-50" />
 
         {/* Content */}
         <main className={`section-container min-h-screen ${className}`}>{children}</main>
@@ -75,8 +75,8 @@ export const DashboardHeader = ({ title, subtitle, actions, className = '' }) =>
   return (
     <div className={`px-6 py-4 flex items-center justify-between ${className}`}>
       <div>
-        <h1 className="heading-2 text-gray-900">{title}</h1>
-        {subtitle && <p className="text-gray-500 text-sm mt-1">{subtitle}</p>}
+        <h1 className="heading-2 text-slate-900">{title}</h1>
+        {subtitle && <p className="text-slate-500 text-sm mt-1">{subtitle}</p>}
       </div>
       {actions && <div className="flex gap-2">{actions}</div>}
     </div>
@@ -93,9 +93,9 @@ export const DashboardSidebar = ({
   return (
     <div className={`flex flex-col h-full ${className}`}>
       {/* Sidebar Header */}
-      <div className="p-6 border-b border-gray-700">
+      <div className="p-6 border-b border-slate-700">
         <h2 className="text-xl font-bold">FitMate</h2>
-        <p className="text-gray-400 text-xs mt-1">Fitness Tracking</p>
+        <p className="text-slate-400 text-xs mt-1">Fitness Tracking</p>
       </div>
 
       {/* Sidebar Items */}
@@ -110,7 +110,7 @@ export const DashboardSidebar = ({
               ${
                 activeTab === item.id
                   ? 'bg-primary-600 text-white'
-                  : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
               }
             `}
           >
@@ -126,7 +126,7 @@ export const DashboardSidebar = ({
       </nav>
 
       {/* Sidebar Footer */}
-      {footer && <div className="border-t border-gray-700 p-4">{footer}</div>}
+      {footer && <div className="border-t border-slate-700 p-4">{footer}</div>}
     </div>
   )
 }
@@ -158,8 +158,8 @@ export const DashboardSection = ({
     <div className={`space-y-4 ${className}`}>
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="heading-2 text-gray-900">{title}</h2>
-          {subtitle && <p className="text-gray-500 text-sm mt-1">{subtitle}</p>}
+          <h2 className="heading-2 text-slate-900">{title}</h2>
+          {subtitle && <p className="text-slate-500 text-sm mt-1">{subtitle}</p>}
         </div>
         {action && <div>{action}</div>}
       </div>

@@ -396,9 +396,11 @@ async def add_measurement(
     current_user: User = Depends(require_role(["trainee"])),
     db: Session = Depends(get_db),
 ):
-    new_measurement = Measurement(
+    from app.models import ProgressMeasurement
+    
+    new_measurement = ProgressMeasurement(
         trainee_id=current_user.id,
-        date=datetime.utcnow(),
+        date=date.today(),
         weight=measurement.weight,
         body_fat=measurement.body_fat,
         muscle_mass=measurement.muscle_mass,
@@ -413,7 +415,12 @@ async def add_measurement(
     db.commit()
     db.refresh(new_measurement)
 
-    return {"message": "Measurement added successfully"}
+    return {
+        "message": "Measurement saved successfully",
+        "id": new_measurement.id,
+        "date": new_measurement.date.isoformat(),
+        "weight": new_measurement.weight
+    }
 
 
 @router.delete("/measurements/{measurement_id}")

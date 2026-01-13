@@ -189,7 +189,7 @@ export default function NutritionTrackerEnhanced() {
               className={`px-6 py-3 font-medium border-b-2 transition-colors flex items-center gap-2 ${
                 activeTab === tab.id
                   ? 'border-green-500 text-green-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  : 'border-transparent text-slate-600 hover:text-gray-900'
               }`}
             >
               <Icon className="w-5 h-5" />
@@ -214,8 +214,8 @@ export default function NutritionTrackerEnhanced() {
           )}
           
           {recommendations.status === 'over' && (
-            <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-lg flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0 mt-1" />
+            <div className="bg-sky-50 border-l-4 border-orange-500 p-4 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-sky-500 flex-shrink-0 mt-1" />
               <div>
                 <p className="font-semibold text-orange-900">Exceeded Goal</p>
                 <p className="text-orange-800 text-sm">You've consumed {Math.abs(remaining.calories)?.toFixed(0) || 0} extra calories</p>
@@ -232,7 +232,7 @@ export default function NutritionTrackerEnhanced() {
                 <span className="text-2xl">🔥</span>
               </div>
               <div className="flex items-baseline gap-2 mb-3">
-                <span className="text-3xl font-bold text-orange-600">{totals.calories?.toFixed(0) || 0}</span>
+                <span className="text-3xl font-bold text-sky-600">{totals.calories?.toFixed(0) || 0}</span>
                 <span className="text-sm text-orange-700">/ {goals.calories?.toFixed(0) || 2000}</span>
               </div>
               <div className="w-full bg-orange-200 rounded-full h-3">
@@ -331,7 +331,7 @@ export default function NutritionTrackerEnhanced() {
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   inputTab === 'manual'
                     ? 'bg-green-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 text-slate-700 hover:bg-gray-200'
                 }`}
               >
                 Manual Entry
@@ -341,7 +341,7 @@ export default function NutritionTrackerEnhanced() {
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   inputTab === 'scan'
                     ? 'bg-green-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 text-slate-700 hover:bg-gray-200'
                 }`}
               >
                 Scan Photo
@@ -352,34 +352,34 @@ export default function NutritionTrackerEnhanced() {
             {inputTab === 'manual' && (
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Food Name *</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Food Name *</label>
                   <input
                     type="text"
                     value={foodName}
                     onChange={(e) => setFoodName(e.target.value)}
                     placeholder="e.g., Grilled Chicken, Brown Rice, Salad"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Example: chicken breast, rice, eggs, milk, yogurt, etc.</p>
+                  <p className="text-xs text-slate-500 mt-1">Example: chicken breast, rice, eggs, milk, yogurt, etc.</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Portion (grams)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Portion (grams)</label>
                     <input
                       type="number"
                       value={portionGrams}
                       onChange={(e) => setPortionGrams(e.target.value)}
                       min="1"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none"
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Meal Type</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Meal Type</label>
                     <select
                       value={mealType}
                       onChange={(e) => setMealType(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none"
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none"
                     >
                       <option value="breakfast">🌅 Breakfast</option>
                       <option value="lunch">🍽️ Lunch</option>
@@ -390,13 +390,13 @@ export default function NutritionTrackerEnhanced() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Notes (optional)</label>
                   <input
                     type="text"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="e.g., cooked in olive oil, with sauce"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none"
                   />
                 </div>
 
@@ -414,11 +414,11 @@ export default function NutritionTrackerEnhanced() {
             {inputTab === 'scan' && (
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Meal Type</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Meal Type</label>
                   <select
                     value={mealType}
                     onChange={(e) => setMealType(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg"
                   >
                     <option value="breakfast">🌅 Breakfast</option>
                     <option value="lunch">🍽️ Lunch</option>
@@ -438,14 +438,14 @@ export default function NutritionTrackerEnhanced() {
                   {analyzing ? (
                     <div className="flex flex-col items-center gap-2">
                       <Loader className="w-8 h-8 text-green-500 animate-spin" />
-                      <p className="text-sm font-medium text-gray-700">Analyzing meal...</p>
-                      <p className="text-xs text-gray-500">Using AI to identify foods</p>
+                      <p className="text-sm font-medium text-slate-700">Analyzing meal...</p>
+                      <p className="text-xs text-slate-500">Using AI to identify foods</p>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center gap-2">
-                      <Upload className="w-8 h-8 text-gray-400" />
-                      <p className="text-sm font-medium text-gray-700">Click to upload meal photo</p>
-                      <p className="text-xs text-gray-500">AI will analyze nutrition automatically</p>
+                      <Upload className="w-8 h-8 text-slate-400" />
+                      <p className="text-sm font-medium text-slate-700">Click to upload meal photo</p>
+                      <p className="text-xs text-slate-500">AI will analyze nutrition automatically</p>
                     </div>
                   )}
                 </label>
@@ -459,9 +459,9 @@ export default function NutritionTrackerEnhanced() {
             
             {!dailyData?.meals || dailyData.meals.length === 0 ? (
               <div className="text-center py-8">
-                <Lightbulb className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500 font-medium">No meals logged yet</p>
-                <p className="text-sm text-gray-400">Start by adding a food or scanning a meal photo</p>
+                <Lightbulb className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500 font-medium">No meals logged yet</p>
+                <p className="text-sm text-slate-400">Start by adding a food or scanning a meal photo</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -480,7 +480,7 @@ export default function NutritionTrackerEnhanced() {
                         </span>
                         <div>
                           <p className="font-semibold text-gray-900">{meal.food}</p>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-slate-600">
                             {meal.portion_grams}g • {meal.meal_type}
                           </p>
                         </div>
@@ -489,7 +489,7 @@ export default function NutritionTrackerEnhanced() {
                     <div className="text-right mr-4">
                       <p className="font-bold text-gray-900">{meal.calories?.toFixed(0) || 0} cal</p>
                       {meal.nutrition && (
-                        <p className="text-xs text-gray-600">
+                        <p className="text-xs text-slate-600">
                           P: {meal.nutrition.protein?.toFixed(0)}g | C: {meal.nutrition.carbs?.toFixed(0)}g | F: {meal.nutrition.fats?.toFixed(0)}g
                         </p>
                       )}
@@ -538,8 +538,8 @@ export default function NutritionTrackerEnhanced() {
                     return (
                       <div key={mealTime} className="bg-gray-50 rounded p-3 text-sm">
                         <p className="font-medium text-gray-900 capitalize mb-1">{mealTime}</p>
-                        <p className="text-gray-700">{meal?.name}</p>
-                        <p className="text-xs text-gray-600 mt-1">
+                        <p className="text-slate-700">{meal?.name}</p>
+                        <p className="text-xs text-slate-600 mt-1">
                           {meal?.cal} cal | P: {meal?.protein}g C: {meal?.carbs}g F: {meal?.fats}g
                         </p>
                       </div>

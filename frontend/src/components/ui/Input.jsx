@@ -18,10 +18,10 @@ const Input = forwardRef(({
     'w-full border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100'
 
   const variants = {
-    default: 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500/20',
-    error: 'border-red-300 bg-white text-gray-900 placeholder-gray-400 focus:border-red-500 focus:ring-red-500/20',
-    success: 'border-green-300 bg-white text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-green-500/20',
-    dark: 'border-gray-600 bg-gray-800 text-white placeholder-gray-500 focus:border-primary-500 focus:ring-primary-500/20'
+    default: 'border-slate-300 bg-white text-slate-900 placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500/20',
+    error: 'border-red-300 bg-white text-slate-900 placeholder-gray-400 focus:border-red-500 focus:ring-red-500/20',
+    success: 'border-green-300 bg-white text-slate-900 placeholder-gray-400 focus:border-green-500 focus:ring-green-500/20',
+    dark: 'border-slate-600 bg-slate-800 text-white placeholder-gray-500 focus:border-primary-500 focus:ring-primary-500/20'
   }
 
   const sizes = {
@@ -41,14 +41,14 @@ const Input = forwardRef(({
   return (
     <div className={`relative ${containerClassName}`}>
       {label && (
-        <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor={id} className="block text-sm font-medium text-slate-700 mb-2">
           {label}
         </label>
       )}
 
       <div className="relative">
         {icon && iconPosition === 'left' && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
             {icon}
           </div>
         )}
@@ -64,7 +64,7 @@ const Input = forwardRef(({
         />
 
         {icon && iconPosition === 'right' && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
             {icon}
           </div>
         )}
@@ -81,7 +81,7 @@ const Input = forwardRef(({
       )}
 
       {helperText && !error && (
-        <p className="mt-1 text-sm text-gray-500">{helperText}</p>
+        <p className="mt-1 text-sm text-slate-500">{helperText}</p>
       )}
     </div>
   )

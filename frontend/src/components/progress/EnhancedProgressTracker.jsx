@@ -569,7 +569,7 @@ const EnhancedProgressTracker = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowAddForm(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white text-orange-600 rounded-xl font-bold text-sm hover:bg-orange-50 transition-all shadow-lg"
+              className="flex items-center gap-2 px-5 py-2.5 bg-white text-sky-600 rounded-xl font-bold text-sm hover:bg-sky-50 transition-all shadow-lg"
             >
               <Plus className="w-5 h-5" />
               Log Progress
@@ -632,8 +632,8 @@ const EnhancedProgressTracker = () => {
             onClick={() => setActiveView(tab.id)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap ${
               activeView === tab.id
-                ? 'bg-orange-500 text-white shadow-lg'
-                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                ? 'bg-sky-500 text-white shadow-lg'
+                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700'
             }`}
           >
             <tab.icon className="w-4 h-4" />
@@ -723,7 +723,7 @@ const EnhancedProgressTracker = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-5 text-white shadow-xl"
+              className="bg-gradient-to-br from-sky-500 to-blue-600 rounded-2xl p-5 text-white shadow-xl"
             >
               <div className="flex items-center justify-between mb-3">
                 <Target className="w-8 h-8 text-orange-200" />
@@ -748,10 +748,10 @@ const EnhancedProgressTracker = () => {
 
           {/* BMI & Health Metrics */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-bold text-gray-900 dark:text-white">📊 BMI</h3>
-                <Info className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" title="Body Mass Index" />
+                <Info className="w-4 h-4 text-slate-400 dark:text-slate-500 cursor-help" title="Body Mass Index" />
               </div>
               <div className="flex items-end gap-2">
                 <span className="text-4xl font-bold text-gray-900 dark:text-white">{bmi || '--'}</span>
@@ -772,7 +772,7 @@ const EnhancedProgressTracker = () => {
                   />
                 )}
               </div>
-              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">
+              <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
                 <span>15</span>
                 <span>18.5</span>
                 <span>25</span>
@@ -781,44 +781,44 @@ const EnhancedProgressTracker = () => {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-bold text-gray-900 dark:text-white">🔥 BMR</h3>
-                <Info className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" title="Basal Metabolic Rate" />
+                <Info className="w-4 h-4 text-slate-400 dark:text-slate-500 cursor-help" title="Basal Metabolic Rate" />
               </div>
               <div className="flex items-end gap-2">
                 <span className="text-4xl font-bold text-gray-900 dark:text-white">{bmr || '--'}</span>
-                <span className="text-gray-500 dark:text-gray-400 mb-1 font-medium">kcal/day</span>
+                <span className="text-slate-500 dark:text-slate-400 mb-1 font-medium">kcal/day</span>
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
                 Calories burned at rest
               </p>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-bold text-gray-900 dark:text-white">⚡ TDEE</h3>
-                <Info className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" title="Total Daily Energy Expenditure" />
+                <Info className="w-4 h-4 text-slate-400 dark:text-slate-500 cursor-help" title="Total Daily Energy Expenditure" />
               </div>
               <div className="flex items-end gap-2">
                 <span className="text-4xl font-bold text-gray-900 dark:text-white">{tdee || '--'}</span>
-                <span className="text-gray-500 dark:text-gray-400 mb-1 font-medium">kcal/day</span>
+                <span className="text-slate-500 dark:text-slate-400 mb-1 font-medium">kcal/day</span>
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
                 Maintenance calories
               </p>
             </div>
           </div>
 
           {/* Progress Chart */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <h3 className="font-bold text-gray-900 dark:text-white text-lg">📉 Weight Progress</h3>
               <div className="flex items-center gap-2 flex-wrap">
                 <select
                   value={timeRange}
                   onChange={(e) => setTimeRange(e.target.value)}
-                  className="px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 border-0 focus:ring-2 focus:ring-orange-500"
+                  className="px-3 py-2 bg-gray-100 dark:bg-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 border-0 focus:ring-2 focus:ring-sky-500"
                 >
                   <option value="7">Last 7 days</option>
                   <option value="30">Last 30 days</option>
@@ -826,13 +826,13 @@ const EnhancedProgressTracker = () => {
                   <option value="365">Last year</option>
                   <option value="all">All time</option>
                 </select>
-                <div className="flex bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
+                <div className="flex bg-gray-100 dark:bg-slate-700 rounded-xl p-1">
                   {['area', 'line', 'bar'].map(type => (
                     <button
                       key={type}
                       onClick={() => setChartType(type)}
                       className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                        chartType === type ? 'bg-white dark:bg-gray-600 shadow text-orange-600 dark:text-orange-400' : 'text-gray-600 dark:text-gray-400'
+                        chartType === type ? 'bg-white dark:bg-gray-600 shadow text-sky-600 dark:text-sky-400' : 'text-slate-600 dark:text-slate-400'
                       }`}
                     >
                       {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -912,13 +912,13 @@ const EnhancedProgressTracker = () => {
                 )}
               </ResponsiveContainer>
             ) : (
-              <div className="h-[300px] flex items-center justify-center text-gray-500">
+              <div className="h-[300px] flex items-center justify-center text-slate-500">
                 <div className="text-center">
-                  <BarChart3 className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                  <BarChart3 className="w-12 h-12 mx-auto mb-3 text-slate-300" />
                   <p>No data available for this period</p>
                   <button
                     onClick={() => setShowAddForm(true)}
-                    className="mt-3 text-orange-500 font-medium hover:underline"
+                    className="mt-3 text-sky-500 font-medium hover:underline"
                   >
                     Add your first measurement
                   </button>
@@ -966,7 +966,7 @@ const EnhancedProgressTracker = () => {
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-gray-200">
               <h3 className="font-bold text-gray-900 text-lg">Measurement History</h3>
-              <p className="text-gray-500 text-sm mt-1">Track all your body measurements over time</p>
+              <p className="text-slate-500 text-sm mt-1">Track all your body measurements over time</p>
             </div>
             
             {measurements.length > 0 ? (
@@ -974,13 +974,13 @@ const EnhancedProgressTracker = () => {
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Weight</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Body Fat</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Muscle</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Waist</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Chest</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Notes</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Weight</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Body Fat</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Muscle</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Waist</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Chest</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Notes</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -989,22 +989,22 @@ const EnhancedProgressTracker = () => {
                         <td className="px-6 py-4 text-sm font-medium text-gray-900">
                           {new Date(m.date).toLocaleDateString()}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-700">
+                        <td className="px-6 py-4 text-sm text-slate-700">
                           {m.weight ? `${m.weight} kg` : '--'}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-700">
+                        <td className="px-6 py-4 text-sm text-slate-700">
                           {m.bodyFat ? `${m.bodyFat}%` : '--'}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-700">
+                        <td className="px-6 py-4 text-sm text-slate-700">
                           {m.muscleMass ? `${m.muscleMass} kg` : '--'}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-700">
+                        <td className="px-6 py-4 text-sm text-slate-700">
                           {m.waist ? `${m.waist} cm` : '--'}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-700">
+                        <td className="px-6 py-4 text-sm text-slate-700">
                           {m.chest ? `${m.chest} cm` : '--'}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                        <td className="px-6 py-4 text-sm text-slate-500 max-w-xs truncate">
                           {m.notes || '--'}
                         </td>
                       </tr>
@@ -1014,11 +1014,11 @@ const EnhancedProgressTracker = () => {
               </div>
             ) : (
               <div className="p-12 text-center">
-                <Scale className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                <p className="text-gray-500">No measurements recorded yet</p>
+                <Scale className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+                <p className="text-slate-500">No measurements recorded yet</p>
                 <button
                   onClick={() => setShowAddForm(true)}
-                  className="mt-4 px-6 py-2 bg-orange-500 text-white rounded-xl font-medium hover:bg-orange-600 transition-all"
+                  className="mt-4 px-6 py-2 bg-sky-500 text-white rounded-xl font-medium hover:bg-orange-600 transition-all"
                 >
                   Add First Measurement
                 </button>
@@ -1037,12 +1037,12 @@ const EnhancedProgressTracker = () => {
               <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
                 <h3 className="font-bold text-gray-900 text-lg mb-4">Current Goals</h3>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-orange-50 rounded-xl">
+                  <div className="flex items-center justify-between p-4 bg-sky-50 rounded-xl">
                     <div className="flex items-center gap-3">
-                      <Target className="w-6 h-6 text-orange-500" />
+                      <Target className="w-6 h-6 text-sky-500" />
                       <span className="font-medium text-gray-900">Target Weight</span>
                     </div>
-                    <span className="text-xl font-bold text-orange-600">
+                    <span className="text-xl font-bold text-sky-600">
                       {goals.targetWeight ? `${goals.targetWeight} kg` : 'Not set'}
                     </span>
                   </div>
@@ -1079,7 +1079,7 @@ const EnhancedProgressTracker = () => {
                     setGoalFormData(goals)
                     setShowGoalForm(true)
                   }}
-                  className="mt-6 w-full py-3 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-all"
+                  className="mt-6 w-full py-3 bg-sky-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-all"
                 >
                   Update Goals
                 </button>
@@ -1091,10 +1091,10 @@ const EnhancedProgressTracker = () => {
                 {goals.targetWeight && latestMeasurement ? (
                   <div className="relative pt-4">
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-600">
+                      <span className="text-sm font-medium text-slate-600">
                         Start: {firstMeasurement?.weight || '--'} kg
                       </span>
-                      <span className="text-sm font-medium text-gray-600">
+                      <span className="text-sm font-medium text-slate-600">
                         Goal: {goals.targetWeight} kg
                       </span>
                     </div>
@@ -1114,11 +1114,11 @@ const EnhancedProgressTracker = () => {
                       <p className="text-3xl font-bold text-gray-900">
                         {latestMeasurement.weight} kg
                       </p>
-                      <p className="text-gray-500 text-sm">Current Weight</p>
+                      <p className="text-slate-500 text-sm">Current Weight</p>
                       {latestMeasurement && goals.targetWeight && (
                         <div className="mt-3">
                           <p className="text-sm">
-                            <span className="text-orange-600 font-medium">
+                            <span className="text-sky-600 font-medium">
                               {Math.abs(latestMeasurement.weight - goals.targetWeight).toFixed(1)} kg
                             </span>
                             {' '}remaining to goal
@@ -1133,12 +1133,12 @@ const EnhancedProgressTracker = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="h-64 flex flex-col items-center justify-center text-gray-500">
-                    <Target className="w-12 h-12 text-gray-300 mb-3" />
+                  <div className="h-64 flex flex-col items-center justify-center text-slate-500">
+                    <Target className="w-12 h-12 text-slate-300 mb-3" />
                     <p>Set a goal to track progress</p>
                     <button
                       onClick={() => setShowGoalForm(true)}
-                      className="mt-4 px-6 py-2 bg-orange-500 text-white rounded-xl font-medium hover:bg-orange-600 transition-all"
+                      className="mt-4 px-6 py-2 bg-sky-500 text-white rounded-xl font-medium hover:bg-orange-600 transition-all"
                     >
                       Set Goal
                     </button>
@@ -1152,7 +1152,7 @@ const EnhancedProgressTracker = () => {
               <h3 className="font-bold text-gray-900 text-lg mb-6">Update Your Goals</h3>
               <div className="space-y-5">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Target Weight (kg) *
                   </label>
                   <input
@@ -1160,14 +1160,14 @@ const EnhancedProgressTracker = () => {
                     step="0.1"
                     value={goalFormData.targetWeight}
                     onChange={(e) => setGoalFormData({ ...goalFormData, targetWeight: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                     placeholder="70"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Your ideal target weight</p>
+                  <p className="text-xs text-slate-500 mt-1">Your ideal target weight</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Target Body Fat (%)
                   </label>
                   <input
@@ -1175,46 +1175,46 @@ const EnhancedProgressTracker = () => {
                     step="0.1"
                     value={goalFormData.targetBodyFat}
                     onChange={(e) => setGoalFormData({ ...goalFormData, targetBodyFat: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                     placeholder="15"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Optional: target body fat percentage</p>
+                  <p className="text-xs text-slate-500 mt-1">Optional: target body fat percentage</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Target Date
                   </label>
                   <input
                     type="date"
                     value={goalFormData.targetDate}
                     onChange={(e) => setGoalFormData({ ...goalFormData, targetDate: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Optional: when do you want to reach this goal?</p>
+                  <p className="text-xs text-slate-500 mt-1">Optional: when do you want to reach this goal?</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Primary Fitness Goal
                   </label>
                   <select
                     value={goalFormData.fitnessGoal}
                     onChange={(e) => setGoalFormData({ ...goalFormData, fitnessGoal: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                   >
                     <option value="weight_loss">Weight Loss</option>
                     <option value="muscle_gain">Muscle Gain</option>
                     <option value="maintenance">Maintenance</option>
                   </select>
-                  <p className="text-xs text-gray-500 mt-1">This helps us personalize your recommendations</p>
+                  <p className="text-xs text-slate-500 mt-1">This helps us personalize your recommendations</p>
                 </div>
               </div>
 
               <div className="mt-6 flex gap-3">
                 <button
                   onClick={() => setShowGoalForm(false)}
-                  className="flex-1 py-3 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-100 transition-all"
+                  className="flex-1 py-3 border border-slate-300 rounded-xl font-semibold text-slate-700 hover:bg-gray-100 transition-all"
                 >
                   Cancel
                 </button>
@@ -1272,7 +1272,7 @@ const EnhancedProgressTracker = () => {
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[350px] flex items-center justify-center text-gray-500">
+              <div className="h-[350px] flex items-center justify-center text-slate-500">
                 No data available
               </div>
             )}
@@ -1344,7 +1344,7 @@ const EnhancedProgressTracker = () => {
               <div key={item.label} className={`bg-${item.color}-50 rounded-2xl p-5 border border-${item.color}-100`}>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xl">{item.icon}</span>
-                  <span className="font-medium text-gray-700">{item.label}</span>
+                  <span className="font-medium text-slate-700">{item.label}</span>
                 </div>
                 <p className="text-3xl font-bold text-gray-900">
                   {item.value ? `${item.value} cm` : '--'}
@@ -1375,7 +1375,7 @@ const EnhancedProgressTracker = () => {
               <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Log Progress</h2>
-                  <p className="text-gray-500 text-sm">Record your measurements for today</p>
+                  <p className="text-slate-500 text-sm">Record your measurements for today</p>
                 </div>
                 <div className="flex gap-2">
                   {measurements.length > 0 && (
@@ -1402,21 +1402,21 @@ const EnhancedProgressTracker = () => {
                   <h3 className="font-semibold text-gray-900 mb-3">📅 When</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
                       <input
                         type="date"
                         value={formData.measurement_date}
                         onChange={(e) => setFormData({ ...formData, measurement_date: e.target.value })}
                         max={new Date().toISOString().split('T')[0]}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Time</label>
                       <select
                         value={formData.measurement_time}
                         onChange={(e) => setFormData({ ...formData, measurement_time: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                       >
                         <option value="morning">Morning (Fasted)</option>
                         <option value="afternoon">Afternoon</option>
@@ -1432,40 +1432,40 @@ const EnhancedProgressTracker = () => {
                   <h3 className="font-semibold text-gray-900 mb-3">Primary Metrics</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Weight (kg) *</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Weight (kg) *</label>
                       <input
                         type="number"
                         step="0.1"
                         value={formData.weight}
                         onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                         placeholder="70.5"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Body Fat (%)</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Body Fat (%)</label>
                       <input
                         type="number"
                         step="0.1"
                         value={formData.body_fat}
                         onChange={(e) => setFormData({ ...formData, body_fat: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                         placeholder="15.0"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Muscle Mass (kg)</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Muscle Mass (kg)</label>
                       <input
                         type="number"
                         step="0.1"
                         value={formData.muscle_mass}
                         onChange={(e) => setFormData({ ...formData, muscle_mass: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                         placeholder="55.0"
                       />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">* Required field only</p>
+                  <p className="text-xs text-slate-500 mt-2">* Required field only</p>
                 </div>
 
                 {/* Body Measurements */}
@@ -1483,19 +1483,19 @@ const EnhancedProgressTracker = () => {
                       { key: 'shoulders', label: 'Shoulders', placeholder: '120' },
                     ].map(field => (
                       <div key={field.key}>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">{field.label}</label>
                         <input
                           type="number"
                           step="0.1"
                           value={formData[field.key]}
                           onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                           placeholder={field.placeholder}
                         />
                       </div>
                     ))}
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">All measurements are optional</p>
+                  <p className="text-xs text-slate-500 mt-2">All measurements are optional</p>
                 </div>
 
                 {/* Workout Activity */}
@@ -1503,11 +1503,11 @@ const EnhancedProgressTracker = () => {
                   <h3 className="font-semibold text-gray-900 mb-3">🏋️ Workout Today</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Did You Exercise?</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Did You Exercise?</label>
                       <select
                         value={formData.workout_today}
                         onChange={(e) => setFormData({ ...formData, workout_today: e.target.value === 'true' })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                       >
                         <option value="false">Rest Day</option>
                         <option value="true">Yes, I Worked Out</option>
@@ -1517,11 +1517,11 @@ const EnhancedProgressTracker = () => {
                     {formData.workout_today && (
                       <>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                          <label className="block text-sm font-medium text-slate-700 mb-1">Type</label>
                           <select
                             value={formData.workout_type}
                             onChange={(e) => setFormData({ ...formData, workout_type: e.target.value })}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                            className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                           >
                             <option value="strength">Strength</option>
                             <option value="cardio">Cardio</option>
@@ -1531,23 +1531,23 @@ const EnhancedProgressTracker = () => {
                         </div>
                         
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Duration (min)</label>
+                          <label className="block text-sm font-medium text-slate-700 mb-1">Duration (min)</label>
                           <input
                             type="number"
                             value={formData.workout_duration}
                             onChange={(e) => setFormData({ ...formData, workout_duration: e.target.value })}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                            className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                             placeholder="45"
                             min="0"
                           />
                         </div>
                         
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Intensity</label>
+                          <label className="block text-sm font-medium text-slate-700 mb-1">Intensity</label>
                           <select
                             value={formData.workout_intensity}
                             onChange={(e) => setFormData({ ...formData, workout_intensity: e.target.value })}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                            className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                           >
                             <option value="light">Light</option>
                             <option value="moderate">Moderate</option>
@@ -1565,17 +1565,17 @@ const EnhancedProgressTracker = () => {
                   <h3 className="font-semibold text-gray-900 mb-3">💧 Hydration</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Water Intake (Liters)</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Water Intake (Liters)</label>
                       <input
                         type="number"
                         step="0.5"
                         value={formData.water_intake}
                         onChange={(e) => setFormData({ ...formData, water_intake: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                         placeholder="2.5"
                         min="0"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Typical: 2-3L/day</p>
+                      <p className="text-xs text-slate-500 mt-1">Typical: 2-3L/day</p>
                     </div>
                   </div>
                 </div>
@@ -1585,11 +1585,11 @@ const EnhancedProgressTracker = () => {
                   <h3 className="font-semibold text-gray-900 mb-3">Wellness Metrics</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Mood</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Mood</label>
                       <select
                         value={formData.mood}
                         onChange={(e) => setFormData({ ...formData, mood: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                       >
                         <option value="great">Great 🤩</option>
                         <option value="good">Good 😊</option>
@@ -1598,11 +1598,11 @@ const EnhancedProgressTracker = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Sleep Quality</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Sleep Quality</label>
                       <select
                         value={formData.sleep_quality}
                         onChange={(e) => setFormData({ ...formData, sleep_quality: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                       >
                         <option value="great">Excellent</option>
                         <option value="good">Good</option>
@@ -1611,21 +1611,21 @@ const EnhancedProgressTracker = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Sleep Hours</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Sleep Hours</label>
                       <input
                         type="number"
                         step="0.5"
                         value={formData.sleep_hours}
                         onChange={(e) => setFormData({ ...formData, sleep_hours: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                         placeholder="7.5"
                         min="0"
                         max="12"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Ideal: 7-9 hours</p>
+                      <p className="text-xs text-slate-500 mt-1">Ideal: 7-9 hours</p>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Energy Level (1-10)</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Energy Level (1-10)</label>
                       <input
                         type="range"
                         min="1"
@@ -1634,7 +1634,7 @@ const EnhancedProgressTracker = () => {
                         onChange={(e) => setFormData({ ...formData, energy_level: e.target.value })}
                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                       />
-                      <div className="text-center text-sm font-medium text-orange-600 mt-1">
+                      <div className="text-center text-sm font-medium text-sky-600 mt-1">
                         {formData.energy_level}/10
                       </div>
                     </div>
@@ -1643,22 +1643,22 @@ const EnhancedProgressTracker = () => {
 
                 {/* Notes */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Notes (Optional)</label>
                   <textarea
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500"
                     rows={3}
                     placeholder="How are you feeling? Any changes in diet or exercise? Anything else to note?"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Optional: Add any notes about your progress</p>
+                  <p className="text-xs text-slate-500 mt-1">Optional: Add any notes about your progress</p>
                 </div>
               </div>
 
               <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex gap-3">
                 <button
                   onClick={() => setShowAddForm(false)}
-                  className="flex-1 py-3 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-100 transition-all"
+                  className="flex-1 py-3 border border-slate-300 rounded-xl font-semibold text-slate-700 hover:bg-gray-100 transition-all"
                 >
                   Cancel
                 </button>
@@ -1679,7 +1679,7 @@ const EnhancedProgressTracker = () => {
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20">
           <div className="bg-white rounded-2xl p-6 shadow-xl flex items-center gap-4">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500" />
-            <span className="font-medium text-gray-700">Loading progress data...</span>
+            <span className="font-medium text-slate-700">Loading progress data...</span>
           </div>
         </div>
       )}

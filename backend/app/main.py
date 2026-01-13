@@ -8,7 +8,9 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from datetime import datetime
+from uuid import UUID
 import uvicorn
+import json
 
 from app.database import engine, Base
 
@@ -18,6 +20,13 @@ from app import models
 # Initialize tables at module load time - COMMENTED OUT to avoid startup delay
 # Uncomment this if you need to create/update tables
 # Base.metadata.create_all(bind=engine)
+
+# Custom JSON encoder for UUIDs
+class UUIDEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, UUID):
+            return str(obj)
+        return super().default(obj)
 
 # Routers
 from app.routers.auth import router as auth_router
@@ -36,20 +45,30 @@ from app.routers import feedback
 
 
 app = FastAPI(
-    # Routers
-    app.add_middleware(HTTPSRedirectMiddleware)
     title="FitMate Pro API",
     description="AI-Powered Smart Gym Management System",
     version="1.0.0",
 )
 
+# Add HTTPS redirect middleware (enable only in production)
+# app.add_middleware(HTTPSRedirectMiddleware)
+
 # Global handler for validation errors (422)
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     print(f"Validation error: {exc.errors()} for request: {await request.body()}")
+    # Remove non-serializable objects from errors
+    def clean_error(error):
+        error = dict(error)
+        ctx = error.get('ctx')
+        if ctx and 'error' in ctx and isinstance(ctx['error'], Exception):
+            ctx['error'] = str(ctx['error'])
+        error['ctx'] = ctx
+        return error
+    cleaned_errors = [clean_error(e) for e in exc.errors()]
     return JSONResponse(
         status_code=422,
-        content={"detail": exc.errors(), "body": exc.body if hasattr(exc, 'body') else None},
+        content={"detail": cleaned_errors, "body": getattr(exc, 'body', None)},
     )
 
 # ────────────────────────────────
@@ -114,3 +133,4 @@ async def health_check():
 if __name__ == "__main__":
     print("Running FitMate Pro API on http://0.0.0.0:8000")
     uvicorn.run("backend.app.main:app", host="0.0.0.0", port=8000, reload=True)
+

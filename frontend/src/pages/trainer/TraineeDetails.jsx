@@ -119,7 +119,7 @@ const TraineeDetails = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
       <div className="text-center">
         <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-400">Loading trainee details...</p>
+        <p className="text-slate-400">Loading trainee details...</p>
       </div>
     </div>
   )
@@ -139,7 +139,7 @@ const TraineeDetails = () => {
   if (!trainee) return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
       <div className="text-center">
-        <User className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+        <User className="w-16 h-16 text-slate-500 mx-auto mb-4" />
         <h2 className="text-xl font-semibold text-white mb-2">Trainee not found</h2>
         <Link to="/trainer" className="text-blue-400 hover:underline">Back to Dashboard</Link>
       </div>
@@ -170,7 +170,7 @@ const TraineeDetails = () => {
                     trainee.fitness_level === 'beginner' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
                     trainee.fitness_level === 'intermediate' ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' :
                     trainee.fitness_level === 'advanced' ? 'bg-red-500/20 text-red-300 border border-red-500/30' :
-                    'bg-gray-500/20 text-gray-300 border border-gray-500/30'
+                    'bg-gray-500/20 text-slate-300 border border-gray-500/30'
                   }`}>
                     {trainee.fitness_level || 'Not Set'}
                   </span>
@@ -210,7 +210,7 @@ const TraineeDetails = () => {
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
                   activeSection === tab.id
                     ? 'bg-blue-500 text-white shadow-lg'
-                    : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                    : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -232,55 +232,55 @@ const TraineeDetails = () => {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {trainee.gender && (
                   <div className="bg-white/5 p-4 rounded-xl">
-                    <span className="text-gray-400 text-sm">Gender</span>
+                    <span className="text-slate-400 text-sm">Gender</span>
                     <p className="font-semibold text-white capitalize">{trainee.gender}</p>
                   </div>
                 )}
                 {trainee.date_of_birth && (
                   <div className="bg-white/5 p-4 rounded-xl">
-                    <span className="text-gray-400 text-sm">Date of Birth</span>
+                    <span className="text-slate-400 text-sm">Date of Birth</span>
                     <p className="font-semibold text-white">{trainee.date_of_birth}</p>
                   </div>
                 )}
                 {trainee.address && (
                   <div className="bg-white/5 p-4 rounded-xl">
-                    <span className="text-gray-400 text-sm">Address</span>
+                    <span className="text-slate-400 text-sm">Address</span>
                     <p className="font-semibold text-white">{trainee.address}</p>
                   </div>
                 )}
                 {trainee.fitness_level && (
                   <div className="bg-white/5 p-4 rounded-xl">
-                    <span className="text-gray-400 text-sm">Fitness Level</span>
+                    <span className="text-slate-400 text-sm">Fitness Level</span>
                     <p className="font-semibold text-white capitalize">{trainee.fitness_level}</p>
                   </div>
                 )}
                 {trainee.weight && (
                   <div className="bg-white/5 p-4 rounded-xl">
-                    <span className="text-gray-400 text-sm">Weight</span>
+                    <span className="text-slate-400 text-sm">Weight</span>
                     <p className="font-semibold text-white">{trainee.weight} kg</p>
                   </div>
                 )}
                 {trainee.height && (
                   <div className="bg-white/5 p-4 rounded-xl">
-                    <span className="text-gray-400 text-sm">Height</span>
+                    <span className="text-slate-400 text-sm">Height</span>
                     <p className="font-semibold text-white">{trainee.height} cm</p>
                   </div>
                 )}
                 {trainee.target_weight && (
                   <div className="bg-white/5 p-4 rounded-xl">
-                    <span className="text-gray-400 text-sm">Target Weight</span>
+                    <span className="text-slate-400 text-sm">Target Weight</span>
                     <p className="font-semibold text-white">{trainee.target_weight} kg</p>
                   </div>
                 )}
                 {trainee.goal && (
                   <div className="bg-white/5 p-4 rounded-xl">
-                    <span className="text-gray-400 text-sm">Goal</span>
+                    <span className="text-slate-400 text-sm">Goal</span>
                     <p className="font-semibold text-white">{trainee.goal}</p>
                   </div>
                 )}
                 {trainee.joined_at && (
                   <div className="bg-white/5 p-4 rounded-xl">
-                    <span className="text-gray-400 text-sm">Member Since</span>
+                    <span className="text-slate-400 text-sm">Member Since</span>
                     <p className="font-semibold text-white">{new Date(trainee.joined_at).toLocaleDateString()}</p>
                   </div>
                 )}
@@ -316,13 +316,13 @@ const TraineeDetails = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                   {trainee.emergency_contact_name && (
                     <div className="bg-white/5 p-4 rounded-xl">
-                      <span className="text-gray-400 text-sm">Contact Name</span>
+                      <span className="text-slate-400 text-sm">Contact Name</span>
                       <p className="font-semibold text-white">{trainee.emergency_contact_name}</p>
                     </div>
                   )}
                   {trainee.emergency_contact_phone && (
                     <div className="bg-white/5 p-4 rounded-xl">
-                      <span className="text-gray-400 text-sm">Contact Phone</span>
+                      <span className="text-slate-400 text-sm">Contact Phone</span>
                       <p className="font-semibold text-white">{trainee.emergency_contact_phone}</p>
                     </div>
                   )}
@@ -350,9 +350,9 @@ const TraineeDetails = () => {
             </div>
             {workouts.length === 0 ? (
               <div className="text-center py-12">
-                <Dumbbell className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400 text-lg">No workouts recorded yet</p>
-                <p className="text-gray-500 text-sm mt-2">Assign a workout to get started</p>
+                <Dumbbell className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                <p className="text-slate-400 text-lg">No workouts recorded yet</p>
+                <p className="text-slate-500 text-sm mt-2">Assign a workout to get started</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -362,17 +362,17 @@ const TraineeDetails = () => {
                       <div>
                         <h4 className="font-semibold text-white text-lg">{w.exercise_type || 'Workout'}</h4>
                         <div className="flex items-center gap-4 mt-2 text-sm">
-                          <span className="text-gray-400">
+                          <span className="text-slate-400">
                             <Activity className="w-4 h-4 inline mr-1" />
                             Reps: {w.total_reps || 0}
                           </span>
-                          <span className="text-gray-400">
+                          <span className="text-slate-400">
                             <Target className="w-4 h-4 inline mr-1" />
                             Accuracy: {w.avg_accuracy ? `${w.avg_accuracy}%` : '--'}
                           </span>
                         </div>
                       </div>
-                      <span className="text-gray-500 text-sm">
+                      <span className="text-slate-500 text-sm">
                         <Calendar className="w-4 h-4 inline mr-1" />
                         {new Date(w.created_at).toLocaleDateString()}
                       </span>
@@ -393,9 +393,9 @@ const TraineeDetails = () => {
             </h2>
             {reports.length === 0 ? (
               <div className="text-center py-12">
-                <FileText className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400 text-lg">No AI reports generated</p>
-                <p className="text-gray-500 text-sm mt-2">Reports will appear after workout analysis</p>
+                <FileText className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                <p className="text-slate-400 text-lg">No AI reports generated</p>
+                <p className="text-slate-500 text-sm mt-2">Reports will appear after workout analysis</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -403,9 +403,9 @@ const TraineeDetails = () => {
                   <div key={r.id} className="bg-white/5 rounded-xl p-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-semibold text-white">{r.report_type}</span>
-                      <span className="text-gray-500 text-sm">Workout #{r.workout_id}</span>
+                      <span className="text-slate-500 text-sm">Workout #{r.workout_id}</span>
                     </div>
-                    <pre className="text-xs mt-2 text-gray-300 bg-black/20 p-3 rounded-lg overflow-x-auto">
+                    <pre className="text-xs mt-2 text-slate-300 bg-black/20 p-3 rounded-lg overflow-x-auto">
                       {JSON.stringify(r.report_json, null, 2)}
                     </pre>
                   </div>
@@ -428,9 +428,9 @@ const TraineeDetails = () => {
             <div className="h-96 overflow-y-auto p-6 space-y-3">
               {messages.length === 0 ? (
                 <div className="text-center py-12">
-                  <MessageCircle className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-400">No messages yet</p>
-                  <p className="text-gray-500 text-sm mt-2">Start a conversation below</p>
+                  <MessageCircle className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                  <p className="text-slate-400">No messages yet</p>
+                  <p className="text-slate-500 text-sm mt-2">Start a conversation below</p>
                 </div>
               ) : messages.map(msg => (
                 <div key={msg.id} className={`flex ${msg.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}>
@@ -440,7 +440,7 @@ const TraineeDetails = () => {
                       : 'bg-white/10 text-white rounded-bl-md'
                   }`}>
                     <p className="text-sm">{msg.message}</p>
-                    <p className={`text-xs mt-1 ${msg.sender_id === user?.id ? 'text-purple-200' : 'text-gray-400'}`}>
+                    <p className={`text-xs mt-1 ${msg.sender_id === user?.id ? 'text-purple-200' : 'text-slate-400'}`}>
                       {new Date(msg.created_at).toLocaleString()}
                     </p>
                   </div>
@@ -471,16 +471,16 @@ const TraineeDetails = () => {
       {/* Workout Creation Modal */}
       {showWorkoutForm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 rounded-2xl w-full max-w-lg border border-white/10 shadow-2xl">
+          <div className="bg-slate-900 rounded-2xl w-full max-w-lg border border-white/10 shadow-2xl">
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <h3 className="text-xl font-bold text-white">Assign Workout</h3>
-              <button onClick={() => setShowWorkoutForm(false)} className="text-gray-400 hover:text-white">
+              <button onClick={() => setShowWorkoutForm(false)} className="text-slate-400 hover:text-white">
                 <X className="w-6 h-6" />
               </button>
             </div>
             <form onSubmit={handleCreateWorkout} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Exercise Type</label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Exercise Type</label>
                 <select
                   value={workoutForm.exercise_type}
                   onChange={(e) => setWorkoutForm({...workoutForm, exercise_type: e.target.value})}
@@ -502,7 +502,7 @@ const TraineeDetails = () => {
               
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Sets</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Sets</label>
                   <input
                     type="number"
                     value={workoutForm.sets}
@@ -512,7 +512,7 @@ const TraineeDetails = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Reps</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Reps</label>
                   <input
                     type="number"
                     value={workoutForm.reps}
@@ -522,7 +522,7 @@ const TraineeDetails = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Duration (min)</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Duration (min)</label>
                   <input
                     type="number"
                     value={workoutForm.duration_minutes}
@@ -534,7 +534,7 @@ const TraineeDetails = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Notes / Instructions</label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Notes / Instructions</label>
                 <textarea
                   value={workoutForm.notes}
                   onChange={(e) => setWorkoutForm({...workoutForm, notes: e.target.value})}
@@ -548,7 +548,7 @@ const TraineeDetails = () => {
                 <button
                   type="button"
                   onClick={() => setShowWorkoutForm(false)}
-                  className="flex-1 px-4 py-3 border border-white/10 text-gray-300 rounded-xl hover:bg-white/5 transition-colors"
+                  className="flex-1 px-4 py-3 border border-white/10 text-slate-300 rounded-xl hover:bg-white/5 transition-colors"
                 >
                   Cancel
                 </button>

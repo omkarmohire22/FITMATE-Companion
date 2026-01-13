@@ -26,11 +26,11 @@ const AdminNotifications = () => {
 
   const getTypeColor = (type) => {
     switch (type) {
-      case 'payment': return 'text-orange-600 bg-orange-50';
+      case 'payment': return 'text-sky-600 bg-sky-50';
       case 'payout': return 'text-green-600 bg-green-50';
       case 'message': return 'text-blue-600 bg-blue-50';
       case 'alert': return 'text-red-600 bg-red-50';
-      default: return 'text-gray-600 bg-gray-50';
+      default: return 'text-slate-600 bg-slate-50';
     }
   };
 
@@ -38,12 +38,12 @@ const AdminNotifications = () => {
     <div className="p-4 md:p-8 max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center">
             <Bell className="w-5 h-5 text-white" />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-white">Notifications</h2>
-            <p className="text-gray-400 text-sm">Stay updated with latest activities</p>
+            <p className="text-slate-400 text-sm">Stay updated with latest activities</p>
           </div>
         </div>
         <button
@@ -59,12 +59,12 @@ const AdminNotifications = () => {
       <div className="bg-white rounded-2xl shadow-xl p-6">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-500"></div>
           </div>
         ) : notifications.length === 0 ? (
           <div className="text-center py-12">
-            <Bell className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <p className="text-gray-500">No notifications yet</p>
+            <Bell className="w-16 h-16 mx-auto mb-4 text-slate-300" />
+            <p className="text-slate-500">No notifications yet</p>
           </div>
         ) : (
           <ul className="space-y-3">

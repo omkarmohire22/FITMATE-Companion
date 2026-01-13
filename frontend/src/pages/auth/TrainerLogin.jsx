@@ -165,7 +165,7 @@ const TrainerLogin = () => {
               </span>
             </h1>
             
-            <p className="text-xl text-gray-300 leading-relaxed max-w-xl">
+            <p className="text-xl text-slate-300 leading-relaxed max-w-xl">
               Empower your trainees with AI-powered coaching tools. Track progress, set goals, and achieve results together.
             </p>
           </div>
@@ -194,7 +194,7 @@ const TrainerLogin = () => {
             </div>
             <div>
               <p className="text-white text-lg font-bold mb-1">Coach with Confidence</p>
-              <p className="text-gray-400 text-sm">AI-powered tools to help your trainees succeed</p>
+              <p className="text-slate-400 text-sm">AI-powered tools to help your trainees succeed</p>
             </div>
           </div>
         </div>
@@ -210,7 +210,7 @@ const TrainerLogin = () => {
               </div>
             </div>
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-1.5 sm:mb-2">Trainer Portal</h2>
-            <p className="text-gray-400 text-sm sm:text-base">Sign in to manage your trainees</p>
+            <p className="text-slate-400 text-sm sm:text-base">Sign in to manage your trainees</p>
           </div>
 
           {/* LOGIN CARD */}
@@ -225,13 +225,13 @@ const TrainerLogin = () => {
             <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
               {/* EMAIL FIELD */}
               <div className="space-y-2">
-                <label className="text-gray-300 text-xs sm:text-sm font-medium block flex items-center gap-2">
+                <label className="text-slate-300 text-xs sm:text-sm font-medium block flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5 text-blue-400" />
                   Trainer Email
                 </label>
                 <div className="relative group">
                   <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-all duration-300 ${
-                    focusedField === "email" ? "text-blue-400 scale-110" : "text-gray-500"
+                    focusedField === "email" ? "text-blue-400 scale-110" : "text-slate-500"
                   }`} />
                   <input
                     type="email"
@@ -253,13 +253,13 @@ const TrainerLogin = () => {
 
               {/* PASSWORD FIELD */}
               <div className="space-y-2">
-                <label className="text-gray-300 text-xs sm:text-sm font-medium block flex items-center gap-2">
+                <label className="text-slate-300 text-xs sm:text-sm font-medium block flex items-center gap-2">
                   <Lock className="w-3.5 h-3.5 text-blue-400" />
                   Password
                 </label>
                 <div className="relative group">
                   <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-all duration-300 ${
-                    focusedField === "password" ? "text-blue-400 scale-110" : "text-gray-500"
+                    focusedField === "password" ? "text-blue-400 scale-110" : "text-slate-500"
                   }`} />
                   <input
                     type={showPassword ? "text" : "password"}
@@ -278,7 +278,7 @@ const TrainerLogin = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-all duration-300 hover:scale-110"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-all duration-300 hover:scale-110"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -308,7 +308,7 @@ const TrainerLogin = () => {
 
             {/* FOOTER */}
             <div className="mt-6 pt-6 border-t border-white/10 text-center">
-              <p className="text-gray-400 text-sm">
+              <p className="text-slate-400 text-sm">
                 Need trainer access?{" "}
                 <span className="text-blue-400 font-medium">
                   Contact your admin
@@ -318,7 +318,7 @@ const TrainerLogin = () => {
           </div>
 
           {/* TRUST BADGE */}
-          <div className="mt-6 flex items-center justify-center gap-2 text-gray-400 text-sm">
+          <div className="mt-6 flex items-center justify-center gap-2 text-slate-400 text-sm">
             <Zap className="w-4 h-4" />
             <span>Secured with enterprise-grade encryption</span>
           </div>

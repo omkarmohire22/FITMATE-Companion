@@ -168,7 +168,7 @@ const TraineeProfile = () => {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500 mx-auto mb-4" />
-          <p className="text-gray-500">Loading profile...</p>
+          <p className="text-slate-500">Loading profile...</p>
         </div>
       </div>
     )
@@ -180,11 +180,11 @@ const TraineeProfile = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-3xl p-6 lg:p-8 text-white shadow-2xl relative overflow-hidden"
+        className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 lg:p-8 text-white shadow-xl border border-slate-700/50 relative overflow-hidden"
       >
         {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500 rounded-full blur-3xl" />
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500 rounded-full blur-3xl" />
         </div>
 
@@ -206,7 +206,7 @@ const TraineeProfile = () => {
                 )}
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="absolute -bottom-2 -right-2 w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center text-gray-700 hover:bg-gray-100 transition-all opacity-0 group-hover:opacity-100"
+                  className="absolute -bottom-2 -right-2 w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center text-slate-700 hover:bg-gray-100 transition-all opacity-0 group-hover:opacity-100"
                 >
                   <Camera className="w-5 h-5" />
                 </button>
@@ -216,20 +216,20 @@ const TraineeProfile = () => {
               {/* User Info */}
               <div>
                 <h1 className="text-2xl lg:text-3xl font-bold">{userData?.name || 'User'}</h1>
-                <p className="text-gray-400 flex items-center gap-2 mt-1">
+                <p className="text-slate-400 flex items-center gap-2 mt-1">
                   <Mail className="w-4 h-4" />
                   {userData?.email}
                 </p>
-                <div className="flex items-center gap-3 mt-3">
-                  <span className="px-4 py-1.5 bg-gradient-to-r from-orange-500 to-red-500 rounded-full text-sm font-semibold shadow-lg">
-                    {userData?.membership_plan || 'Member'}
-                  </span>
+                <div className="flex items-center gap-2 mt-3">
                   {userData?.is_verified && (
-                    <span className="flex items-center gap-1 px-3 py-1.5 bg-green-500/20 text-green-400 rounded-full text-sm">
+                    <span className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg text-sm border border-green-500/30">
                       <CheckCircle className="w-4 h-4" />
                       Verified
                     </span>
                   )}
+                  <span className="px-3 py-1.5 bg-white/10 backdrop-blur-sm text-white rounded-lg text-sm border border-white/20">
+                    {userData?.membership_plan || 'Member'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -273,7 +273,7 @@ const TraineeProfile = () => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
             {[
               { label: 'Workouts', value: stats?.total_workouts || stats?.totalWorkouts || 0, icon: Dumbbell, color: 'from-blue-500 to-cyan-500' },
-              { label: 'Day Streak', value: stats?.streak || stats?.day_streak || 0, icon: Flame, color: 'from-orange-500 to-red-500' },
+              { label: 'Day Streak', value: stats?.streak || stats?.day_streak || 0, icon: Flame, color: 'from-sky-500 to-blue-600' },
               { label: 'Achievements', value: stats?.achievements || 0, icon: Trophy, color: 'from-yellow-500 to-amber-500' },
               { label: 'Form Score', value: `${stats?.avgFormScore || stats?.avg_form_score || 0}%`, icon: Target, color: 'from-green-500 to-emerald-500' },
             ].map((stat, idx) => (
@@ -290,7 +290,7 @@ const TraineeProfile = () => {
                   </div>
                   <div>
                     <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-xs text-gray-400">{stat.label}</p>
+                    <p className="text-xs text-slate-400">{stat.label}</p>
                   </div>
                 </div>
               </motion.div>
@@ -303,17 +303,15 @@ const TraineeProfile = () => {
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {[
           { id: 'personal', label: 'Personal Info', icon: User },
-          { id: 'fitness', label: 'Fitness Profile', icon: Dumbbell },
-          { id: 'health', label: 'Health & Safety', icon: Heart },
-          { id: 'goals', label: 'Goals & Progress', icon: Target },
+          { id: 'fitness', label: 'Fitness & Health', icon: Dumbbell },
         ].map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveSection(tab.id)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all whitespace-nowrap ${
               activeSection === tab.id
-                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
-                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg'
+                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700'
             }`}
           >
             <tab.icon className="w-4 h-4" />
@@ -327,26 +325,26 @@ const TraineeProfile = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm"
+          className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-gray-200 dark:border-slate-700 shadow-sm"
         >
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-            <User className="w-5 h-5 text-orange-500" />
+            <User className="w-5 h-5 text-sky-500" />
             Personal Information
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Full Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Full Name</label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   // Always editable
-                  className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all ${
-                    editMode ? 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900' : 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600 text-gray-900'
+                  className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500 transition-all ${
+                    editMode ? 'bg-white dark:bg-slate-700 border-slate-300 dark:border-gray-600 text-gray-900' : 'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-gray-600 text-gray-900'
                   }`}
                   placeholder="John Doe"
                 />
@@ -355,32 +353,32 @@ const TraineeProfile = () => {
 
             {/* Email (Read-only) */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
                 <input
                   type="email"
                   value={formData.email}
                   disabled
-                  className="w-full pl-12 pr-4 py-3 border bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-xl"
+                  className="w-full pl-12 pr-4 py-3 border bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-gray-600 text-slate-600 dark:text-slate-400 rounded-xl"
                 />
-                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Email cannot be changed</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Email cannot be changed</p>
             </div>
 
             {/* Phone */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Phone Number</label>
               <div className="relative">
-                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   // Always editable
-                  className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all ${
-                    editMode ? 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900' : 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600 text-gray-900'
+                  className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500 transition-all ${
+                    editMode ? 'bg-white dark:bg-slate-700 border-slate-300 dark:border-gray-600 text-gray-900' : 'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-gray-600 text-gray-900'
                   }`}
                   placeholder="+91 98765 43210"
                 />
@@ -389,16 +387,16 @@ const TraineeProfile = () => {
 
             {/* Date of Birth */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date of Birth</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Date of Birth</label>
               <div className="relative">
-                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
                 <input
                   type="date"
                   value={formData.date_of_birth}
                   onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
                   disabled={!editMode}
-                  className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all ${
-                    editMode ? 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400'
+                  className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500 transition-all ${
+                    editMode ? 'bg-white dark:bg-slate-700 border-slate-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-gray-600 text-slate-600 dark:text-slate-400'
                   }`}
                 />
               </div>
@@ -406,13 +404,13 @@ const TraineeProfile = () => {
 
             {/* Gender */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Gender</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Gender</label>
               <select
                 value={formData.gender}
                 onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                 disabled={!editMode}
-                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all ${
-                  editMode ? 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400'
+                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500 transition-all ${
+                  editMode ? 'bg-white dark:bg-slate-700 border-slate-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-gray-600 text-slate-600 dark:text-slate-400'
                 }`}
               >
                 <option value="">Select Gender</option>
@@ -424,45 +422,19 @@ const TraineeProfile = () => {
 
             {/* Address */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Address</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Address</label>
               <div className="relative">
-                <MapPin className="absolute left-4 top-4 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                <MapPin className="absolute left-4 top-4 w-5 h-5 text-slate-400 dark:text-slate-500" />
                 <textarea
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   disabled={!editMode}
                   rows={2}
-                  className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all resize-none ${
-                    editMode ? 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900' : 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600 text-gray-900'
+                  className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500 transition-all resize-none ${
+                    editMode ? 'bg-white dark:bg-slate-700 border-slate-300 dark:border-gray-600 text-gray-900' : 'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-gray-600 text-gray-900'
                   }`}
                   placeholder="Enter your address"
                 />
-              </div>
-            </div>
-          </div>
-
-          {/* Member Info */}
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                <p className="text-sm text-gray-500 dark:text-gray-400">Member Since</p>
-                <p className="font-semibold text-gray-900 dark:text-white mt-1">
-                  {userData?.created_at ? new Date(userData.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '--'}
-                </p>
-              </div>
-              <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                <p className="text-sm text-gray-500 dark:text-gray-400">Account Status</p>
-                <p className={`font-semibold mt-1 ${userData?.is_active ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {userData?.is_active ? 'Active' : 'Inactive'}
-                </p>
-              </div>
-              <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                <p className="text-sm text-gray-500 dark:text-gray-400">Role</p>
-                <p className="font-semibold text-gray-900 dark:text-white mt-1 capitalize">{userData?.role?.toLowerCase() || 'Trainee'}</p>
-              </div>
-              <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                <p className="text-sm text-gray-500 dark:text-gray-400">Trainer</p>
-                <p className="font-semibold text-gray-900 dark:text-white mt-1">{userData?.trainer_id ? 'Assigned' : 'Not Assigned'}</p>
               </div>
             </div>
           </div>
@@ -477,26 +449,26 @@ const TraineeProfile = () => {
           className="space-y-6"
         >
           {/* Body Metrics */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-              <Scale className="w-5 h-5 text-orange-500" />
+              <Scale className="w-5 h-5 text-sky-500" />
               Body Metrics
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Weight */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Weight (kg)</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Current Weight (kg)</label>
                 <div className="relative">
-                  <Scale className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                  <Scale className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
                   <input
                     type="number"
                     step="0.1"
                     value={formData.weight}
                     onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
                     disabled={!editMode}
-                    className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all ${
-                      editMode ? 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400'
+                    className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500 transition-all ${
+                      editMode ? 'bg-white dark:bg-slate-700 border-slate-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-gray-600 text-slate-600 dark:text-slate-400'
                     }`}
                     placeholder="70"
                   />
@@ -505,17 +477,17 @@ const TraineeProfile = () => {
 
               {/* Height */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Height (cm)</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Height (cm)</label>
                 <div className="relative">
-                  <Ruler className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                  <Ruler className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
                   <input
                     type="number"
                     step="1"
                     value={formData.height}
                     onChange={(e) => setFormData({ ...formData, height: e.target.value })}
                     disabled={!editMode}
-                    className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all ${
-                      editMode ? 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400'
+                    className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500 transition-all ${
+                      editMode ? 'bg-white dark:bg-slate-700 border-slate-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-gray-600 text-slate-600 dark:text-slate-400'
                     }`}
                     placeholder="175"
                   />
@@ -524,17 +496,17 @@ const TraineeProfile = () => {
 
               {/* Target Weight */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Target Weight (kg)</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Target Weight (kg)</label>
                 <div className="relative">
-                  <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                  <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
                   <input
                     type="number"
                     step="0.1"
                     value={formData.target_weight}
                     onChange={(e) => setFormData({ ...formData, target_weight: e.target.value })}
                     disabled={!editMode}
-                    className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all ${
-                      editMode ? 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400'
+                    className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500 transition-all ${
+                      editMode ? 'bg-white dark:bg-slate-700 border-slate-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-gray-600 text-slate-600 dark:text-slate-400'
                     }`}
                     placeholder="65"
                   />
@@ -546,7 +518,7 @@ const TraineeProfile = () => {
             <div className="mt-6 p-4 bg-gradient-to-r from-orange-50 dark:from-orange-500/10 to-amber-50 dark:to-amber-500/10 rounded-xl border border-orange-100 dark:border-orange-500/30">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Body Mass Index (BMI)</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Body Mass Index (BMI)</p>
                   <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{bmi || '--'}</p>
                 </div>
                 <span className={`px-4 py-2 rounded-full text-sm font-semibold ${bmiCategory.bg} ${bmiCategory.color} dark:bg-opacity-20`}>
@@ -567,7 +539,7 @@ const TraineeProfile = () => {
                   />
                 )}
               </div>
-              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
                 <span>Underweight</span>
                 <span>Normal</span>
                 <span>Overweight</span>
@@ -577,16 +549,16 @@ const TraineeProfile = () => {
           </div>
 
           {/* Fitness Level & Goal */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-              <Activity className="w-5 h-5 text-orange-500" />
+              <Activity className="w-5 h-5 text-sky-500" />
               Fitness Level & Goals
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Fitness Level */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fitness Level</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Fitness Level</label>
                 <div className="grid grid-cols-2 gap-2">
                   {fitnessLevels.map(level => (
                     <button
@@ -595,8 +567,8 @@ const TraineeProfile = () => {
                       disabled={!editMode}
                       className={`px-4 py-3 rounded-xl border-2 font-medium transition-all ${
                         formData.fitness_level === level
-                          ? 'border-orange-500 bg-orange-50 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400'
-                          : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500'
+                          ? 'border-orange-500 bg-sky-50 dark:bg-sky-500/20 text-orange-700 dark:text-sky-400'
+                          : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-gray-500'
                       } ${!editMode && 'opacity-75 cursor-not-allowed'}`}
                     >
                       {level}
@@ -607,13 +579,13 @@ const TraineeProfile = () => {
 
               {/* Primary Goal */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Primary Goal</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Primary Goal</label>
                 <select
                   value={formData.goal}
                   onChange={(e) => setFormData({ ...formData, goal: e.target.value })}
                   disabled={!editMode}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-gray-900 ${
-                    editMode ? 'bg-white border-gray-300' : 'bg-gray-50 border-gray-200'
+                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500 transition-all text-gray-900 ${
+                    editMode ? 'bg-white border-slate-300' : 'bg-gray-50 border-gray-200'
                   }`}
                 >
                   <option value="">Select Goal</option>
@@ -625,192 +597,71 @@ const TraineeProfile = () => {
 
               {/* Fitness Goals (Detailed) */}
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Detailed Fitness Goals</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Detailed Fitness Goals</label>
                 <textarea
                   value={formData.fitness_goals}
                   onChange={(e) => setFormData({ ...formData, fitness_goals: e.target.value })}
                   disabled={!editMode}
                   rows={3}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all resize-none ${
-                    editMode ? 'bg-white border-gray-300' : 'bg-gray-50 border-gray-200 text-gray-600'
+                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-orange-500 transition-all resize-none ${
+                    editMode ? 'bg-white border-slate-300' : 'bg-gray-50 border-gray-200 text-slate-600'
                   }`}
                   placeholder="Describe your fitness goals in detail..."
                 />
               </div>
             </div>
           </div>
-        </motion.div>
-      )}
 
-      {/* Health & Safety Section */}
-      {activeSection === 'health' && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
-          {/* Emergency Contact */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Phone className="w-5 h-5 text-red-500" />
-              Emergency Contact
+          {/* Emergency Contact & Health */}
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+              <Heart className="w-5 h-5 text-red-500" />
+              Health & Emergency Contact
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Contact Name</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Emergency Contact Name</label>
                 <input
                   type="text"
                   value={formData.emergency_contact_name}
                   onChange={(e) => setFormData({ ...formData, emergency_contact_name: e.target.value })}
                   disabled={!editMode}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-gray-900 ${
-                    editMode ? 'bg-white border-gray-300' : 'bg-gray-50 border-gray-200 text-gray-600'
+                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all ${
+                    editMode ? 'bg-white dark:bg-slate-700 border-slate-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-gray-600 text-slate-600 dark:text-slate-400'
                   }`}
                   placeholder="Emergency contact name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Contact Phone</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Emergency Contact Phone</label>
                 <input
                   type="tel"
                   value={formData.emergency_contact_phone}
                   onChange={(e) => setFormData({ ...formData, emergency_contact_phone: e.target.value })}
                   disabled={!editMode}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-gray-900 ${
-                    editMode ? 'bg-white border-gray-300' : 'bg-gray-50 border-gray-200'
+                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all ${
+                    editMode ? 'bg-white dark:bg-slate-700 border-slate-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-gray-600 text-slate-600 dark:text-slate-400'
                   }`}
                   placeholder="+91 98765 43210"
                 />
               </div>
             </div>
 
-            <div className="mt-4 p-4 bg-red-50 rounded-xl border border-red-100">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-500 mt-0.5" />
-                <div>
-                  <p className="font-medium text-red-800">Important</p>
-                  <p className="text-sm text-red-600 mt-1">
-                    This contact will be notified in case of any emergency during your workout sessions.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Health Conditions */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Heart className="w-5 h-5 text-red-500" />
-              Health Information
-            </h3>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Health Conditions / Medical Notes
               </label>
               <textarea
                 value={formData.health_conditions}
                 onChange={(e) => setFormData({ ...formData, health_conditions: e.target.value })}
                 disabled={!editMode}
-                rows={4}
-                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all resize-none text-gray-900 ${
-                  editMode ? 'bg-white border-gray-300' : 'bg-gray-50 border-gray-200'
+                rows={3}
+                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all resize-none ${
+                  editMode ? 'bg-white dark:bg-slate-700 border-slate-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-gray-600 text-slate-600 dark:text-slate-400'
                 }`}
-                placeholder="List any health conditions, allergies, injuries, or medical notes that trainers should be aware of..."
+                placeholder="List any health conditions, allergies, or medical notes..."
               />
-            </div>
-
-            <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
-              <div className="flex items-start gap-3">
-                <Shield className="w-5 h-5 text-blue-500 mt-0.5" />
-                <div>
-                  <p className="font-medium text-blue-800">Privacy Notice</p>
-                  <p className="text-sm text-blue-600 mt-1">
-                    Your health information is kept confidential and only shared with your assigned trainer.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Goals & Progress Section */}
-      {activeSection === 'goals' && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
-          {/* Goal Progress */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Target className="w-5 h-5 text-orange-500" />
-              Weight Goal Progress
-            </h3>
-
-            <div className="space-y-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Current: <strong>{formData.weight || '--'} kg</strong></span>
-                <span className="text-gray-600">Target: <strong>{formData.target_weight || '--'} kg</strong></span>
-              </div>
-              
-              <div className="relative h-6 bg-gray-100 rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${goalProgress}%` }}
-                  transition={{ duration: 1, ease: "easeOut" }}
-                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"
-                />
-                <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-700">
-                  {goalProgress.toFixed(0)}%
-                </span>
-              </div>
-
-              {formData.weight && formData.target_weight && (
-                <p className="text-center text-sm text-gray-500">
-                  {Math.abs(formData.weight - formData.target_weight).toFixed(1)} kg to go!
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Achievements */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-yellow-500" />
-              Achievements
-            </h3>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { title: 'First Workout', icon: '🎯', unlocked: true },
-                { title: '7 Day Streak', icon: '🔥', unlocked: (stats?.streak || 0) >= 7 },
-                { title: 'Weight Goal', icon: '⚖️', unlocked: goalProgress >= 100 },
-                { title: 'Perfect Form', icon: '💯', unlocked: (stats?.avgFormScore || 0) >= 90 },
-                { title: '30 Workouts', icon: '💪', unlocked: (stats?.total_workouts || 0) >= 30 },
-                { title: '100 Workouts', icon: '🏆', unlocked: (stats?.total_workouts || 0) >= 100 },
-                { title: 'Early Bird', icon: '🌅', unlocked: false },
-                { title: 'Night Owl', icon: '🦉', unlocked: false },
-              ].map(badge => (
-                <div
-                  key={badge.title}
-                  className={`p-4 rounded-xl text-center transition-all ${
-                    badge.unlocked
-                      ? 'bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-yellow-200'
-                      : 'bg-gray-50 border border-gray-200 opacity-50'
-                  }`}
-                >
-                  <span className="text-3xl">{badge.icon}</span>
-                  <p className={`text-sm font-medium mt-2 ${badge.unlocked ? 'text-gray-900' : 'text-gray-500'}`}>
-                    {badge.title}
-                  </p>
-                  {badge.unlocked && (
-                    <CheckCircle className="w-4 h-4 text-green-500 mx-auto mt-1" />
-                  )}
-                </div>
-              ))}
             </div>
           </div>
         </motion.div>

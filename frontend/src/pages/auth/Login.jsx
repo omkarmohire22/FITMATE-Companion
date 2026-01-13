@@ -211,7 +211,7 @@ const Login = () => {
               </span>
             </h1>
             
-            <p className="text-xl text-gray-300 leading-relaxed max-w-xl">
+            <p className="text-xl text-slate-300 leading-relaxed max-w-xl">
               Join the ultimate fitness platform powered by AI. Track, train, and transform with personalized guidance.
             </p>
           </div>
@@ -274,7 +274,7 @@ const Login = () => {
               <Dumbbell className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </div>
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-1.5 sm:mb-2">Welcome Back</h2>
-            <p className="text-gray-400 text-sm sm:text-base">Sign in to continue your fitness journey</p>
+            <p className="text-slate-400 text-sm sm:text-base">Sign in to continue your fitness journey</p>
           </div>
 
           {/* LOGIN CARD */}
@@ -289,13 +289,13 @@ const Login = () => {
             <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
               {/* EMAIL FIELD */}
               <div className="space-y-2">
-                <label className="text-gray-300 text-xs sm:text-sm font-medium block flex items-center gap-2">
+                <label className="text-slate-300 text-xs sm:text-sm font-medium block flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5 text-green-400" />
                   Email Address
                 </label>
                 <div className="relative group">
                   <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-all duration-300 ${
-                    focusedField === "email" ? "text-green-400 scale-110" : "text-gray-500"
+                    focusedField === "email" ? "text-green-400 scale-110" : "text-slate-500"
                   }`} />
                   <input
                     type="email"
@@ -326,13 +326,13 @@ const Login = () => {
 
               {/* PASSWORD FIELD */}
               <div className="space-y-2">
-                <label className="text-gray-300 text-xs sm:text-sm font-medium block flex items-center gap-2">
+                <label className="text-slate-300 text-xs sm:text-sm font-medium block flex items-center gap-2">
                   <Lock className="w-3.5 h-3.5 text-green-400" />
                   Password
                 </label>
                 <div className="relative group">
                   <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${
-                    focusedField === "password" ? "text-green-400" : "text-gray-500"
+                    focusedField === "password" ? "text-green-400" : "text-slate-500"
                   }`} />
                   <input
                     type={showPassword ? "text" : "password"}
@@ -351,7 +351,7 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -380,7 +380,7 @@ const Login = () => {
 
             {/* FOOTER */}
             <div className="mt-6 pt-6 border-t border-white/10 text-center">
-              <p className="text-gray-400 text-sm">
+              <p className="text-slate-400 text-sm">
                 Need an account?{" "}
                 <span className="text-green-400 font-medium">
                   Contact your trainer or admin
@@ -390,7 +390,7 @@ const Login = () => {
           </div>
 
           {/* TRUST BADGE */}
-          <div className="mt-6 flex items-center justify-center gap-2 text-gray-400 text-sm">
+          <div className="mt-6 flex items-center justify-center gap-2 text-slate-400 text-sm">
             <Shield className="w-4 h-4" />
             <span>Secured with enterprise-grade encryption</span>
           </div>

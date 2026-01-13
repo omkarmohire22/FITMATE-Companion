@@ -205,13 +205,13 @@ export default function NutritionTracker() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-t-2xl -mb-px shadow-sm">
+      <div className="flex gap-2 border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-t-2xl -mb-px shadow-sm">
         <button
           onClick={() => setActiveTrackerTab('today')}
           className={`px-4 sm:px-6 py-3 font-semibold text-sm sm:text-base border-b-2 transition-colors ${
             activeTrackerTab === 'today'
               ? 'border-green-500 text-green-600 dark:text-green-400'
-              : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+              : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-gray-200'
           }`}
         >
           📅 Today
@@ -221,7 +221,7 @@ export default function NutritionTracker() {
           className={`px-4 sm:px-6 py-3 font-semibold text-sm sm:text-base border-b-2 transition-colors flex items-center gap-2 ${
             activeTrackerTab === 'analytics'
               ? 'border-green-500 text-green-600 dark:text-green-400'
-              : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+              : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-gray-200'
           }`}
         >
           <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -240,8 +240,8 @@ export default function NutritionTracker() {
                 <span className="text-2xl">🔥</span>
               </div>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-3xl sm:text-4xl font-bold text-orange-600 dark:text-orange-400">{totalCalories}</span>
-                <span className="text-sm text-orange-700 dark:text-orange-400/80">/ {dailyGoals.calories}</span>
+                <span className="text-3xl sm:text-4xl font-bold text-sky-600 dark:text-sky-400">{totalCalories}</span>
+                <span className="text-sm text-orange-700 dark:text-sky-400/80">/ {dailyGoals.calories}</span>
               </div>
               <div className="w-full bg-orange-200 dark:bg-orange-900/50 rounded-full h-3">
                 <div
@@ -249,7 +249,7 @@ export default function NutritionTracker() {
                   style={{ width: `${Math.min((totalCalories / dailyGoals.calories) * 100, 100)}%` }}
                 />
               </div>
-              <p className="text-sm font-medium text-orange-700 dark:text-orange-400 mt-3">
+              <p className="text-sm font-medium text-orange-700 dark:text-sky-400 mt-3">
                 {caloriesRemaining > 0 ? `${caloriesRemaining} remaining` : `${Math.abs(caloriesRemaining)} over goal`}
               </p>
             </div>
@@ -306,7 +306,7 @@ export default function NutritionTracker() {
 
       {/* Macros Breakdown */}
       {activeTrackerTab === 'today' && (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">📊 Macronutrients</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Protein */}
@@ -368,7 +368,7 @@ export default function NutritionTracker() {
 
       {/* Add Food Section */}
       {activeTrackerTab === 'today' && (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">➕ Add Food</h3>
           
           {/* Tabs */}
@@ -378,7 +378,7 @@ export default function NutritionTracker() {
               className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all ${
                 activeTab === 'manual'
                   ? 'bg-green-500 text-white shadow-md'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  : 'bg-gray-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
               ✏️ Manual Entry
@@ -388,7 +388,7 @@ export default function NutritionTracker() {
               className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all ${
                 activeTab === 'scan'
                   ? 'bg-green-500 text-white shadow-md'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  : 'bg-gray-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
               📷 Scan Food
@@ -400,11 +400,11 @@ export default function NutritionTracker() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Meal Type</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Meal Type</label>
                 <select
                   value={mealType}
                   onChange={(e) => setMealType(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 outline-none transition-all text-base"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-gray-600 rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 outline-none transition-all text-base"
                 >
                   <option value="breakfast">🌅 Breakfast</option>
                   <option value="lunch">🍽️ Lunch</option>
@@ -413,61 +413,61 @@ export default function NutritionTracker() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Time</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Time</label>
                 <input
                   type="time"
                   value={mealTime}
                   onChange={(e) => setMealTime(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 outline-none transition-all text-base"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-gray-600 rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 outline-none transition-all text-base"
                 />
               </div>
             </div>
             
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Food Name</label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Food Name</label>
               <input
                 type="text"
                 value={foodName}
                 onChange={(e) => setFoodName(e.target.value)}
                 placeholder="e.g., Chicken Breast, Brown Rice"
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 outline-none transition-all text-base"
+                className="w-full px-4 py-3 border border-slate-300 dark:border-gray-600 rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 outline-none transition-all text-base"
                 onKeyPress={(e) => e.key === 'Enter' && addFoodItem()}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Portion (g)</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Portion (g)</label>
                 <input
                   type="number"
                   value={portionGrams}
                   onChange={(e) => setPortionGrams(e.target.value)}
                   min="1"
                   placeholder="100"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 outline-none transition-all text-base"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-gray-600 rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 outline-none transition-all text-base"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Quick Portions</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Quick Portions</label>
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => setPortionGrams(50)}
-                    className="flex-1 px-3 py-3 text-sm font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-green-100 dark:hover:bg-green-900/30 hover:text-green-700 dark:hover:text-green-400 rounded-xl transition-all"
+                    className="flex-1 px-3 py-3 text-sm font-semibold bg-gray-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-green-100 dark:hover:bg-green-900/30 hover:text-green-700 dark:hover:text-green-400 rounded-xl transition-all"
                   >
                     50g
                   </button>
                   <button
                     type="button"
                     onClick={() => setPortionGrams(100)}
-                    className="flex-1 px-3 py-3 text-sm font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-green-100 dark:hover:bg-green-900/30 hover:text-green-700 dark:hover:text-green-400 rounded-xl transition-all"
+                    className="flex-1 px-3 py-3 text-sm font-semibold bg-gray-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-green-100 dark:hover:bg-green-900/30 hover:text-green-700 dark:hover:text-green-400 rounded-xl transition-all"
                   >
                     100g
                   </button>
                   <button
                     type="button"
                     onClick={() => setPortionGrams(200)}
-                    className="flex-1 px-3 py-3 text-sm font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-green-100 dark:hover:bg-green-900/30 hover:text-green-700 dark:hover:text-green-400 rounded-xl transition-all"
+                    className="flex-1 px-3 py-3 text-sm font-semibold bg-gray-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-green-100 dark:hover:bg-green-900/30 hover:text-green-700 dark:hover:text-green-400 rounded-xl transition-all"
                   >
                     200g
                   </button>
@@ -476,13 +476,13 @@ export default function NutritionTracker() {
             </div>
             
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Notes (Optional)</label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Notes (Optional)</label>
               <input
                 type="text"
                 value={mealNotes}
                 onChange={(e) => setMealNotes(e.target.value)}
                 placeholder="e.g., Grilled, No sauce"
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 outline-none transition-all text-base"
+                className="w-full px-4 py-3 border border-slate-300 dark:border-gray-600 rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 outline-none transition-all text-base"
               />
             </div>
 
@@ -500,11 +500,11 @@ export default function NutritionTracker() {
         {activeTab === 'scan' && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Meal Type</label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Meal Type</label>
               <select
                 value={mealType}
                 onChange={(e) => setMealType(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 outline-none transition-all text-base"
+                className="w-full px-4 py-3 border border-slate-300 dark:border-gray-600 rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 outline-none transition-all text-base"
               >
                 <option value="breakfast">🌅 Breakfast</option>
                 <option value="lunch">🍽️ Lunch</option>
@@ -513,7 +513,7 @@ export default function NutritionTracker() {
               </select>
             </div>
 
-            <label className="block border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center cursor-pointer hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all">
+            <label className="block border-2 border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-8 text-center cursor-pointer hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all">
               <input
                 type="file"
                 accept="image/*"
@@ -524,16 +524,16 @@ export default function NutritionTracker() {
               {analyzing ? (
                 <div className="flex flex-col items-center gap-3">
                   <Loader className="w-10 h-10 text-green-500 animate-spin" />
-                  <p className="text-base font-semibold text-gray-700 dark:text-gray-300">Analyzing image...</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">AI is identifying your meal</p>
+                  <p className="text-base font-semibold text-slate-700 dark:text-slate-300">Analyzing image...</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">AI is identifying your meal</p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-3">
                   <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-2xl flex items-center justify-center">
                     <Upload className="w-8 h-8 text-green-600 dark:text-green-400" />
                   </div>
-                  <p className="text-base font-semibold text-gray-700 dark:text-gray-300">Click to upload meal photo</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">or drag and drop</p>
+                  <p className="text-base font-semibold text-slate-700 dark:text-slate-300">Click to upload meal photo</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">or drag and drop</p>
                 </div>
               )}
             </label>
@@ -544,21 +544,21 @@ export default function NutritionTracker() {
 
       {/* Today's Meals */}
       {activeTrackerTab === 'today' && (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center justify-between">
             <span>📋 Today's Meals</span>
-            <span className="text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-700 px-3 py-1 rounded-full">
               {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
             </span>
           </h3>
         
         {dailyLogs.length === 0 ? (
           <div className="text-center py-12 px-4">
-            <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-20 h-20 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-4xl">🍽️</span>
             </div>
-            <p className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">No meals logged yet</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Start by adding a food or scanning a meal photo</p>
+            <p className="text-lg font-semibold text-slate-600 dark:text-slate-300 mb-2">No meals logged yet</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Start by adding a food or scanning a meal photo</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -582,7 +582,7 @@ export default function NutritionTracker() {
                   <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2 mb-3 uppercase tracking-wide">
                     <span className="text-lg">{typeEmoji}</span>
                     <span>{typeLabel}</span>
-                    <span className="ml-auto text-xs font-medium text-gray-500 dark:text-gray-400 bg-white/60 dark:bg-gray-800/60 px-2 py-0.5 rounded-full">
+                    <span className="ml-auto text-xs font-medium text-slate-500 dark:text-slate-400 bg-white/60 dark:bg-slate-800/60 px-2 py-0.5 rounded-full">
                       {mealsOfType.length} item{mealsOfType.length > 1 ? 's' : ''}
                     </span>
                   </h4>
@@ -590,28 +590,28 @@ export default function NutritionTracker() {
                     {mealsOfType.map((log) => (
                       <div
                         key={log.id}
-                        className="flex items-center justify-between p-3 bg-white/80 dark:bg-gray-800/80 rounded-xl border border-gray-200/50 dark:border-gray-700/50 hover:shadow-md transition-all"
+                        className="flex items-center justify-between p-3 bg-white/80 dark:bg-slate-800/80 rounded-xl border border-gray-200/50 dark:border-slate-700/50 hover:shadow-md transition-all"
                       >
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-gray-900 dark:text-white truncate">{log.food || log.item}</p>
-                          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 mt-1">
                             <span className="font-medium">{log.portion_grams || log.macros?.portion_grams || '--'}g</span>
                             {(log.meal_time || log.macros?.meal_time) && (
                               <>
-                                <span className="text-gray-300 dark:text-gray-600">•</span>
+                                <span className="text-slate-300 dark:text-slate-600">•</span>
                                 <span>{log.meal_time || log.macros?.meal_time}</span>
                               </>
                             )}
                           </div>
                           {(log.notes || log.macros?.notes) && (
-                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 italic">💬 {log.notes || log.macros?.notes}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-500 mt-1 italic">💬 {log.notes || log.macros?.notes}</p>
                           )}
                         </div>
                         <div className="text-right mx-3 flex-shrink-0">
                           <p className="font-bold text-gray-900 dark:text-white text-lg">{log.calories?.toFixed(0) || 0}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">cal</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">cal</p>
                           {(log.macros || log.nutrition) && (
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                               P:{((log.macros || log.nutrition)?.protein)?.toFixed(0) || 0} C:{((log.macros || log.nutrition)?.carbs)?.toFixed(0) || 0} F:{((log.macros || log.nutrition)?.fats)?.toFixed(0) || 0}
                             </p>
                           )}

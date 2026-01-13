@@ -186,21 +186,22 @@ const MessageBox = () => {
             Communicate with trainers and trainees
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => setShowBroadcast(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 rounded-xl text-white text-sm font-medium shadow-lg transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 rounded-xl text-white text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
           >
             <Megaphone className="w-4 h-4" />
             Broadcast
           </button>
           <button
-            onClick={loadData}
+            onClick={() => loadData(true)}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-white text-sm transition-all"
+            className="flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/30 rounded-xl text-white text-sm font-medium transition-all disabled:opacity-50"
+            title="Refresh messages"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
+            <span className="hidden sm:inline">Refresh</span>
           </button>
         </div>
       </div>
@@ -249,7 +250,7 @@ const MessageBox = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 bg-white/5 p-1 rounded-xl w-fit">
+      <div className="flex gap-2 bg-gradient-to-r from-gray-800 to-gray-900 p-1.5 rounded-2xl w-fit shadow-xl border border-white/10">
         {[
           { id: 'compose', label: 'Compose', icon: Send },
           { id: 'inbox', label: 'Inbox', icon: Inbox, count: unreadCount },
@@ -258,17 +259,17 @@ const MessageBox = () => {
           <button
             key={tab.id}
             onClick={() => { setActiveTab(tab.id); setReplyingTo(null) }}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all ${
               activeTab === tab.id
-                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
-                : 'text-gray-400 hover:text-white hover:bg-white/10'
+                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg scale-[1.02]'
+                : 'text-gray-300 hover:text-white hover:bg-white/10'
             }`}
           >
             <tab.icon className="w-4 h-4" />
-            {tab.label}
+            <span>{tab.label}</span>
             {tab.count > 0 && (
-              <span className={`px-2 py-0.5 rounded-full text-xs ${
-                activeTab === tab.id ? 'bg-white/20' : tab.id === 'inbox' && unreadCount > 0 ? 'bg-red-500 text-white' : 'bg-white/10'
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                activeTab === tab.id ? 'bg-white/20' : tab.id === 'inbox' && unreadCount > 0 ? 'bg-red-500 text-white animate-pulse' : 'bg-white/10'
               }`}>
                 {tab.count}
               </span>
@@ -301,16 +302,21 @@ const MessageBox = () => {
       {activeTab === 'compose' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* User Selection */}
-          <div className="bg-white rounded-2xl shadow-xl p-5">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 border border-gray-100">
+            <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-orange-500" />
-                <h3 className="text-sm font-semibold text-gray-900">Select Recipient</h3>
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+                  <Users className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">Select Recipient</h3>
+                  <p className="text-xs text-gray-500">{filteredUsers.length} available</p>
+                </div>
               </div>
               <select
                 value={filterRole}
                 onChange={(e) => setFilterRole(e.target.value)}
-                className="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:ring-2 focus:ring-orange-500"
+                className="text-xs border border-gray-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium"
               >
                 <option value="all">All</option>
                 <option value="trainer">Trainers</option>
@@ -318,15 +324,23 @@ const MessageBox = () => {
               </select>
             </div>
             
-            <div className="relative mb-3">
+            <div className="relative mb-4">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search users..."
+                placeholder="Search by name or email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                className="w-full pl-10 pr-10 py-3 border-2 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none transition-all"
               />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
             
             <div className="max-h-[350px] overflow-y-auto space-y-1">
@@ -368,10 +382,15 @@ const MessageBox = () => {
           </div>
 
           {/* Message Compose */}
-          <div className="lg:col-span-2 bg-white rounded-2xl shadow-xl p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <MessageCircle className="w-5 h-5 text-orange-500" />
-              <h3 className="text-sm font-semibold text-gray-900">Write Message</h3>
+          <div className="lg:col-span-2 bg-white rounded-2xl shadow-2xl p-6 border border-gray-100">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+                <MessageCircle className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-gray-900">Write Message</h3>
+                <p className="text-xs text-gray-500">Compose your message below</p>
+              </div>
             </div>
             
             {(selectedUser || replyingTo) && (
@@ -424,14 +443,19 @@ const MessageBox = () => {
 
       {/* Inbox Tab */}
       {activeTab === 'inbox' && (
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="p-5 border-b border-gray-100">
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+          <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Inbox className="w-5 h-5 text-orange-500" />
-                <h3 className="font-semibold text-gray-900">Received Messages</h3>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+                  <Inbox className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900">Received Messages</h3>
+                  <p className="text-xs text-gray-600">{inbox.length} total messages</p>
+                </div>
                 {unreadCount > 0 && (
-                  <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs font-medium rounded-full">
+                  <span className="px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
                     {unreadCount} unread
                   </span>
                 )}
@@ -515,14 +539,16 @@ const MessageBox = () => {
 
       {/* Outbox Tab */}
       {activeTab === 'outbox' && (
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="p-5 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <Mail className="w-5 h-5 text-orange-500" />
-              <h3 className="font-semibold text-gray-900">Sent Messages</h3>
-              <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
-                {outbox.length} total
-              </span>
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+          <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                <Mail className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900">Sent Messages</h3>
+                <p className="text-xs text-gray-600">{outbox.length} total sent</p>
+              </div>
             </div>
           </div>
           

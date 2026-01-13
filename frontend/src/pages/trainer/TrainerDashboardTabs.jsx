@@ -55,7 +55,7 @@ export const AttendanceTabContent = ({ trainees, attendanceData, attendanceLoadi
         <DashboardCard className="p-6 bg-gradient-to-br from-blue-50 dark:from-blue-900/20 to-blue-100 dark:to-blue-900/40 border-blue-200 dark:border-blue-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Active Trainees</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Active Trainees</p>
               <p className="text-3xl font-bold text-blue-700 dark:text-blue-300 mt-1">{overallStats.totalTrainees}</p>
             </div>
             <div className="text-4xl opacity-40">👥</div>
@@ -65,7 +65,7 @@ export const AttendanceTabContent = ({ trainees, attendanceData, attendanceLoadi
         <DashboardCard className="p-6 bg-gradient-to-br from-green-50 dark:from-green-900/20 to-green-100 dark:to-green-900/40 border-green-200 dark:border-green-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Avg. Attendance</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Avg. Attendance</p>
               <p className="text-3xl font-bold text-green-700 dark:text-green-300 mt-1">{overallStats.avgAttendance}%</p>
             </div>
             <div className="text-4xl opacity-40">📊</div>
@@ -75,7 +75,7 @@ export const AttendanceTabContent = ({ trainees, attendanceData, attendanceLoadi
         <DashboardCard className="p-6 bg-gradient-to-br from-emerald-50 dark:from-emerald-900/20 to-emerald-100 dark:to-emerald-900/40 border-emerald-200 dark:border-emerald-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Perfect (90%+)</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Perfect (90%+)</p>
               <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-300 mt-1">{overallStats.perfectAttendance}</p>
             </div>
             <div className="text-4xl opacity-40">⭐</div>
@@ -85,7 +85,7 @@ export const AttendanceTabContent = ({ trainees, attendanceData, attendanceLoadi
         <DashboardCard className="p-6 bg-gradient-to-br from-orange-50 dark:from-orange-900/20 to-orange-100 dark:to-orange-900/40 border-orange-200 dark:border-orange-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">At Risk (&lt;70%)</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">At Risk (&lt;70%)</p>
               <p className="text-3xl font-bold text-orange-700 dark:text-orange-300 mt-1">{overallStats.atRisk}</p>
             </div>
             <div className="text-4xl opacity-40">⚠️</div>
@@ -102,25 +102,25 @@ export const AttendanceTabContent = ({ trainees, attendanceData, attendanceLoadi
               type="date" 
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="px-3 py-2 border border-slate-300 dark:border-gray-600 rounded-lg dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => setFilterPeriod('all')}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${filterPeriod === 'all' ? 'bg-primary-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${filterPeriod === 'all' ? 'bg-primary-500 text-white' : 'bg-gray-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}`}
             >
               All Time
             </button>
             <button
               onClick={() => setFilterPeriod('month')}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${filterPeriod === 'month' ? 'bg-primary-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${filterPeriod === 'month' ? 'bg-primary-500 text-white' : 'bg-gray-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}`}
             >
               This Month
             </button>
             <button
               onClick={() => setFilterPeriod('week')}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${filterPeriod === 'week' ? 'bg-primary-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${filterPeriod === 'week' ? 'bg-primary-500 text-white' : 'bg-gray-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}`}
             >
               This Week
             </button>
@@ -132,8 +132,8 @@ export const AttendanceTabContent = ({ trainees, attendanceData, attendanceLoadi
       <DashboardCard className="p-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Trainee Attendance</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Mark attendance and track compliance</p>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Trainee Attendance</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">Mark attendance and track compliance</p>
           </div>
         </div>
 
@@ -176,17 +176,17 @@ export const AttendanceTabContent = ({ trainees, attendanceData, attendanceLoadi
                             {(trainee.name || 'U').charAt(0).toUpperCase()}
                           </div>
                           <div className="flex-1">
-                            <h4 className="text-lg font-bold text-gray-900 dark:text-white">{trainee.name || 'Unknown'}</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">{trainee.email || 'No email'}</p>
+                            <h4 className="text-lg font-bold text-slate-900 dark:text-white">{trainee.name || 'Unknown'}</h4>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">{trainee.email || 'No email'}</p>
                           </div>
                         </div>
                         
                         <div className="flex items-center gap-6">
                           <div className="text-right">
-                            <p className="text-3xl font-bold text-gray-900 dark:text-white">{percentage}%</p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{badge.icon} {badge.label}</p>
+                            <p className="text-3xl font-bold text-slate-900 dark:text-white">{percentage}%</p>
+                            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{badge.icon} {badge.label}</p>
                           </div>
-                          <ChevronRight className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                          <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
                         </div>
                       </div>
 
@@ -201,25 +201,25 @@ export const AttendanceTabContent = ({ trainees, attendanceData, attendanceLoadi
                         >
                           <div className="grid grid-cols-4 gap-4 mb-6">
                             <div className="bg-white dark:bg-gray-600 rounded-lg p-4 text-center">
-                              <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-2">TOTAL DAYS</p>
-                              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-2">TOTAL DAYS</p>
+                              <p className="text-2xl font-bold text-slate-900 dark:text-white">
                                 {attendance.total_days || 0}
                               </p>
                             </div>
                             <div className="bg-white dark:bg-gray-600 rounded-lg p-4 text-center">
-                              <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-2">PRESENT</p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-2">PRESENT</p>
                               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                                 {attendance.present || 0}
                               </p>
                             </div>
                             <div className="bg-white dark:bg-gray-600 rounded-lg p-4 text-center">
-                              <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-2">ABSENT</p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-2">ABSENT</p>
                               <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                                 {attendance.absent || 0}
                               </p>
                             </div>
                             <div className="bg-white dark:bg-gray-600 rounded-lg p-4 text-center">
-                              <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-2">STREAK</p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-2">STREAK</p>
                               <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                                 {attendance.current_streak || 0}
                               </p>

@@ -20,12 +20,12 @@ const Button = ({
 
   const variants = {
     primary: 'bg-primary-600 hover:bg-primary-700 text-white focus:ring-primary-500 shadow-md hover:shadow-lg',
-    secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-900 focus:ring-gray-500 shadow-sm',
+    secondary: 'bg-gray-200 hover:bg-gray-300 text-slate-900 focus:ring-gray-500 shadow-sm',
     success: 'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500 shadow-md hover:shadow-lg',
     warning: 'bg-amber-600 hover:bg-amber-700 text-white focus:ring-amber-500 shadow-md hover:shadow-lg',
     error: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 shadow-md hover:shadow-lg',
-    outline: 'border-2 border-gray-300 bg-white hover:bg-gray-50 text-gray-700 focus:ring-gray-400',
-    ghost: 'bg-transparent hover:bg-gray-100 text-gray-700 focus:ring-gray-400',
+    outline: 'border-2 border-slate-300 bg-white hover:bg-slate-50 text-slate-700 focus:ring-gray-400',
+    ghost: 'bg-transparent hover:bg-gray-100 text-slate-700 focus:ring-gray-400',
     link: 'bg-transparent text-primary-600 hover:text-primary-700 hover:underline focus:ring-primary-400'
   }
 

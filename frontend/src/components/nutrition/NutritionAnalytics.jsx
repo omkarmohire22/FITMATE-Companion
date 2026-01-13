@@ -144,8 +144,8 @@ export default function NutritionAnalytics() {
             <h4 className="text-xs font-bold text-orange-800 dark:text-orange-300 uppercase tracking-wide">Avg Calories</h4>
             <span className="text-xl">🔥</span>
           </div>
-          <p className="text-2xl sm:text-3xl font-bold text-orange-600 dark:text-orange-400">{stats.avgCalories}</p>
-          <p className="text-xs font-medium text-orange-700 dark:text-orange-400/80 mt-2">per day</p>
+          <p className="text-2xl sm:text-3xl font-bold text-sky-600 dark:text-sky-400">{stats.avgCalories}</p>
+          <p className="text-xs font-medium text-orange-700 dark:text-sky-400/80 mt-2">per day</p>
         </div>
 
         {/* Avg Protein */}
@@ -188,18 +188,18 @@ export default function NutritionAnalytics() {
         <div className="flex items-center justify-between">
           <div>
             <h4 className="font-bold text-gray-900 dark:text-white text-lg">📈 Calorie Trend</h4>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
               {stats.trend === 'increasing' && '⬆️ Your daily calories are increasing'}
               {stats.trend === 'decreasing' && '⬇️ Your daily calories are decreasing'}
               {stats.trend === 'stable' && '➡️ Your calorie intake is stable'}
             </p>
           </div>
           <div className={`p-4 rounded-xl ${
-            stats.trend === 'increasing' ? 'bg-orange-100 dark:bg-orange-900/50' :
+            stats.trend === 'increasing' ? 'bg-sky-100 dark:bg-orange-900/50' :
             stats.trend === 'decreasing' ? 'bg-green-100 dark:bg-green-900/50' :
             'bg-blue-100 dark:bg-blue-900/50'
           }`}>
-            {stats.trend === 'increasing' && <TrendingUp className="w-8 h-8 text-orange-600 dark:text-orange-400" />}
+            {stats.trend === 'increasing' && <TrendingUp className="w-8 h-8 text-sky-600 dark:text-sky-400" />}
             {stats.trend === 'decreasing' && <TrendingDown className="w-8 h-8 text-green-600 dark:text-green-400" />}
             {stats.trend === 'stable' && <Target className="w-8 h-8 text-blue-600 dark:text-blue-400" />}
           </div>
@@ -207,7 +207,7 @@ export default function NutritionAnalytics() {
       </div>
 
       {/* Weekly Chart */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-slate-700 shadow-sm">
         <h4 className="font-bold text-gray-900 dark:text-white mb-6 text-lg">📅 Daily Calories (7 Days)</h4>
         
         {weeklyData.length > 0 ? (
@@ -233,7 +233,7 @@ export default function NutritionAnalytics() {
                       />
                     </div>
                     {/* Label */}
-                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mt-3 text-center whitespace-nowrap">
+                    <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mt-3 text-center whitespace-nowrap">
                       {dayLabels[index]}
                     </p>
                   </div>
@@ -242,19 +242,19 @@ export default function NutritionAnalytics() {
             </div>
 
             {/* Goal Line */}
-            <div className="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-slate-700">
               <div className="flex-1 h-px bg-gray-300 dark:bg-gray-600" />
-              <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 px-2">🎯 2200 cal goal</p>
+              <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 px-2">🎯 2200 cal goal</p>
               <div className="flex-1 h-px bg-gray-300 dark:bg-gray-600" />
             </div>
           </div>
         ) : (
           <div className="text-center py-12">
-            <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Calendar className="w-10 h-10 text-gray-400 dark:text-gray-500" />
+            <div className="w-20 h-20 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Calendar className="w-10 h-10 text-slate-400 dark:text-slate-500" />
             </div>
-            <p className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">No data for the last 7 days</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Start logging meals to see trends</p>
+            <p className="text-lg font-semibold text-slate-600 dark:text-slate-300 mb-2">No data for the last 7 days</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Start logging meals to see trends</p>
           </div>
         )}
       </div>
@@ -265,7 +265,7 @@ export default function NutritionAnalytics() {
           {/* Protein Chart */}
           <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl p-5 border border-red-200 dark:border-red-700/50 shadow-sm">
             <h4 className="font-bold text-red-800 dark:text-red-300 mb-4">🥩 Protein Trend</h4>
-            <div className="flex items-end gap-1 h-32 bg-white/50 dark:bg-gray-800/50 rounded-xl p-2">
+            <div className="flex items-end gap-1 h-32 bg-white/50 dark:bg-slate-800/50 rounded-xl p-2">
               {weeklyData.map((day, index) => (
                 <div
                   key={index}
@@ -284,7 +284,7 @@ export default function NutritionAnalytics() {
           {/* Carbs Chart */}
           <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/20 rounded-2xl p-5 border border-amber-200 dark:border-amber-700/50 shadow-sm">
             <h4 className="font-bold text-amber-800 dark:text-amber-300 mb-4">🍞 Carbs Trend</h4>
-            <div className="flex items-end gap-1 h-32 bg-white/50 dark:bg-gray-800/50 rounded-xl p-2">
+            <div className="flex items-end gap-1 h-32 bg-white/50 dark:bg-slate-800/50 rounded-xl p-2">
               {weeklyData.map((day, index) => (
                 <div
                   key={index}
@@ -303,7 +303,7 @@ export default function NutritionAnalytics() {
           {/* Fats Chart */}
           <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/20 rounded-2xl p-5 border border-yellow-200 dark:border-yellow-700/50 shadow-sm">
             <h4 className="font-bold text-yellow-800 dark:text-yellow-300 mb-4">🥑 Fats Trend</h4>
-            <div className="flex items-end gap-1 h-32 bg-white/50 dark:bg-gray-800/50 rounded-xl p-2">
+            <div className="flex items-end gap-1 h-32 bg-white/50 dark:bg-slate-800/50 rounded-xl p-2">
               {weeklyData.map((day, index) => (
                 <div
                   key={index}

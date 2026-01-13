@@ -31,10 +31,6 @@ const AdminProfile = () => {
   
   const [activeTab, setActiveTab] = useState('profile');
   const [twoFAEnabled, setTwoFAEnabled] = useState(false);
-  const [loginSessions, setLoginSessions] = useState([
-    { id: 1, device: 'Chrome on Windows', location: 'New York', lastActive: '5 mins ago', current: true },
-    { id: 2, device: 'Safari on iPhone', location: 'New York', lastActive: '2 hours ago', current: false },
-  ]);
 
   useEffect(() => {
     loadProfile();
@@ -127,7 +123,7 @@ const AdminProfile = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-orange-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-sky-500"></div>
       </div>
     );
   }
@@ -140,7 +136,7 @@ const AdminProfile = () => {
         checked={checked}
         onChange={onChange}
       />
-      <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+      <div className="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-sky-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
     </label>
   );
 
@@ -152,41 +148,42 @@ const AdminProfile = () => {
         className="max-w-6xl mx-auto"
       >
         {/* Header with Avatar */}
-        <div className="bg-gradient-to-r from-orange-600 to-red-600 rounded-2xl p-8 mb-8 shadow-xl">
-          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-            <div className="w-32 h-32 bg-white rounded-2xl flex items-center justify-center shadow-lg">
-              <User className="w-16 h-16 text-orange-500" />
+        <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-2xl p-8 mb-8 shadow-xl overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-24 -translate-x-24"></div>
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-8">
+            <div className="w-28 h-28 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-2xl border-4 border-white/30">
+              <User className="w-16 h-16 text-white" />
             </div>
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-4xl font-bold text-white mb-2">{profile.name}</h1>
-              <p className="text-orange-100 text-lg mb-4">{profile.department} • Head Administrator</p>
-              <div className="flex flex-wrap gap-4 text-sm text-orange-50">
-                <div className="flex items-center gap-1">
+              <p className="text-white/90 text-lg mb-4 font-medium">System Administrator</p>
+              <div className="flex flex-wrap gap-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg">
                   <Calendar className="w-4 h-4" />
-                  Joined {new Date(profile.join_date).toLocaleDateString()}
+                  <span>Joined {new Date(profile.join_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Activity className="w-4 h-4" />
-                  Last active: {profile.last_login}
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg">
+                  <Mail className="w-4 h-4" />
+                  <span>{profile.email}</span>
                 </div>
               </div>
             </div>
-            <div className="text-right">
-              <div className="bg-white/20 backdrop-blur rounded-xl px-4 py-2 border border-white/30">
-                <p className="text-xs text-orange-100 font-semibold">ACCOUNT STATUS</p>
-                <p className="text-2xl font-bold text-white">✓ Active</p>
-              </div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-xl px-6 py-4 border-2 border-white/30">
+              <p className="text-xs text-white/70 font-semibold uppercase tracking-wider mb-1">Status</p>
+              <p className="text-2xl font-bold text-white flex items-center gap-2">
+                <span className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></span>
+                Active
+              </p>
             </div>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="grid grid-cols-3 md:grid-cols-4 gap-3 mb-8">
+        <div className="grid grid-cols-2 gap-4 mb-8">
           {[
-            { id: 'profile', label: 'Profile', icon: User },
-            { id: 'security', label: 'Security', icon: Shield },
-            { id: 'sessions', label: 'Sessions', icon: Activity },
-            { id: 'preferences', label: 'Preferences', icon: BarChart3 },
+            { id: 'profile', label: 'Profile Information', icon: User },
+            { id: 'security', label: 'Security & Password', icon: Shield },
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -197,8 +194,8 @@ const AdminProfile = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold transition-all ${
                   activeTab === tab.id
-                    ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                    ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg'
+                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                 }`}
               >
                 <Icon className="w-5 h-5" />
@@ -216,32 +213,32 @@ const AdminProfile = () => {
             className="space-y-6"
           >
             {/* Personal Information */}
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 shadow-xl">
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-slate-700 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <User className="w-6 h-6 text-orange-400" />
+                <User className="w-6 h-6 text-sky-400" />
                 Personal Information
               </h2>
               
               <form onSubmit={handleUpdateProfile} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Full Name</label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">Full Name</label>
                     <input
                       type="text"
                       value={profile.name}
                       onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                      className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
                       placeholder="Enter full name"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Email Address</label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">Email Address</label>
                     <input
                       type="email"
                       value={profile.email}
                       onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                      className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
                       placeholder="admin@fitmate.com"
                     />
                   </div>
@@ -249,43 +246,31 @@ const AdminProfile = () => {
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Phone Number</label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">Phone Number</label>
                     <input
                       type="tel"
                       value={profile.phone}
                       onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                      className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
                       placeholder="+1-800-FITMATE"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Department</label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">Join Date</label>
                     <input
                       type="text"
-                      value={profile.department}
-                      onChange={(e) => setProfile({ ...profile, department: e.target.value })}
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-                      placeholder="Management"
+                      value={new Date(profile.join_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      disabled
+                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-slate-400 cursor-not-allowed"
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Bio</label>
-                  <textarea
-                    value={profile.bio}
-                    onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                    rows="3"
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-                    placeholder="Tell us about yourself..."
-                  />
                 </div>
 
                 <button
                   type="submit"
                   disabled={saving}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50"
                 >
                   {saving ? (
                     <>
@@ -312,27 +297,27 @@ const AdminProfile = () => {
             className="space-y-6"
           >
             {/* Change Password */}
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 shadow-xl">
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-slate-700 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <Lock className="w-6 h-6 text-orange-400" />
+                <Lock className="w-6 h-6 text-sky-400" />
                 Change Password
               </h2>
               
               <form onSubmit={handleChangePassword} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Current Password</label>
+                  <label className="block text-sm font-semibold text-slate-300 mb-2">Current Password</label>
                   <div className="relative">
                     <input
                       type={showCurrentPassword ? 'text' : 'password'}
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 pr-12 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                      className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 pr-12 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
                       placeholder="Enter current password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-gray-200"
                     >
                       {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -341,40 +326,40 @@ const AdminProfile = () => {
                 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">New Password</label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">New Password</label>
                     <div className="relative">
                       <input
                         type={showNewPassword ? 'text' : 'password'}
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 pr-12 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                        className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 pr-12 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
                         placeholder="Enter new password"
                       />
                       <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-gray-200"
                       >
                         {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
-                    <p className="text-xs text-gray-400 mt-2">Min 8 chars, uppercase & numbers required</p>
+                    <p className="text-xs text-slate-400 mt-2">Min 8 chars, uppercase & numbers required</p>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Confirm Password</label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">Confirm Password</label>
                     <div className="relative">
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 pr-12 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                        className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 pr-12 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
                         placeholder="Confirm new password"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-gray-200"
                       >
                         {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
@@ -403,15 +388,20 @@ const AdminProfile = () => {
             </div>
 
             {/* Two-Factor Authentication */}
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 shadow-xl">
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 sm:p-8 border border-slate-700 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <Shield className="w-6 h-6 text-orange-400" />
+                <Shield className="w-6 h-6 text-sky-400" />
                 Two-Factor Authentication
               </h2>
-              <div className="flex items-center justify-between p-4 bg-gray-700/50 rounded-xl">
-                <div>
-                  <p className="text-gray-200 font-semibold">Enable 2FA</p>
-                  <p className="text-sm text-gray-400">Add an extra security layer with authenticator app</p>
+              <div className="flex items-center justify-between p-5 bg-slate-700/50 rounded-xl border border-slate-600">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                    <KeyRound className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-gray-200 font-bold text-lg">Enable 2FA</p>
+                    <p className="text-sm text-slate-400">Add extra layer of security with authenticator app</p>
+                  </div>
                 </div>
                 <ToggleSwitch
                   checked={twoFAEnabled}
@@ -419,78 +409,14 @@ const AdminProfile = () => {
                 />
               </div>
               {twoFAEnabled && (
-                <div className="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-xl">
-                  <p className="text-green-400 text-sm">✓ Two-factor authentication is enabled</p>
+                <div className="mt-4 p-4 bg-green-500/10 border-2 border-green-500/30 rounded-xl">
+                  <p className="text-green-400 font-semibold flex items-center gap-2">
+                    <Check className="w-5 h-5" />
+                    Two-factor authentication is currently enabled
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">Your account has an extra layer of protection</p>
                 </div>
               )}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Sessions Tab */}
-        {activeTab === 'sessions' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 shadow-xl"
-          >
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-              <Activity className="w-6 h-6 text-orange-400" />
-              Active Login Sessions
-            </h2>
-            <div className="space-y-4">
-              {loginSessions.map((session) => (
-                <div key={session.id} className="flex items-center justify-between p-4 bg-gray-700/50 rounded-xl">
-                  <div className="flex-1">
-                    <p className="text-gray-200 font-semibold">{session.device}</p>
-                    <p className="text-sm text-gray-400">{session.location} • {session.lastActive}</p>
-                  </div>
-                  <div className="text-right">
-                    {session.current ? (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold">
-                        <Check className="w-4 h-4" />
-                        Current
-                      </span>
-                    ) : (
-                      <button className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg text-sm font-semibold hover:bg-red-500/30 transition">
-                        Sign Out
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Preferences Tab */}
-        {activeTab === 'preferences' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 shadow-xl"
-          >
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-              <BarChart3 className="w-6 h-6 text-orange-400" />
-              Preferences
-            </h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-gray-700/50 rounded-xl">
-                <label className="text-gray-200 font-semibold cursor-pointer">Email Notifications</label>
-                <ToggleSwitch checked={true} onChange={() => {}} />
-              </div>
-              <div className="flex items-center justify-between p-4 bg-gray-700/50 rounded-xl">
-                <label className="text-gray-200 font-semibold cursor-pointer">Maintenance Alerts</label>
-                <ToggleSwitch checked={true} onChange={() => {}} />
-              </div>
-              <div className="flex items-center justify-between p-4 bg-gray-700/50 rounded-xl">
-                <label className="text-gray-200 font-semibold cursor-pointer">Schedule Notifications</label>
-                <ToggleSwitch checked={true} onChange={() => {}} />
-              </div>
-              <div className="flex items-center justify-between p-4 bg-gray-700/50 rounded-xl">
-                <label className="text-gray-200 font-semibold cursor-pointer">Weekly Reports</label>
-                <ToggleSwitch checked={false} onChange={() => {}} />
-              </div>
             </div>
           </motion.div>
         )}
