@@ -15,6 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/app ./app/
 COPY backend/alembic ./alembic/
 COPY backend/alembic.ini ./
+COPY backend/__init__.py ./
 
 # Set environment variables (override in production)
 ENV PYTHONUNBUFFERED=1
