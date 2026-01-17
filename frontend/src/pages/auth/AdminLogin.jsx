@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { authApi } from "../../utils/api";
 import {
   Mail,
   Lock,
@@ -32,6 +33,8 @@ const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState("");
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [otpStep, setOtpStep] = useState(false);
+  const [otp, setOtp] = useState("");
 
   const features = [
     { icon: <Users className="w-5 h-5" />, text: "Manage Trainers & Members" },
@@ -60,25 +63,52 @@ const AdminLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
-
     setLoading(true);
     setError("");
 
-    try {
-      const result = await adminLogin({
-        email: email.trim(),
-        password,
-      });
-
-      if (!result.success) {
-        throw new Error(result.error || "Admin login failed");
+    if (!otpStep) {
+      try {
+        // Call backend login
+        const res = await authApi.adminLogin({ email: email.trim(), password });
+        // If 2FA required
+        if (res.data && res.data.otp_required) {
+          setOtpStep(true);
+          setLoading(false);
+          return;
+        }
+        // Normal login - store token and use adminLogin from context
+        if (res.data && res.data.access_token) {
+          localStorage.setItem("access_token", res.data.access_token);
+          if (res.data.refresh_token) {
+            localStorage.setItem("refresh_token", res.data.refresh_token);
+          }
+          window.location.href = "/admin";
+          return;
+        }
+        throw new Error(res.data?.message || "Admin login failed");
+      } catch (err) {
+        setError(err.response?.data?.detail || err.message || "Invalid admin credentials");
+      } finally {
+        setLoading(false);
       }
-
-      navigate("/admin");
-    } catch (err) {
-      setError(err.message || "Invalid admin credentials");
-    } finally {
-      setLoading(false);
+    } else {
+      // OTP step
+      try {
+        const res = await authApi.adminVerifyOtp({ email: email.trim(), otp });
+        if (res.data && res.data.access_token) {
+          localStorage.setItem("access_token", res.data.access_token);
+          if (res.data.refresh_token) {
+            localStorage.setItem("refresh_token", res.data.refresh_token);
+          }
+          window.location.href = "/admin";
+          return;
+        }
+        throw new Error(res.data?.message || "Invalid OTP");
+      } catch (err) {
+        setError(err.response?.data?.detail || err.message || "Invalid OTP");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -217,7 +247,7 @@ const AdminLogin = () => {
             <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
               {/* EMAIL FIELD */}
               <div className="space-y-2">
-                <label className="text-slate-300 text-xs sm:text-sm font-medium block flex items-center gap-2">
+                <label className="text-slate-300 text-xs sm:text-sm font-medium flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5 text-red-400" />
                   Admin Email
                 </label>
@@ -231,7 +261,7 @@ const AdminLogin = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     onFocus={() => setFocusedField("email")}
                     onBlur={() => setFocusedField("")}
-                    disabled={loading}
+                    disabled={loading || otpStep}
                     autoFocus
                     autoComplete="email"
                     className={`w-full bg-white/5 border rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-white/10 text-sm sm:text-base ${
@@ -244,54 +274,77 @@ const AdminLogin = () => {
               </div>
 
               {/* PASSWORD FIELD */}
-              <div className="space-y-2">
-                <label className="text-slate-300 text-xs sm:text-sm font-medium block flex items-center gap-2">
-                  <Lock className="w-3.5 h-3.5 text-red-400" />
-                  Admin Password
-                </label>
-                <div className="relative group">
-                  <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-all duration-300 ${
-                    focusedField === "password" ? "text-red-400 scale-110" : "text-slate-500"
-                  }`} />
+              {!otpStep && (
+                <div className="space-y-2">
+                  <label className="text-slate-300 text-xs sm:text-sm font-medium flex items-center gap-2">
+                    <Lock className="w-3.5 h-3.5 text-red-400" />
+                    Admin Password
+                  </label>
+                  <div className="relative group">
+                    <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-all duration-300 ${
+                      focusedField === "password" ? "text-red-400 scale-110" : "text-slate-500"
+                    }`} />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onFocus={() => setFocusedField("password")}
+                      onBlur={() => setFocusedField("")}
+                      disabled={loading}
+                      autoComplete="current-password"
+                      className={`w-full bg-white/5 border rounded-xl py-3.5 pl-12 pr-12 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-white/10 text-sm sm:text-base ${
+                        focusedField === "password" ? "border-red-500/50 shadow-lg shadow-red-500/10" : "border-gray-600"
+                      }`}
+                      placeholder="••••••••"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-all duration-300 hover:scale-110"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* OTP FIELD */}
+              {otpStep && (
+                <div className="space-y-2">
+                  <label className="text-slate-300 text-xs sm:text-sm font-medium flex items-center gap-2">
+                    <Shield className="w-3.5 h-3.5 text-orange-400" />
+                    Enter OTP
+                  </label>
                   <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onFocus={() => setFocusedField("password")}
-                    onBlur={() => setFocusedField("")}
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
                     disabled={loading}
-                    autoComplete="current-password"
-                    className={`w-full bg-white/5 border rounded-xl py-3.5 pl-12 pr-12 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-white/10 text-sm sm:text-base ${
-                      focusedField === "password" ? "border-red-500/50 shadow-lg shadow-red-500/10" : "border-gray-600"
-                    }`}
-                    placeholder="••••••••"
+                    autoFocus
+                    maxLength={6}
+                    className="w-full bg-white/5 border rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-white/10 text-sm sm:text-base border-orange-500/50 shadow-lg shadow-orange-500/10"
+                    placeholder="Enter 6-digit OTP"
                     required
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-all duration-300 hover:scale-110"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
                 </div>
-              </div>
+              )}
 
               {/* SUBMIT BUTTON */}
               <button
                 type="submit"
-                disabled={loading || !email || !password}
+                disabled={loading || !email || (!otpStep && !password) || (otpStep && !otp)}
                 className="group w-full bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 py-4 rounded-xl text-white font-bold text-lg shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
               >
                 {loading ? (
                   <>
                     <Loader className="w-5 h-5 animate-spin" />
-                    <span>Authenticating...</span>
+                    <span>{otpStep ? "Verifying OTP..." : "Authenticating..."}</span>
                   </>
                 ) : (
                   <>
                     <Shield className="w-5 h-5" />
-                    <span>Access Admin Panel</span>
+                    <span>{otpStep ? "Verify OTP" : "Access Admin Panel"}</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </>
                 )}

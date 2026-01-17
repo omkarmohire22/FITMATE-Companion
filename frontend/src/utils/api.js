@@ -211,6 +211,7 @@ export const authApi = {
   register: (data) => api.post("/api/auth/register", data),
   login: (data) => api.post("/api/auth/login", data),
   adminLogin: (data) => api.post("/api/auth/admin/login", data),
+  adminVerifyOtp: (data) => api.post("/api/auth/admin/verify-otp", data),
   refresh: (refreshToken) =>
     api.post("/api/auth/refresh", { refresh_token: refreshToken }),
   getProfile: () => api.get("/api/auth/profile", { skipCache: true }),

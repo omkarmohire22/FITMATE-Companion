@@ -54,6 +54,12 @@ class RefreshTokenRequest(BaseModel):
     refresh_token: str
 
 
+# For OTP verification
+class OTPVerifyRequest(BaseModel):
+    email: EmailStr
+    otp: str
+
+
 # ===========================
 # HELPERS
 # ===========================
@@ -145,7 +151,7 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
 # ADMIN LOGIN (IMPORTANT)
 # ===========================
 
-@router.post("/admin/login", response_model=TokenResponse)
+@router.post("/admin/login")
 async def admin_login(data: LoginRequest, db: Session = Depends(get_db)):
 
     user = db.query(User).filter(User.email == data.email.lower()).first()
@@ -153,35 +159,46 @@ async def admin_login(data: LoginRequest, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(401, "Invalid admin credentials")
 
-    # Normalize DB role for safety
     db_role = (
         user.role.value.lower()
         if isinstance(user.role, UserRole)
         else str(user.role).lower()
     )
-
     if db_role != "admin":
         raise HTTPException(
             status_code=403,
             detail="Access denied. Admin credentials required.",
         )
-
     if not verify_password(data.password, user.password_hash):
         raise HTTPException(401, "Invalid admin credentials")
-
     if not user.is_active:
         raise HTTPException(403, "Admin account is disabled")
 
+    # 2FA logic
+    if user.two_factor_enabled:
+        import random, time
+        otp = str(random.randint(100000, 999999))
+        user.two_factor_secret = otp + ":" + str(int(time.time()) + 300)  # expires in 5 min
+        db.commit()
+        # Send OTP via email
+        from app.utils.email import send_email
+        send_email(
+            to=user.email,
+            subject="Your FitMate Admin OTP",
+            body=f"Your OTP code is: {otp} (valid for 5 minutes)"
+        )
+        return {"otp_required": True, "message": "OTP sent to admin email."}
+
+    # If 2FA not enabled, proceed as usual
     access_token = create_access_token({"sub": str(user.id), "role": "admin"})
     refresh_token = create_refresh_token({"sub": str(user.id)})
-
     token_user = map_user_to_token_user(user)
-
-    return TokenResponse(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        user=token_user,
-    )
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "user": token_user.model_dump()
+    }
 
 
 # ===========================
@@ -228,3 +245,33 @@ async def refresh_token_endpoint(
 @router.post("/logout")
 async def logout(current_user: User = Depends(get_current_user)):
     return {"message": "Logged out successfully"}
+
+# ===========================
+# ADMIN OTP VERIFY
+# ===========================
+
+import time
+
+@router.post("/admin/verify-otp", response_model=TokenResponse)
+async def admin_verify_otp(data: OTPVerifyRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email.lower()).first()
+    if not user or not user.two_factor_enabled:
+        raise HTTPException(401, "Invalid admin or 2FA not enabled")
+    if not user.two_factor_secret:
+        raise HTTPException(401, "No OTP generated")
+    otp, expiry = user.two_factor_secret.split(":")
+    if int(expiry) < int(time.time()):
+        raise HTTPException(401, "OTP expired")
+    if data.otp != otp:
+        raise HTTPException(401, "Invalid OTP")
+    # Clear OTP after use
+    user.two_factor_secret = None
+    db.commit()
+    access_token = create_access_token({"sub": str(user.id), "role": "admin"})
+    refresh_token = create_refresh_token({"sub": str(user.id)})
+    token_user = map_user_to_token_user(user)
+    return TokenResponse(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        user=token_user,
+    )
