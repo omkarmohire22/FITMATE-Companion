@@ -6,7 +6,7 @@ from typing import Optional, List
 import os
 
 from app.database import get_db
-from app.models import User, Message, Trainer, Trainee, UserRole
+from app.models import User, Message, Trainer, Trainee, UserRole, Notification
 from app.auth_util import require_role, get_current_user
 
 router = APIRouter()
@@ -216,6 +216,17 @@ async def send_user_message(
         is_read=False
     )
     db.add(message)
+    
+    # Create notification for the receiver
+    notification = Notification(
+        user_id=data.receiver_id,
+        title=f"💬 New message from {current_user.name}",
+        message=data.message[:100] + ("..." if len(data.message) > 100 else ""),
+        notification_type="message",
+        is_read=False
+    )
+    db.add(notification)
+    
     db.commit()
     db.refresh(message)
     
@@ -223,6 +234,35 @@ async def send_user_message(
         "status": "success",
         "message_id": message.id,
         "sent_at": message.created_at.isoformat() if message.created_at else None
+    }
+
+
+@router.put("/messages/{user_id}/read")
+async def mark_messages_as_read(
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Mark all messages from a specific user as read"""
+    # Mark messages as read
+    updated = db.query(Message).filter(
+        Message.sender_id == user_id,
+        Message.receiver_id == current_user.id,
+        Message.is_read == False
+    ).update({"is_read": True})
+    
+    # Also mark message notifications from this user as read
+    db.query(Notification).filter(
+        Notification.user_id == current_user.id,
+        Notification.notification_type == "message",
+        Notification.is_read == False
+    ).update({"is_read": True})
+    
+    db.commit()
+    
+    return {
+        "status": "success",
+        "messages_marked_read": updated
     }
 
 

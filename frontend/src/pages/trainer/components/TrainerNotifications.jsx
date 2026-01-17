@@ -105,16 +105,44 @@ const TrainerNotifications = ({
   }, [])
 
   // Handle notification click
-  const handleNotificationClick = (notification) => {
-    if (notification.type === 'message' && onSelectConversation) {
-      onSelectConversation({
-        user_id: notification.user_id,
-        user_name: notification.user_name,
-        user_role: notification.user_role
-      })
+  const handleNotificationClick = async (notification) => {
+    try {
+      // Mark system notification as read if it has an ID and is unread
+      if (notification.id && typeof notification.id === 'number' && !notification.is_read) {
+        await trainerDashboardApi.markNotificationRead(notification.id);
+        // Update local state
+        setNotifications(prev => 
+          prev.map(n => n.id === notification.id ? { ...n, is_read: true } : n)
+        );
+      }
+      
+      // If it's a message notification, mark messages as read and navigate
+      if (notification.type === 'message' && notification.user_id) {
+        await messagingApi.markMessagesRead(notification.user_id).catch(() => {});
+        if (onSelectConversation) {
+          onSelectConversation({
+            user_id: notification.user_id,
+            user_name: notification.user_name,
+            user_role: notification.user_role
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to mark notification as read:', err);
     }
-    setIsOpen(false)
-  }
+    setIsOpen(false);
+  };
+
+  // Mark all notifications as read
+  const handleMarkAllRead = async () => {
+    try {
+      await trainerDashboardApi.markAllNotificationsRead?.();
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+      loadNotifications();
+    } catch (err) {
+      console.error('Failed to mark all as read:', err);
+    }
+  };
 
   // Filter notifications
   const filteredNotifications = notifications.filter(n => {
@@ -338,9 +366,22 @@ const TrainerNotifications = ({
             </div>
 
             {/* Footer */}
-            <div className={`px-4 py-3 border-t ${
+            <div className={`px-4 py-3 border-t space-y-2 ${
               isDark ? 'border-slate-700 bg-slate-800/50' : 'border-gray-200 bg-gray-50'
             }`}>
+              {totalUnread > 0 && (
+                <button
+                  onClick={handleMarkAllRead}
+                  className={`w-full flex items-center justify-center gap-2 py-2 text-xs font-medium rounded-lg transition-colors border ${
+                    isDark 
+                      ? 'text-emerald-400 hover:bg-emerald-500/10 border-emerald-500/30' 
+                      : 'text-emerald-600 hover:bg-emerald-50 border-emerald-200'
+                  }`}
+                >
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  Mark all as read
+                </button>
+              )}
               <button
                 onClick={() => {
                   onViewAllMessages?.()

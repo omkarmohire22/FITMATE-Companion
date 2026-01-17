@@ -213,13 +213,24 @@ def analyze_meal_from_image(image_data: bytes, filename: str) -> Dict:
                     "confidence_level": round(np.mean([r["confidence"] for r in results]), 2)
                 }
         
-        # Default fallback
+        # Default fallback - provide reasonable default values for an unknown meal
         return {
             "status": "success",
-            "detected_foods": [{"food": "meal", "confidence": 0.6, "nutrition": {}}],
+            "detected_foods": [{
+                "food": "Mixed Meal",
+                "confidence": 0.5,
+                "portion_grams": 200,
+                "nutrition": {
+                    "calories": 400,
+                    "protein": 20,
+                    "carbs": 50,
+                    "fats": 12,
+                    "fiber": 3
+                }
+            }],
             "nutrition_summary": {"calories": 400, "protein": 20, "carbs": 50, "fats": 12, "fiber": 3},
-            "confidence_level": 0.6,
-            "message": "Food detected but confidence low. Please adjust portion if needed."
+            "confidence_level": 0.5,
+            "message": "Food detected but confidence is low. Please verify portions and adjust if needed."
         }
     
     except Exception as e:

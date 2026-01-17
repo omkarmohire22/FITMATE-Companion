@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
+import { useTheme } from '../../contexts/ThemeContext'
 import { traineeApi, paymentsApi, messagingApi, nutritionApi } from '../../utils/api'
 import {
   Activity, Target, TrendingUp, Award, Dumbbell, Utensils, BarChart, MessageCircle,
@@ -24,6 +25,7 @@ import FeedbackButton from '../../components/ui/FeedbackButton'
 
 const TraineeDashboard = () => {
   const { logout } = useAuth()
+  const { isDark } = useTheme()
   const [activeTab, setActiveTab] = useState('dashboard')
   const [sidebarOpen, setSidebarOpen] = useState(false) // Closed by default on mobile
   const [workoutActive, setWorkoutActive] = useState(false)
@@ -47,6 +49,10 @@ const TraineeDashboard = () => {
   const [attendanceHistory, setAttendanceHistory] = useState([])
   const [attendanceStats, setAttendanceStats] = useState(null)
   const [attendanceLoading, setAttendanceLoading] = useState(false)
+  
+  // Training Schedule State (sessions with trainer)
+  const [mySchedule, setMySchedule] = useState({ schedule: [], trainer: null, today_sessions: [], upcoming_session: null })
+  const [scheduleLoading, setScheduleLoading] = useState(false)
 
   useEffect(() => {
     async function fetchData() {
@@ -200,6 +206,22 @@ const TraineeDashboard = () => {
       }
     }
     fetchWorkouts()
+  }, [])
+
+  // Fetch training schedule (sessions with trainer)
+  useEffect(() => {
+    async function fetchSchedule() {
+      setScheduleLoading(true)
+      try {
+        const res = await traineeApi.getMySchedule()
+        setMySchedule(res.data || { schedule: [], trainer: null, today_sessions: [], upcoming_session: null })
+      } catch (err) {
+        console.error('Failed to load schedule:', err)
+      } finally {
+        setScheduleLoading(false)
+      }
+    }
+    fetchSchedule()
   }, [])
 
   // Meals Data - Now fetched from backend
@@ -370,24 +392,84 @@ const TraineeDashboard = () => {
   const loadNotifications = async () => {
     setNotificationsLoading(true);
     try {
+      // Fetch system notifications from API
+      const notifRes = await traineeApi.getNotifications(false).catch(() => ({ data: { notifications: [] } }));
+      const systemNotifs = (notifRes.data?.notifications || []).map(n => ({
+        id: n.id,
+        notifId: n.id, // Keep original ID for API calls
+        type: n.notification_type || 'system',
+        title: n.title,
+        message: n.message,
+        timestamp: n.created_at,
+        is_read: n.is_read,
+        icon: n.notification_type === 'schedule' ? Calendar : Bell
+      }));
+
       // Combine notifications from various sources
       const notificationList = [
+        // System notifications (schedule updates, announcements, etc.)
+        ...systemNotifs,
         // Messages from trainers/admin
-        ...(conversations || []).map(conv => ({
+        ...(conversations || []).filter(conv => conv.unread_count > 0).map(conv => ({
           id: `msg-${conv.user_id}`,
           type: 'message',
           title: `Message from ${conv.user_name || 'Trainer'}`,
           message: conv.last_message || 'New message',
           timestamp: conv.last_message_time,
+          is_read: false, // Has unread messages
+          userId: conv.user_id,
           icon: MessageCircle
         })),
         // Additional notifications can be added here
       ];
+      // Sort by timestamp, newest first
+      notificationList.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       setNotifications(notificationList);
     } catch (err) {
       console.error('Failed to load notifications:', err);
     } finally {
       setNotificationsLoading(false);
+    }
+  };
+
+  // Mark notification as read
+  const handleNotificationClick = async (notif) => {
+    try {
+      // If it's a system notification (has notifId), mark it as read via API
+      if (notif.notifId && !notif.is_read) {
+        await traineeApi.markNotificationRead(notif.notifId);
+        // Update local state
+        setNotifications(prev => 
+          prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n)
+        );
+      }
+      
+      // Handle navigation based on notification type
+      if (notif.type === 'message' && notif.userId) {
+        // Mark messages as read and navigate to messages
+        await messagingApi.markMessagesRead(notif.userId).catch(() => {});
+        setActiveTab('messages');
+        setShowNotifications(false);
+      } else if (notif.type === 'schedule') {
+        setActiveTab('dashboard');
+        setShowNotifications(false);
+      } else if (notif.type === 'payment') {
+        setActiveTab('payment');
+        setShowNotifications(false);
+      }
+    } catch (err) {
+      console.error('Failed to mark notification as read:', err);
+    }
+  };
+
+  // Mark all notifications as read
+  const handleMarkAllRead = async () => {
+    try {
+      await traineeApi.markAllNotificationsRead();
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+      toast.success('All notifications marked as read');
+    } catch (err) {
+      console.error('Failed to mark all as read:', err);
     }
   };
 
@@ -670,9 +752,9 @@ const TraineeDashboard = () => {
   return (
     <div className="min-h-screen bg-slate-950 font-sans">
       {/* Top Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 backdrop-blur-md border-b border-slate-700/50 shadow-xl">
-        <div className="px-3 sm:px-6 py-3 sm:py-4">
-          <div className="flex justify-between items-center gap-2 sm:gap-4">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-700/50 shadow-md h-16">
+        <div className="px-3 sm:px-6 h-full flex items-center">
+          <div className="flex justify-between items-center gap-2 sm:gap-4 w-full">
             {/* Left Section */}
             <div className="flex items-center gap-2 sm:gap-3">
               <button
@@ -718,7 +800,11 @@ const TraineeDashboard = () => {
                 className="relative p-2 hover:bg-slate-700/50 rounded-lg transition-colors group"
               >
                 <Bell className="w-5 h-5 text-slate-400 group-hover:text-indigo-400" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                {notifications.filter(n => !n.is_read).length > 0 && (
+                  <span className="absolute top-1 right-1 min-w-[18px] h-[18px] bg-red-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white px-1 animate-pulse">
+                    {notifications.filter(n => !n.is_read).length > 9 ? '9+' : notifications.filter(n => !n.is_read).length}
+                  </span>
+                )}
               </button>
 
               {/* User Profile */}
@@ -750,193 +836,533 @@ const TraineeDashboard = () => {
           </div>
         </div>
 
-        {/* Notifications Dropdown */}
-        {showNotifications && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="absolute right-4 sm:right-6 top-full mt-2 w-96 bg-slate-900 rounded-2xl shadow-xl z-50 border border-slate-800 max-h-[500px] flex flex-col"
-          >
-            {/* Header */}
-            <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-700/50 rounded-t-2xl">
-              <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Bell className="w-5 h-5 text-indigo-400" />
-                Notifications
-              </h3>
-              <button
+        {/* Enhanced Notifications Dropdown */}
+        <AnimatePresence>
+          {showNotifications && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 onClick={() => setShowNotifications(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                className="fixed inset-0 z-40"
+              />
+              <motion.div
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                transition={{ type: "spring", duration: 0.3 }}
+                className="absolute right-4 sm:right-6 top-full mt-2 w-80 sm:w-96 bg-slate-900 rounded-2xl shadow-2xl z-50 border border-slate-700 max-h-[520px] flex flex-col overflow-hidden"
               >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Notifications List */}
-            <div className="overflow-y-auto flex-1">
-              {notificationsLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <LoadingSpinner size="sm" />
-                </div>
-              ) : notifications.length === 0 ? (
-                <div className="p-8 text-center">
-                  <Bell className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
-                  <p className="text-slate-500 dark:text-slate-400 text-sm">No notifications yet</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                  {notifications.map((notif, idx) => (
-                    <motion.div
-                      key={notif.id || idx}
-                      whileHover={{ x: 4 }}
-                      className="px-4 py-3 hover:bg-slate-700/30 transition-colors cursor-pointer"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          notif.type === 'message' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
-                        }`}>
-                          {notif.type === 'message' ? (
-                            <MessageCircle className="w-5 h-5" />
-                          ) : (
-                            <Calendar className="w-5 h-5" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-slate-900 dark:text-white text-sm">{notif.title}</p>
-                          <p className="text-slate-600 dark:text-slate-400 text-xs mt-1 truncate">{notif.message}</p>
-                          <p className="text-slate-500 dark:text-slate-500 text-xs mt-1">
-                            {notif.timestamp ? new Date(notif.timestamp).toLocaleString() : 'Just now'}
-                          </p>
-                        </div>
+                {/* Header */}
+                <div className="px-5 py-4 border-b border-slate-700/50 bg-gradient-to-r from-slate-800 to-slate-900">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                        <Bell className="w-5 h-5 text-white" />
                       </div>
-                    </motion.div>
-                  ))}
+                      <div>
+                        <h3 className="font-bold text-white text-lg">Notifications</h3>
+                        <p className="text-xs text-slate-400">
+                          {notifications.length > 0 ? `${notifications.length} notification${notifications.length > 1 ? 's' : ''}` : 'All caught up!'}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowNotifications(false)}
+                      className="w-8 h-8 rounded-lg bg-slate-700/50 hover:bg-slate-600 flex items-center justify-center transition-colors"
+                    >
+                      <X className="w-4 h-4 text-slate-400" />
+                    </button>
+                  </div>
                 </div>
-              )}
-            </div>
-          </motion.div>
-        )}
 
-        {/* Bottom Mobile Tab Bar */}
-        <div className="lg:hidden flex items-center justify-around px-1 py-2 bg-white/95 dark:bg-slate-800/95 border-t border-slate-800 overflow-x-auto">
-          {navTabs.slice(0, 5).map((tab) => {
-            const Icon = tab.icon
-            const isActive = activeTab === tab.id
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex flex-col items-center justify-center px-2 py-2 rounded-lg transition-all duration-200 whitespace-nowrap text-xs ${
-                  isActive 
-                    ? 'text-indigo-400 bg-primary-50 border border-primary-200' 
-                    : 'text-slate-500 hover:text-indigo-400'
-                }`}
-              >
-                <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''}`} />
-                <span className="mt-0.5 font-medium">{tab.label}</span>
-              </button>
-            )
-          })}
-        </div>
+                {/* Notification Categories */}
+                {notifications.length > 0 && (
+                  <div className="px-4 py-2 bg-slate-800/50 border-b border-slate-700/30 flex items-center gap-2 overflow-x-auto">
+                    {[{ id: 'all', label: 'All', count: notifications.length }, { id: 'message', label: 'Messages', icon: MessageCircle }, { id: 'workout', label: 'Workouts', icon: Dumbbell }].map(cat => (
+                      <button
+                        key={cat.id}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
+                          cat.id === 'all'
+                            ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
+                            : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                        }`}
+                      >
+                        {cat.icon && <cat.icon className="w-3.5 h-3.5" />}
+                        {cat.label}
+                        {cat.count && <span className="ml-1 px-1.5 py-0.5 bg-indigo-500/30 rounded-full text-[10px]">{cat.count}</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Notifications List */}
+                <div className="overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                  {notificationsLoading ? (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                        className="w-10 h-10 border-3 border-slate-700 border-t-indigo-500 rounded-full mb-3"
+                      />
+                      <p className="text-slate-400 text-sm">Loading notifications...</p>
+                    </div>
+                  ) : notifications.length === 0 ? (
+                    <div className="py-16 px-6 text-center">
+                      <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-slate-800 flex items-center justify-center">
+                        <Bell className="w-10 h-10 text-slate-600" />
+                      </div>
+                      <h4 className="text-white font-semibold mb-2">No notifications</h4>
+                      <p className="text-slate-400 text-sm">You're all caught up! Check back later.</p>
+                    </div>
+                  ) : (
+                    <div className="py-2">
+                      {notifications.map((notif, idx) => {
+                        const notifConfig = {
+                          message: { icon: MessageCircle, bg: 'from-blue-500 to-cyan-500', lightBg: 'bg-blue-500/10', color: 'text-blue-400' },
+                          workout: { icon: Dumbbell, bg: 'from-purple-500 to-pink-500', lightBg: 'bg-purple-500/10', color: 'text-purple-400' },
+                          attendance: { icon: CalendarCheck, bg: 'from-green-500 to-emerald-500', lightBg: 'bg-green-500/10', color: 'text-green-400' },
+                          payment: { icon: CreditCard, bg: 'from-amber-500 to-orange-500', lightBg: 'bg-amber-500/10', color: 'text-amber-400' },
+                          reminder: { icon: Clock, bg: 'from-rose-500 to-red-500', lightBg: 'bg-rose-500/10', color: 'text-rose-400' },
+                          schedule: { icon: Calendar, bg: 'from-teal-500 to-emerald-500', lightBg: 'bg-teal-500/10', color: 'text-teal-400' },
+                          system: { icon: Bell, bg: 'from-indigo-500 to-purple-500', lightBg: 'bg-indigo-500/10', color: 'text-indigo-400' },
+                          default: { icon: Info, bg: 'from-slate-500 to-slate-600', lightBg: 'bg-slate-500/10', color: 'text-slate-400' }
+                        };
+                        const config = notifConfig[notif.type] || notifConfig.default;
+                        const NotifIcon = config.icon;
+                        const isUnread = !notif.is_read;
+                        
+                        return (
+                          <motion.div
+                            key={notif.id || idx}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            whileHover={{ x: 4, backgroundColor: 'rgba(51, 65, 85, 0.3)' }}
+                            onClick={() => handleNotificationClick(notif)}
+                            className={`mx-2 px-4 py-3 rounded-xl cursor-pointer transition-all relative ${isUnread ? 'bg-slate-800/50' : ''}`}
+                          >
+                            {/* Unread Indicator */}
+                            {isUnread && (
+                              <div className="absolute left-1 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+                            )}
+                            
+                            <div className="flex items-start gap-3">
+                              {/* Icon */}
+                              <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${config.bg} flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                                <NotifIcon className="w-5 h-5 text-white" />
+                              </div>
+                              
+                              {/* Content */}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2">
+                                  <p className={`font-semibold text-sm ${isUnread ? 'text-white' : 'text-slate-300'}`}>
+                                    {notif.title}
+                                  </p>
+                                  <span className="text-[10px] text-slate-500 whitespace-nowrap">
+                                    {notif.timestamp ? (() => {
+                                      const date = new Date(notif.timestamp);
+                                      const now = new Date();
+                                      const diffMs = now - date;
+                                      const diffMins = Math.floor(diffMs / 60000);
+                                      const diffHours = Math.floor(diffMins / 60);
+                                      const diffDays = Math.floor(diffHours / 24);
+                                      if (diffMins < 1) return 'Just now';
+                                      if (diffMins < 60) return `${diffMins}m ago`;
+                                      if (diffHours < 24) return `${diffHours}h ago`;
+                                      return `${diffDays}d ago`;
+                                    })() : 'Just now'}
+                                  </span>
+                                </div>
+                                <p className="text-slate-400 text-xs mt-1 line-clamp-2">{notif.message}</p>
+                                
+                                {/* Action Button */}
+                                {notif.type === 'message' && (
+                                  <button 
+                                    onClick={() => { setActiveTab('messages'); setShowNotifications(false); }}
+                                    className="mt-2 text-xs font-medium text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors"
+                                  >
+                                    View message <ChevronRight className="w-3 h-3" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer */}
+                {notifications.length > 0 && (
+                  <div className="px-4 py-3 border-t border-slate-700/50 bg-slate-800/30 space-y-2">
+                    {notifications.some(n => !n.is_read) && (
+                      <button
+                        onClick={handleMarkAllRead}
+                        className="w-full py-2 text-center text-xs font-medium text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 rounded-lg transition-all flex items-center justify-center gap-2 border border-emerald-500/30"
+                      >
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        Mark all as read
+                      </button>
+                    )}
+                    <button
+                      onClick={() => { setActiveTab('messages'); setShowNotifications(false); }}
+                      className="w-full py-2 text-center text-sm font-medium text-indigo-400 hover:text-indigo-300 hover:bg-slate-700/50 rounded-lg transition-all flex items-center justify-center gap-2"
+                    >
+                      View all notifications
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </nav>
 
-      {/* Main Layout */}
-      <div className="flex pt-[88px] sm:pt-[100px] lg:pt-20">
-        {/* Sidebar */}
-        <aside className={`
-          fixed lg:sticky top-0 left-0 h-screen w-64 bg-slate-900 border-r border-slate-800
-          z-40 transition-transform duration-300 ease-in-out lg:translate-x-0 pt-[88px] sm:pt-[100px] lg:pt-0
-          ${sidebarOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full lg:translate-x-0'}
-        `}>
-          <div className="p-6 h-full overflow-y-auto">
-            {/* Navigation Section */}
-            <div className="mb-8">
-              <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-4 tracking-wider uppercase">Navigation</h2>
-              <nav className="space-y-2">
-                {navTabs.map((tab) => {
-                  const Icon = tab.icon
-                  const isActive = activeTab === tab.id
-                  return (
-                    <motion.button
-                      key={tab.id}
-                      whileHover={{ x: 4 }}
-                      onClick={() => {
-                        setActiveTab(tab.id)
-                        if (window.innerWidth < 1024) setSidebarOpen(false)
-                      }}
-                      className={`
-                        w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
-                        ${isActive 
-                          ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 font-semibold border border-primary-200 dark:border-primary-700/50 shadow-sm' 
-                          : 'text-slate-600 dark:text-slate-400 hover:text-indigo-400 dark:hover:text-primary-400 hover:bg-slate-700/30'
-                        }
-                      `}
-                    >
-                      <Icon className="w-5 h-5 flex-shrink-0" />
-                      <span>{tab.label}</span>
-                      {isActive && <ChevronRight className="w-4 h-4 ml-auto" />}
-                    </motion.button>
-                  )
-                })}
-              </nav>
-            </div>
-
-            {/* Quick Stats Card */}
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 rounded-2xl p-5 border border-primary-100 dark:border-primary-700/30 shadow-sm"
+      {/* Mobile Bottom Navigation - Fixed at bottom */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-1 py-2 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50">
+        {navTabs.slice(0, 5).map((tab) => {
+          const Icon = tab.icon
+          const isActive = activeTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex flex-col items-center justify-center px-2 py-2 rounded-lg transition-all duration-200 whitespace-nowrap text-xs ${
+                isActive 
+                  ? 'text-indigo-400 bg-indigo-500/10 border border-indigo-500/30' 
+                  : 'text-slate-500 hover:text-indigo-400'
+              }`}
             >
-              <h3 className="font-bold text-primary-700 mb-4 flex items-center gap-2 text-sm">
-                <Activity className="w-4 h-4" />
-                Today's Summary
-              </h3>
-              {stats ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100 hover:border-primary-300 transition-colors">
-                    <span className="text-xs text-slate-600">Calories Left</span>
-                    <span className="font-bold text-lg text-indigo-400">
-                      {typeof stats.caloriesBudget === 'number' && typeof stats.calories === 'number' && typeof stats.caloriesBurned === 'number' 
-                        ? (stats.caloriesBudget - stats.calories + stats.caloriesBurned) 
-                        : '--'}
+              <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''}`} />
+              <span className="mt-0.5 font-medium">{tab.label}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Sidebar Overlay for Mobile */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Main Layout */}
+      <div className="flex">
+        {/* Enhanced Sidebar */}
+        <aside className={`
+          fixed left-0 top-16 h-[calc(100vh-64px)] w-64 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-slate-800/80
+          z-40 transition-transform duration-300 ease-in-out lg:translate-x-0 overflow-hidden
+          ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'}
+        `}>
+          <div className="h-full flex flex-col overflow-hidden">
+            {/* User Profile Section */}
+            <div className="p-5 border-b border-slate-800/80">
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-4"
+              >
+                <div className="relative">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                    {userData?.name?.split(' ').map(n => n[0]).join('').substring(0, 2) || 'U'}
+                  </div>
+                  {/* Online Status */}
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-900" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-white truncate">{userData?.name || 'User'}</h3>
+                  <p className="text-xs text-slate-400 truncate">{userData?.email || ''}</p>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 rounded text-[10px] font-semibold border border-indigo-500/30">
+                      {userData?.plan || 'Member'}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100 hover:border-blue-300 transition-colors">
-                    <span className="text-xs text-slate-600">Water</span>
-                    <div className="flex items-center gap-2">
-                      <Droplet className="w-4 h-4 text-blue-500" />
-                      <span className="font-bold text-lg text-blue-600">
-                        {typeof stats.waterIntake === 'number' ? stats.waterIntake : '--'}
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Scrollable Navigation */}
+            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent px-4 py-5">
+              {/* Main Navigation */}
+              <div className="mb-6">
+                <h2 className="px-3 mb-3 text-[11px] font-bold text-slate-500 tracking-widest uppercase flex items-center gap-2">
+                  <span className="w-6 h-px bg-slate-700"></span>
+                  Main Menu
+                </h2>
+                <nav className="space-y-1.5">
+                  {[
+                    { id: 'dashboard', label: 'Dashboard', icon: Home, gradient: 'from-blue-500 to-cyan-500' },
+                    { id: 'attendance', label: 'Attendance', icon: CalendarCheck, gradient: 'from-emerald-500 to-teal-500' },
+                    { id: 'nutrition', label: 'Nutrition', icon: Utensils, gradient: 'from-green-500 to-lime-500' },
+                    { id: 'progress', label: 'Progress', icon: BarChart, gradient: 'from-sky-500 to-blue-500' },
+                  ].map((tab, idx) => {
+                    const Icon = tab.icon
+                    const isActive = activeTab === tab.id
+                    return (
+                      <motion.button
+                        key={tab.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        whileHover={{ x: 4 }}
+                        onClick={() => {
+                          setActiveTab(tab.id)
+                          if (window.innerWidth < 1024) setSidebarOpen(false)
+                        }}
+                        className={`
+                          w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
+                          ${isActive 
+                            ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/10 text-white font-semibold border border-indigo-500/30 shadow-lg shadow-indigo-500/5' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                          }
+                        `}
+                      >
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+                          isActive 
+                            ? `bg-gradient-to-br ${tab.gradient} shadow-lg` 
+                            : 'bg-slate-800 group-hover:bg-slate-700'
+                        }`}>
+                          <Icon className={`w-4.5 h-4.5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
+                        </div>
+                        <span className="flex-1 text-left text-sm">{tab.label}</span>
+                        {isActive && (
+                          <motion.div
+                            layoutId="activeIndicator"
+                            className="w-1.5 h-1.5 rounded-full bg-indigo-400"
+                          />
+                        )}
+                      </motion.button>
+                    )
+                  })}
+                </nav>
+              </div>
+
+              {/* Communication Section */}
+              <div className="mb-6">
+                <h2 className="px-3 mb-3 text-[11px] font-bold text-slate-500 tracking-widest uppercase flex items-center gap-2">
+                  <span className="w-6 h-px bg-slate-700"></span>
+                  Communication
+                </h2>
+                <nav className="space-y-1.5">
+                  {[
+                    { id: 'coach', label: 'AI Coach', icon: MessageCircle, gradient: 'from-pink-500 to-rose-500', badge: 'AI' },
+                    { id: 'messages', label: 'Messages', icon: Mail, gradient: 'from-teal-500 to-cyan-500', badge: unreadCount > 0 ? unreadCount : null },
+                  ].map((tab, idx) => {
+                    const Icon = tab.icon
+                    const isActive = activeTab === tab.id
+                    return (
+                      <motion.button
+                        key={tab.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 + idx * 0.05 }}
+                        whileHover={{ x: 4 }}
+                        onClick={() => {
+                          setActiveTab(tab.id)
+                          if (window.innerWidth < 1024) setSidebarOpen(false)
+                        }}
+                        className={`
+                          w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
+                          ${isActive 
+                            ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/10 text-white font-semibold border border-indigo-500/30 shadow-lg shadow-indigo-500/5' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                          }
+                        `}
+                      >
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+                          isActive 
+                            ? `bg-gradient-to-br ${tab.gradient} shadow-lg` 
+                            : 'bg-slate-800 group-hover:bg-slate-700'
+                        }`}>
+                          <Icon className={`w-4.5 h-4.5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
+                        </div>
+                        <span className="flex-1 text-left text-sm">{tab.label}</span>
+                        {tab.badge && (
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            tab.badge === 'AI' 
+                              ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 text-pink-400 border border-pink-500/30'
+                              : 'bg-red-500 text-white min-w-[20px] text-center'
+                          }`}>
+                            {tab.badge}
+                          </span>
+                        )}
+                        {isActive && !tab.badge && (
+                          <motion.div
+                            layoutId="activeIndicator"
+                            className="w-1.5 h-1.5 rounded-full bg-indigo-400"
+                          />
+                        )}
+                      </motion.button>
+                    )
+                  })}
+                </nav>
+              </div>
+
+              {/* Account Section */}
+              <div className="mb-6">
+                <h2 className="px-3 mb-3 text-[11px] font-bold text-slate-500 tracking-widest uppercase flex items-center gap-2">
+                  <span className="w-6 h-px bg-slate-700"></span>
+                  Account
+                </h2>
+                <nav className="space-y-1.5">
+                  {[
+                    { id: 'payment', label: 'Plans & Billing', icon: CreditCard, gradient: 'from-indigo-500 to-purple-500' },
+                    { id: 'profile', label: 'My Profile', icon: User, gradient: 'from-slate-500 to-slate-600' },
+                  ].map((tab, idx) => {
+                    const Icon = tab.icon
+                    const isActive = activeTab === tab.id
+                    return (
+                      <motion.button
+                        key={tab.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 + idx * 0.05 }}
+                        whileHover={{ x: 4 }}
+                        onClick={() => {
+                          setActiveTab(tab.id)
+                          if (window.innerWidth < 1024) setSidebarOpen(false)
+                        }}
+                        className={`
+                          w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
+                          ${isActive 
+                            ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/10 text-white font-semibold border border-indigo-500/30 shadow-lg shadow-indigo-500/5' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                          }
+                        `}
+                      >
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+                          isActive 
+                            ? `bg-gradient-to-br ${tab.gradient} shadow-lg` 
+                            : 'bg-slate-800 group-hover:bg-slate-700'
+                        }`}>
+                          <Icon className={`w-4.5 h-4.5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
+                        </div>
+                        <span className="flex-1 text-left text-sm">{tab.label}</span>
+                        {isActive && (
+                          <motion.div
+                            layoutId="activeIndicator"
+                            className="w-1.5 h-1.5 rounded-full bg-indigo-400"
+                          />
+                        )}
+                      </motion.button>
+                    )
+                  })}
+                </nav>
+              </div>
+
+              {/* Today's Summary Card */}
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="bg-gradient-to-br from-slate-800/80 to-slate-900 rounded-2xl p-4 border border-slate-700/50 shadow-xl"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                      <Activity className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    Today's Stats
+                  </h3>
+                  <span className="text-[10px] text-slate-500">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                </div>
+                {stats ? (
+                  <div className="space-y-3">
+                    {/* Calories */}
+                    <div className="group">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs text-slate-400 flex items-center gap-1.5">
+                          <Flame className="w-3.5 h-3.5 text-orange-400" />
+                          Calories Left
+                        </span>
+                        <span className="font-bold text-sm text-white">
+                          {typeof stats.caloriesBudget === 'number' && typeof stats.calories === 'number' 
+                            ? (stats.caloriesBudget - stats.calories + (stats.caloriesBurned || 0)) 
+                            : '--'}
+                        </span>
+                      </div>
+                      <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${stats.calories ? Math.min((stats.calories / stats.caloriesBudget) * 100, 100) : 0}%` }}
+                          className="h-full bg-gradient-to-r from-orange-500 to-amber-400 rounded-full"
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Water */}
+                    <div className="group">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs text-slate-400 flex items-center gap-1.5">
+                          <Droplet className="w-3.5 h-3.5 text-cyan-400" />
+                          Water Intake
+                        </span>
+                        <span className="font-bold text-sm text-white">
+                          {typeof stats.waterIntake === 'number' ? stats.waterIntake : '--'}/{typeof stats.waterGoal === 'number' ? stats.waterGoal : '--'}
+                        </span>
+                      </div>
+                      <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${stats.waterIntake ? Math.min((stats.waterIntake / stats.waterGoal) * 100, 100) : 0}%` }}
+                          className="h-full bg-gradient-to-r from-cyan-500 to-blue-400 rounded-full"
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Streak */}
+                    <div className="flex items-center justify-between p-2.5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-lg border border-amber-500/20">
+                      <span className="text-xs text-slate-300 flex items-center gap-1.5">
+                        <div className="w-6 h-6 rounded bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                          <Trophy className="w-3 h-3 text-white" />
+                        </div>
+                        Day Streak
                       </span>
-                      <span className="text-slate-400">/</span>
-                      <span className="text-slate-500 text-sm">
-                        {typeof stats.waterGoal === 'number' ? stats.waterGoal : '--'}
+                      <span className="font-bold text-lg text-amber-400">
+                        {typeof stats.streak === 'number' ? stats.streak : '--'}
+                        <span className="text-xs ml-0.5">🔥</span>
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-700 rounded-lg border border-gray-100 dark:border-gray-600 hover:border-orange-300 transition-colors">
-                    <span className="text-xs text-slate-600 dark:text-slate-400">Streak</span>
-                    <div className="flex items-center gap-2">
-                      <Flame className="w-4 h-4 text-sky-500" />
-                      <span className="font-bold text-lg text-sky-600 dark:text-sky-400">
-                        {typeof stats.streak === 'number' ? stats.streak : '--'} days
-                      </span>
-                    </div>
+                ) : (
+                  <div className="space-y-3 animate-pulse">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="h-10 bg-slate-700/50 rounded-lg" />
+                    ))}
                   </div>
-                </div>
-              ) : (
-                <div className="space-y-3 animate-pulse">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="h-12 bg-gray-200 rounded-lg" />
-                  ))}
-                </div>
-              )}
-            </motion.div>
+                )}
+              </motion.div>
+            </div>
+
+            {/* Bottom Section - Logout */}
+            <div className="p-4 border-t border-slate-800/80">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={logout}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-xl transition-all duration-200 border border-red-500/20 hover:border-red-500/40 font-semibold text-sm"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </motion.button>
+            </div>
           </div>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 min-h-screen bg-slate-950">
+        <main className="flex-1 lg:ml-64 min-h-screen bg-slate-950 pt-16 pb-20 lg:pb-0">
           <div className="p-3 sm:p-6 max-w-7xl mx-auto">
             {/* Dashboard Tab */}
             {activeTab === 'dashboard' && (
@@ -1115,6 +1541,100 @@ const TraineeDashboard = () => {
                         </div>
                       </div>
                     </div>
+                  </motion.div>
+                )}
+
+                {/* My Training Sessions with Trainer */}
+                {(mySchedule.schedule.length > 0 || mySchedule.trainer) && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 rounded-2xl p-6 border border-purple-800/50 shadow-lg"
+                  >
+                    <div className="flex items-center justify-between mb-5">
+                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <Calendar className="w-5 h-5 text-purple-400" />
+                        My Training Sessions
+                      </h3>
+                      {mySchedule.trainer && (
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/20 rounded-lg border border-purple-500/30">
+                          <User className="w-4 h-4 text-purple-400" />
+                          <span className="text-sm text-purple-300 font-medium">{mySchedule.trainer.name}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Today's Session Highlight */}
+                    {mySchedule.today_sessions?.length > 0 && (
+                      <div className="mb-4 p-4 bg-green-500/10 rounded-xl border border-green-500/30">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                          <span className="text-xs font-bold text-green-400 uppercase">Today's Session</span>
+                        </div>
+                        {mySchedule.today_sessions.map((session, idx) => (
+                          <div key={idx} className="flex items-center justify-between">
+                            <div>
+                              <p className="text-white font-bold">{session.start_time} - {session.end_time}</p>
+                              <p className="text-sm text-slate-400 capitalize">{session.session_type?.replace('_', ' ')}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm text-green-400">With {session.trainer?.name || mySchedule.trainer?.name}</p>
+                              {session.notes && <p className="text-xs text-slate-500">{session.notes}</p>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Upcoming Session */}
+                    {mySchedule.upcoming_session && !mySchedule.today_sessions?.length && (
+                      <div className="mb-4 p-4 bg-blue-500/10 rounded-xl border border-blue-500/30">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Clock className="w-4 h-4 text-blue-400" />
+                          <span className="text-xs font-bold text-blue-400 uppercase">Next Session</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white font-bold">{mySchedule.upcoming_session.day_name}</p>
+                            <p className="text-sm text-slate-400">{mySchedule.upcoming_session.start_time} - {mySchedule.upcoming_session.end_time}</p>
+                          </div>
+                          <span className="text-sm text-blue-400 capitalize">{mySchedule.upcoming_session.session_type?.replace('_', ' ')}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Weekly Schedule Grid */}
+                    <div className="grid grid-cols-7 gap-2">
+                      {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, idx) => {
+                        const daySessions = mySchedule.schedule.filter(s => s.day_of_week === idx)
+                        const isToday = new Date().getDay() === (idx === 6 ? 0 : idx + 1)
+                        return (
+                          <div 
+                            key={day} 
+                            className={`text-center p-2 rounded-lg ${isToday ? 'bg-purple-500/30 ring-2 ring-purple-500' : 'bg-slate-800/50'}`}
+                          >
+                            <p className={`text-xs font-bold mb-1 ${isToday ? 'text-purple-300' : 'text-slate-500'}`}>{day}</p>
+                            {daySessions.length > 0 ? (
+                              <div className="space-y-1">
+                                {daySessions.map((s, i) => (
+                                  <div key={i} className="text-[10px] text-purple-400 font-medium">
+                                    {s.start_time}
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-[10px] text-slate-600">—</p>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {mySchedule.total_weekly_sessions > 0 && (
+                      <p className="text-xs text-slate-400 text-center mt-4">
+                        📅 {mySchedule.total_weekly_sessions} session{mySchedule.total_weekly_sessions > 1 ? 's' : ''} per week with your trainer
+                      </p>
+                    )}
                   </motion.div>
                 )}
 
@@ -1335,68 +1855,158 @@ const TraineeDashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-6"
               >
-                {/* Header */}
-                <div className="bg-gradient-to-br from-green-500 via-teal-500 to-cyan-500 rounded-3xl p-6 lg:p-8 text-white shadow-xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-                  <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+                {/* Enhanced Header */}
+                <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 rounded-3xl p-6 lg:p-8 text-white shadow-2xl relative overflow-hidden">
+                  {/* Background Effects */}
+                  <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
+                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-[0.03]">
+                    <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '30px 30px' }} />
+                  </div>
+                  
                   <div className="relative z-10">
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                       <div>
-                        <h2 className="text-2xl lg:text-3xl font-bold mb-2 flex items-center gap-3">
-                          <CalendarCheck className="w-8 h-8" />
-                          Gym Attendance
-                        </h2>
-                        <p className="text-emerald-100">Track your gym visits and build consistency</p>
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+                            <CalendarCheck className="w-7 h-7" />
+                          </div>
+                          <div>
+                            <h2 className="text-2xl lg:text-3xl font-bold">Gym Attendance</h2>
+                            <p className="text-emerald-100 text-sm">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                          </div>
+                        </div>
+                        <p className="text-emerald-100/80 text-sm max-w-md">Track your gym visits and build consistency. Your streak keeps you motivated!</p>
                       </div>
                       
-                      {/* Quick Check In/Out Button */}
-                      <div className="flex flex-col items-center">
-                        {attendanceStatus === 'not_checked_in' && (
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={handleCheckIn}
-                            disabled={attendanceLoading}
-                            className="flex items-center gap-3 px-8 py-4 bg-white text-emerald-600 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all disabled:opacity-50"
-                          >
-                            {attendanceLoading ? (
-                              <RefreshCw className="w-6 h-6 animate-spin" />
-                            ) : (
-                              <Fingerprint className="w-6 h-6" />
-                            )}
-                            Check In Now
-                          </motion.button>
-                        )}
-                        {attendanceStatus === 'checked_in' && (
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={handleCheckOut}
-                            disabled={attendanceLoading}
-                            className="flex items-center gap-3 px-8 py-4 bg-red-500 text-white rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all disabled:opacity-50"
-                          >
-                            {attendanceLoading ? (
-                              <RefreshCw className="w-6 h-6 animate-spin" />
-                            ) : (
-                              <LogOutIcon className="w-6 h-6" />
-                            )}
-                            Check Out
-                          </motion.button>
-                        )}
-                        {attendanceStatus === 'checked_out' && (
-                          <div className="text-center">
-                            <div className="flex items-center gap-2 px-6 py-3 bg-white/20 rounded-xl">
-                              <CheckCircle className="w-5 h-5" />
-                              <span className="font-medium">Completed Today</span>
-                            </div>
-                            {attendanceData?.duration_minutes && (
-                              <p className="mt-2 text-emerald-100 text-sm">
-                                Duration: {attendanceData.duration_minutes} minutes
-                              </p>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                      {/* Enhanced Check In/Out Card */}
+                      <motion.div 
+                        whileHover={{ y: -4 }}
+                        className="bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/30 shadow-2xl min-w-[280px]"
+                      >
+                        <AnimatePresence mode="wait">
+                          {attendanceStatus === 'not_checked_in' && (
+                            <motion.div
+                              key="not-checked-in"
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.9 }}
+                              className="text-center"
+                            >
+                              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/20 flex items-center justify-center">
+                                <Fingerprint className="w-8 h-8 text-white" />
+                              </div>
+                              <p className="text-white/80 text-sm mb-4">Ready to start your workout?</p>
+                              <motion.button
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
+                                onClick={handleCheckIn}
+                                disabled={attendanceLoading}
+                                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-white text-emerald-600 rounded-xl font-bold shadow-xl hover:shadow-2xl transition-all disabled:opacity-50 text-base"
+                              >
+                                {attendanceLoading ? (
+                                  <>
+                                    <motion.div
+                                      animate={{ rotate: 360 }}
+                                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                      className="w-5 h-5 border-2 border-emerald-200 border-t-emerald-600 rounded-full"
+                                    />
+                                    Checking In...
+                                  </>
+                                ) : (
+                                  <>
+                                    <LogIn className="w-5 h-5" />
+                                    Check In Now
+                                  </>
+                                )}
+                              </motion.button>
+                            </motion.div>
+                          )}
+                          
+                          {attendanceStatus === 'checked_in' && (
+                            <motion.div
+                              key="checked-in"
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.9 }}
+                              className="text-center"
+                            >
+                              <div className="flex items-center justify-center gap-2 mb-4">
+                                <motion.div
+                                  animate={{ scale: [1, 1.2, 1] }}
+                                  transition={{ duration: 2, repeat: Infinity }}
+                                  className="w-3 h-3 bg-green-400 rounded-full"
+                                />
+                                <span className="text-green-300 font-semibold text-sm">Session Active</span>
+                              </div>
+                              
+                              <div className="mb-4 p-3 bg-white/10 rounded-xl">
+                                <p className="text-white/70 text-xs mb-1">Checked in at</p>
+                                <p className="text-white font-bold text-lg">
+                                  {attendanceData?.check_in_time && new Date(attendanceData.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                              </div>
+                              
+                              <motion.button
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
+                                onClick={handleCheckOut}
+                                disabled={attendanceLoading}
+                                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-xl font-bold shadow-xl hover:shadow-2xl transition-all disabled:opacity-50"
+                              >
+                                {attendanceLoading ? (
+                                  <>
+                                    <motion.div
+                                      animate={{ rotate: 360 }}
+                                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                      className="w-5 h-5 border-2 border-red-200 border-t-white rounded-full"
+                                    />
+                                    Checking Out...
+                                  </>
+                                ) : (
+                                  <>
+                                    <LogOutIcon className="w-5 h-5" />
+                                    Check Out
+                                  </>
+                                )}
+                              </motion.button>
+                            </motion.div>
+                          )}
+                          
+                          {attendanceStatus === 'checked_out' && (
+                            <motion.div
+                              key="checked-out"
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.9 }}
+                              className="text-center"
+                            >
+                              <motion.div 
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: "spring", duration: 0.5 }}
+                                className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-green-500/30 flex items-center justify-center"
+                              >
+                                <CheckCircle className="w-8 h-8 text-green-300" />
+                              </motion.div>
+                              
+                              <p className="text-white font-bold text-lg mb-1">Workout Complete! 🎉</p>
+                              <p className="text-white/70 text-sm mb-4">Great job today!</p>
+                              
+                              {attendanceData?.duration_minutes && (
+                                <div className="p-4 bg-white/10 rounded-xl">
+                                  <p className="text-white/70 text-xs mb-1">Session Duration</p>
+                                  <div className="flex items-center justify-center gap-2">
+                                    <Timer className="w-5 h-5 text-cyan-300" />
+                                    <span className="text-white font-bold text-2xl">{attendanceData.duration_minutes}</span>
+                                    <span className="text-white/70">minutes</span>
+                                  </div>
+                                </div>
+                              )}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
                     </div>
                   </div>
                 </div>
@@ -1404,49 +2014,56 @@ const TraineeDashboard = () => {
                 {/* Today's Status Card */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Current Status */}
-                  <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-sm">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                  <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
+                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                       <Clock className="w-5 h-5 text-emerald-500" />
                       Today's Status
                     </h3>
                     <div className="space-y-4">
-                      <div className={`p-4 rounded-xl ${
+                      <div className={`p-4 rounded-xl transition-all ${
                         attendanceStatus === 'checked_in' 
-                          ? 'bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/30' 
+                          ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/10 border border-green-500/30' 
                           : attendanceStatus === 'checked_out'
-                          ? 'bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30'
-                          : 'bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-gray-600'
+                          ? 'bg-gradient-to-br from-blue-500/20 to-cyan-500/10 border border-blue-500/30'
+                          : 'bg-slate-800/50 border border-slate-700'
                       }`}>
-                        <div className="flex items-center gap-3">
-                          <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg ${
-                            attendanceStatus === 'checked_in' 
-                              ? 'bg-green-500' 
-                              : attendanceStatus === 'checked_out'
-                              ? 'bg-blue-500'
-                              : 'bg-gray-400 dark:bg-gray-600'
-                          }`}>
+                        <div className="flex items-center gap-4">
+                          <motion.div 
+                            animate={attendanceStatus === 'checked_in' ? { scale: [1, 1.1, 1] } : {}}
+                            transition={{ duration: 2, repeat: Infinity }}
+                            className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-lg ${
+                              attendanceStatus === 'checked_in' 
+                                ? 'bg-gradient-to-br from-green-500 to-emerald-500' 
+                                : attendanceStatus === 'checked_out'
+                                ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                                : 'bg-slate-700'
+                            }`}
+                          >
                             {attendanceStatus === 'checked_in' ? (
-                              <UserCheck className="w-6 h-6 text-white" />
+                              <UserCheck className="w-7 h-7 text-white" />
                             ) : attendanceStatus === 'checked_out' ? (
-                              <CheckCircle className="w-6 h-6 text-white" />
+                              <CheckCircle className="w-7 h-7 text-white" />
                             ) : (
-                              <XCircle className="w-6 h-6 text-white" />
+                              <XCircle className="w-7 h-7 text-slate-400" />
                             )}
-                          </div>
+                          </motion.div>
                           <div>
-                            <p className="font-bold text-slate-900 dark:text-white">
-                              {attendanceStatus === 'checked_in' ? 'Currently at Gym' :
-                               attendanceStatus === 'checked_out' ? 'Session Completed' :
+                            <p className="font-bold text-white text-lg">
+                              {attendanceStatus === 'checked_in' ? 'At the Gym' :
+                               attendanceStatus === 'checked_out' ? 'Session Done' :
                                'Not Checked In'}
                             </p>
                             {attendanceData?.check_in_time && (
-                              <p className="text-sm text-slate-500 dark:text-slate-400">
-                                Check-in: {new Date(attendanceData.check_in_time).toLocaleTimeString()}
-                              </p>
-                            )}
-                            {attendanceData?.check_out_time && (
-                              <p className="text-sm text-slate-500 dark:text-slate-400">
-                                Check-out: {new Date(attendanceData.check_out_time).toLocaleTimeString()}
+                              <p className="text-sm text-slate-400 flex items-center gap-1">
+                                <LogIn className="w-3.5 h-3.5 text-green-400" />
+                                {new Date(attendanceData.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {attendanceData?.check_out_time && (
+                                  <>
+                                    <span className="mx-1">→</span>
+                                    <LogOutIcon className="w-3.5 h-3.5 text-red-400" />
+                                    {new Date(attendanceData.check_out_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </>
+                                )}
                               </p>
                             )}
                           </div>
@@ -1457,103 +2074,179 @@ const TraineeDashboard = () => {
 
                   {/* Stats Cards */}
                   <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div className="bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl p-5 text-white">
+                    <motion.div 
+                      whileHover={{ y: -4, scale: 1.02 }}
+                      className="bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl p-5 text-white shadow-lg cursor-pointer"
+                    >
                       <div className="flex items-center justify-between mb-3">
                         <Flame className="w-8 h-8 opacity-80" />
+                        {attendanceStats?.current_streak > 0 && (
+                          <span className="text-xs bg-white/20 px-2 py-1 rounded-full">🔥</span>
+                        )}
                       </div>
                       <p className="text-3xl font-bold">{attendanceStats?.current_streak || 0}</p>
                       <p className="text-emerald-100 text-sm">Day Streak</p>
-                    </div>
+                    </motion.div>
                     
-                    <div className="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl p-5 text-white">
+                    <motion.div 
+                      whileHover={{ y: -4, scale: 1.02 }}
+                      className="bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl p-5 text-white shadow-lg cursor-pointer"
+                    >
                       <div className="flex items-center justify-between mb-3">
                         <Calendar className="w-8 h-8 opacity-80" />
                       </div>
                       <p className="text-3xl font-bold">{attendanceStats?.this_month_visits || 0}</p>
                       <p className="text-blue-100 text-sm">This Month</p>
-                    </div>
+                    </motion.div>
                     
-                    <div className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl p-5 text-white">
+                    <motion.div 
+                      whileHover={{ y: -4, scale: 1.02 }}
+                      className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl p-5 text-white shadow-lg cursor-pointer"
+                    >
                       <div className="flex items-center justify-between mb-3">
                         <Trophy className="w-8 h-8 opacity-80" />
                       </div>
                       <p className="text-3xl font-bold">{attendanceStats?.total_visits || 0}</p>
                       <p className="text-purple-100 text-sm">Total Visits</p>
-                    </div>
+                    </motion.div>
                     
-                    <div className="bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl p-5 text-white">
+                    <motion.div 
+                      whileHover={{ y: -4, scale: 1.02 }}
+                      className="bg-gradient-to-br from-amber-600 to-orange-600 rounded-2xl p-5 text-white shadow-lg cursor-pointer"
+                    >
                       <div className="flex items-center justify-between mb-3">
                         <Timer className="w-8 h-8 opacity-80" />
                       </div>
                       <p className="text-3xl font-bold">{attendanceStats?.avg_duration || 0}</p>
-                      <p className="text-orange-100 text-sm">Avg. Minutes</p>
-                    </div>
+                      <p className="text-amber-100 text-sm">Avg. Minutes</p>
+                    </motion.div>
                   </div>
                 </div>
 
                 {/* Attendance History */}
-                <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-sm overflow-hidden">
-                  <div className="p-6 border-b border-slate-800 bg-gradient-to-r from-gray-50 dark:from-gray-800 to-white dark:to-gray-800/50">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <History className="w-5 h-5 text-slate-500 dark:text-slate-400" />
-                      Recent Visits
-                    </h3>
+                <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+                  <div className="p-5 border-b border-slate-800 bg-gradient-to-r from-slate-800 to-slate-900">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <History className="w-5 h-5 text-slate-400" />
+                        Recent Visits
+                      </h3>
+                      <span className="text-xs text-slate-400 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+                        Last 30 days
+                      </span>
+                    </div>
                   </div>
                   
                   {attendanceHistory.length === 0 ? (
                     <div className="p-12 text-center">
-                      <CalendarCheck className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-slate-600 dark:text-slate-300 mb-2">No attendance records yet</h3>
-                      <p className="text-slate-400 dark:text-slate-500">Start tracking your gym visits by checking in!</p>
+                      <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-slate-800 flex items-center justify-center">
+                        <CalendarCheck className="w-10 h-10 text-slate-600" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-white mb-2">No attendance records yet</h3>
+                      <p className="text-slate-400 text-sm max-w-xs mx-auto">Start tracking your gym visits by checking in when you arrive!</p>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleCheckIn}
+                        disabled={attendanceLoading || attendanceStatus !== 'not_checked_in'}
+                        className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 transition-all"
+                      >
+                        <Fingerprint className="w-5 h-5" />
+                        Check In Now
+                      </motion.button>
                     </div>
                   ) : (
-                    <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                      {attendanceHistory.slice(0, 10).map((record, idx) => (
-                        <motion.div
-                          key={record.id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: idx * 0.05 }}
-                          className="p-4 hover:bg-slate-700/30 transition-colors"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ${
-                                idx === 0 ? 'bg-gradient-to-br from-emerald-500 to-teal-500' :
-                                idx === 1 ? 'bg-gradient-to-br from-blue-500 to-cyan-500' :
-                                'bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700'
-                              }`}>
-                                <CalendarCheck className="w-6 h-6 text-white" />
-                              </div>
-                              <div>
-                                <p className="font-semibold text-slate-900 dark:text-white">
-                                  {new Date(record.date).toLocaleDateString('en-US', { 
-                                    weekday: 'long', 
-                                    month: 'short', 
-                                    day: 'numeric' 
-                                  })}
-                                </p>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">
-                                  {record.check_in_time && new Date(record.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                  {record.check_out_time && ` - ${new Date(record.check_out_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              {record.duration_minutes ? (
-                                <div className="flex items-center gap-2">
-                                  <Timer className="w-4 h-4 text-slate-400 dark:text-slate-500" />
-                                  <span className="font-bold text-slate-900 dark:text-white">{record.duration_minutes} min</span>
+                    <div className="divide-y divide-slate-800">
+                      {attendanceHistory.slice(0, 10).map((record, idx) => {
+                        const checkInDate = new Date(record.check_in_time || record.date);
+                        const isToday = checkInDate.toDateString() === new Date().toDateString();
+                        
+                        return (
+                          <motion.div
+                            key={record.id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            whileHover={{ backgroundColor: 'rgba(51, 65, 85, 0.3)' }}
+                            className="p-4 transition-colors"
+                          >
+                            <div className="flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-4">
+                                {/* Date Icon */}
+                                <div className={`w-14 h-14 rounded-xl flex flex-col items-center justify-center shadow-lg ${
+                                  isToday 
+                                    ? 'bg-gradient-to-br from-emerald-500 to-teal-500' 
+                                    : idx === 0 
+                                    ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                                    : 'bg-slate-800 border border-slate-700'
+                                }`}>
+                                  <span className={`text-lg font-bold ${isToday || idx === 0 ? 'text-white' : 'text-slate-300'}`}>
+                                    {checkInDate.getDate()}
+                                  </span>
+                                  <span className={`text-[10px] uppercase ${isToday || idx === 0 ? 'text-white/80' : 'text-slate-500'}`}>
+                                    {checkInDate.toLocaleDateString('en-US', { month: 'short' })}
+                                  </span>
                                 </div>
-                              ) : (
-                                <span className="px-3 py-1 bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 rounded-full text-sm font-medium">
-                                  In Progress
-                                </span>
-                              )}
+                                
+                                {/* Details */}
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-semibold text-white">
+                                      {checkInDate.toLocaleDateString('en-US', { weekday: 'long' })}
+                                    </p>
+                                    {isToday && (
+                                      <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-xs font-medium rounded-full border border-emerald-500/30">
+                                        Today
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-3 mt-1 text-sm text-slate-400">
+                                    <span className="flex items-center gap-1">
+                                      <LogIn className="w-3.5 h-3.5 text-green-400" />
+                                      {record.check_in_time && new Date(record.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                    {record.check_out_time && (
+                                      <>
+                                        <span className="text-slate-600">→</span>
+                                        <span className="flex items-center gap-1">
+                                          <LogOutIcon className="w-3.5 h-3.5 text-red-400" />
+                                          {new Date(record.check_out_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </span>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Duration Badge */}
+                              <div className="text-right">
+                                {record.duration_minutes ? (
+                                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-xl border border-slate-700">
+                                    <Timer className="w-4 h-4 text-cyan-400" />
+                                    <span className="font-bold text-white">{record.duration_minutes}</span>
+                                    <span className="text-slate-400 text-sm">min</span>
+                                  </div>
+                                ) : (
+                                  <span className="px-4 py-2 bg-amber-500/20 text-amber-400 rounded-xl text-sm font-medium border border-amber-500/30 flex items-center gap-2">
+                                    <Clock className="w-4 h-4" />
+                                    In Progress
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        </motion.div>
-                      ))}
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  
+                  {/* View More */}
+                  {attendanceHistory.length > 10 && (
+                    <div className="p-4 border-t border-slate-800 bg-slate-800/30">
+                      <button className="w-full py-2.5 text-center text-sm font-medium text-indigo-400 hover:text-indigo-300 hover:bg-slate-700/50 rounded-lg transition-all flex items-center justify-center gap-2">
+                        View all {attendanceHistory.length} records
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
                     </div>
                   )}
                 </div>
@@ -1562,15 +2255,15 @@ const TraineeDashboard = () => {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-800"
+                  className="bg-slate-900 rounded-2xl p-6 shadow-xl border border-slate-800"
                 >
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
                       <Calendar className="w-5 h-5 text-indigo-400" />
                       Monthly Attendance
                     </h3>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-500 dark:text-slate-400 px-3 py-1 bg-gray-100 dark:bg-slate-700 rounded-full">
+                      <span className="text-sm text-slate-400 px-3 py-1.5 bg-slate-800 rounded-lg border border-slate-700">
                         {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                       </span>
                     </div>
@@ -1581,7 +2274,7 @@ const TraineeDashboard = () => {
                     {/* Days Header */}
                     <div className="grid grid-cols-7 gap-2 mb-4">
                       {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                        <div key={day} className="text-center text-xs font-bold text-slate-500 dark:text-slate-400 py-2">
+                        <div key={day} className="text-center text-xs font-bold text-slate-400 py-2">
                           {day}
                         </div>
                       ))}
@@ -1597,6 +2290,22 @@ const TraineeDashboard = () => {
                         const lastDay = new Date(year, month + 1, 0);
                         const daysInMonth = lastDay.getDate();
                         const startingDayOfWeek = firstDay.getDay();
+                        const today = now.getDate();
+                        
+                        // Create a set of attended dates from real attendance history
+                        const attendedDates = new Set();
+                        attendanceHistory.forEach(record => {
+                          if (record.date || record.check_in_time) {
+                            const dateStr = record.date || record.check_in_time?.split('T')[0];
+                            if (dateStr) {
+                              const recordDate = new Date(dateStr);
+                              // Only include dates from current month
+                              if (recordDate.getFullYear() === year && recordDate.getMonth() === month) {
+                                attendedDates.add(recordDate.getDate());
+                              }
+                            }
+                          }
+                        });
                         
                         const days = [];
                         
@@ -1607,23 +2316,24 @@ const TraineeDashboard = () => {
                         
                         // Days of month
                         for (let day = 1; day <= daysInMonth; day++) {
-                          const date = new Date(year, month, day);
-                          const isToday = date.toDateString() === new Date().toDateString();
-                          // Mock attendance: show checked in for random days
-                          const isCheckedIn = Math.random() > 0.6;
+                          const isToday = day === today;
+                          const isCheckedIn = attendedDates.has(day);
+                          const isFutureDay = day > today;
                           
                           days.push(
                             <motion.div
                               key={day}
-                              whileHover={{ scale: 1.05 }}
+                              whileHover={{ scale: !isFutureDay ? 1.1 : 1 }}
                               className={`h-10 rounded-lg flex items-center justify-center text-sm font-bold transition-all ${
                                 isCheckedIn
-                                  ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
+                                  ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/20'
                                   : isToday
-                                  ? 'bg-primary-600 text-white border border-primary-400 shadow-md'
-                                  : 'bg-gray-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                  ? 'bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-lg shadow-indigo-500/20 ring-2 ring-indigo-400/50'
+                                  : isFutureDay
+                                  ? 'bg-slate-800/30 text-slate-600 cursor-default'
+                                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
                               }`}
-                              title={isCheckedIn ? 'Checked In' : isToday ? 'Today' : 'Not checked in'}
+                              title={isCheckedIn ? 'Attended' : isToday ? 'Today' : isFutureDay ? 'Upcoming' : 'Missed'}
                             >
                               {day}
                             </motion.div>
@@ -1636,49 +2346,62 @@ const TraineeDashboard = () => {
                   </div>
 
                   {/* Legend */}
-                  <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  <div className="mt-6 flex flex-wrap items-center justify-center gap-6">
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded bg-gradient-to-br from-green-500 to-emerald-500" />
-                      <span className="text-xs text-slate-600 dark:text-slate-400">Checked In</span>
+                      <div className="w-4 h-4 rounded bg-gradient-to-br from-green-500 to-emerald-500 shadow" />
+                      <span className="text-xs text-slate-400">Checked In</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded bg-primary-600" />
-                      <span className="text-xs text-slate-600 dark:text-slate-400">Today</span>
+                      <div className="w-4 h-4 rounded bg-gradient-to-br from-indigo-500 to-blue-600 ring-2 ring-indigo-400/50" />
+                      <span className="text-xs text-slate-400">Today</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded bg-gray-200 dark:bg-slate-700" />
-                      <span className="text-xs text-slate-600 dark:text-slate-400">Not Checked</span>
+                      <div className="w-4 h-4 rounded bg-slate-800" />
+                      <span className="text-xs text-slate-400">Not Checked</span>
                     </div>
                   </div>
 
                   {/* Monthly Stats */}
                   <div className="mt-6 grid grid-cols-3 gap-3">
                     <motion.div 
-                      whileHover={{ y: -2 }}
-                      className="bg-green-50 dark:bg-green-500/10 rounded-lg p-3 border border-green-200 dark:border-green-500/30 text-center"
+                      whileHover={{ y: -2, scale: 1.02 }}
+                      className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl p-4 border border-green-500/20 text-center cursor-pointer"
                     >
-                      <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-green-500/20 flex items-center justify-center">
+                        <Flame className="w-5 h-5 text-green-400" />
+                      </div>
+                      <p className="text-2xl font-bold text-green-400">
                         {attendanceStats?.current_streak || 0}
                       </p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Current Streak</p>
+                      <p className="text-xs text-slate-400 mt-1">Current Streak</p>
                     </motion.div>
                     <motion.div 
-                      whileHover={{ y: -2 }}
-                      className="bg-primary-50 dark:bg-primary-500/10 rounded-lg p-3 border border-primary-200 dark:border-primary-500/30 text-center"
+                      whileHover={{ y: -2, scale: 1.02 }}
+                      className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-xl p-4 border border-indigo-500/20 text-center cursor-pointer"
                     >
-                      <p className="text-2xl font-bold text-indigo-400 dark:text-primary-400">
-                        {attendanceHistory?.length || 0}
+                      <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-indigo-500/20 flex items-center justify-center">
+                        <Calendar className="w-5 h-5 text-indigo-400" />
+                      </div>
+                      <p className="text-2xl font-bold text-indigo-400">
+                        {attendanceStats?.this_month_visits || attendanceHistory?.filter(r => {
+                          const d = new Date(r.date || r.check_in_time);
+                          const now = new Date();
+                          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                        }).length || 0}
                       </p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Total Visits</p>
+                      <p className="text-xs text-slate-400 mt-1">This Month</p>
                     </motion.div>
                     <motion.div 
-                      whileHover={{ y: -2 }}
-                      className="bg-cyan-50 dark:bg-cyan-500/10 rounded-lg p-3 border border-cyan-200 dark:border-cyan-500/30 text-center"
+                      whileHover={{ y: -2, scale: 1.02 }}
+                      className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 rounded-xl p-4 border border-cyan-500/20 text-center cursor-pointer"
                     >
-                      <p className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">
-                        {attendanceStats?.best_streak || 0}
+                      <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+                        <Trophy className="w-5 h-5 text-cyan-400" />
+                      </div>
+                      <p className="text-2xl font-bold text-cyan-400">
+                        {attendanceStats?.best_streak || attendanceStats?.current_streak || 0}
                       </p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Best Streak</p>
+                      <p className="text-xs text-slate-400 mt-1">Best Streak</p>
                     </motion.div>
                   </div>
                 </motion.div>
@@ -1736,17 +2459,17 @@ const TraineeDashboard = () => {
 
                 {/* Current Membership Status */}
                 {currentMembership && (
-                  <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 dark:from-green-500/10 dark:to-emerald-500/10 border border-green-500/50 dark:border-green-500/30 rounded-2xl p-5">
+                  <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-2xl p-5">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center shadow-lg">
                         <CheckCircle className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-green-700 dark:text-green-400">Active Membership</h3>
-                        <p className="text-slate-700 dark:text-slate-300">
+                        <h3 className="text-lg font-bold text-green-400">Active Membership</h3>
+                        <p className="text-slate-300">
                           {currentMembership.membership_type} • {currentMembership.days_remaining} days remaining
                         </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <p className="text-xs text-slate-400">
                           Expires: {new Date(currentMembership.end_date).toLocaleDateString()}
                         </p>
                       </div>
@@ -1758,9 +2481,9 @@ const TraineeDashboard = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {plans.length === 0 ? (
                     <div className="col-span-full text-center py-12 bg-slate-900 rounded-2xl border border-slate-800">
-                      <CreditCard className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-slate-600 dark:text-slate-300 mb-2">No Plans Available</h3>
-                      <p className="text-slate-400 dark:text-slate-500">Contact admin to add membership plans</p>
+                      <CreditCard className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold text-slate-300 mb-2">No Plans Available</h3>
+                      <p className="text-slate-500">Contact admin to add membership plans</p>
                     </div>
                   ) : (
                     plans.map((plan, index) => (
@@ -1773,7 +2496,7 @@ const TraineeDashboard = () => {
                         className={`bg-slate-900 rounded-2xl p-6 border-2 transition-all duration-300 hover:shadow-xl ${
                           selectedPlan === plan.id
                             ? 'border-purple-500 shadow-lg shadow-purple-500/20'
-                            : 'border-slate-800 hover:border-purple-300 dark:hover:border-purple-500/50'
+                            : 'border-slate-800 hover:border-purple-500/50'
                         }`}
                       >
                         {/* Popular Badge */}
@@ -1784,37 +2507,37 @@ const TraineeDashboard = () => {
                         )}
                         
                         <div className="text-center mb-6">
-                          <div className="inline-block px-4 py-1.5 bg-gray-100 dark:bg-slate-700 rounded-full text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+                          <div className="inline-block px-4 py-1.5 bg-slate-700 rounded-full text-sm font-medium text-slate-300 mb-4">
                             {plan.name}
                           </div>
                           <div className="flex items-baseline justify-center gap-1">
-                            <span className="text-4xl font-bold text-slate-900 dark:text-white">₹{plan.price?.toLocaleString()}</span>
-                            <span className="text-slate-500 dark:text-slate-400">/{plan.duration_months} mo</span>
+                            <span className="text-4xl font-bold text-white">₹{plan.price?.toLocaleString()}</span>
+                            <span className="text-slate-400">/{plan.duration_months} mo</span>
                           </div>
                         </div>
 
                         <ul className="space-y-3 mb-8">
                           {(plan.features || []).map((feature, idx) => (
                             <li key={idx} className="flex items-start gap-3">
-                              <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+                              <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <Check className="w-3 h-3 text-green-400" />
                               </div>
-                              <span className="text-slate-700 dark:text-slate-300">{feature}</span>
+                              <span className="text-slate-300">{feature}</span>
                             </li>
                           ))}
                           {(!plan.features || plan.features.length === 0) && (
                             <>
                               <li className="flex items-start gap-3">
-                                <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <Check className="w-3 h-3 text-green-400" />
                                 </div>
-                                <span className="text-slate-700 dark:text-slate-300">Full gym access</span>
+                                <span className="text-slate-300">Full gym access</span>
                               </li>
                               <li className="flex items-start gap-3">
-                                <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <Check className="w-3 h-3 text-green-400" />
                                 </div>
-                                <span className="text-slate-700 dark:text-slate-300">AI workout tracking</span>
+                                <span className="text-slate-300">AI workout tracking</span>
                               </li>
                             </>
                           )}
@@ -1825,7 +2548,7 @@ const TraineeDashboard = () => {
                           disabled={paymentLoading && selectedPlan === plan.id}
                           className={`w-full py-3.5 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
                             paymentLoading && selectedPlan === plan.id
-                              ? 'bg-gray-300 dark:bg-gray-600 text-slate-500 dark:text-slate-400 cursor-not-allowed'
+                              ? 'bg-gray-600 text-slate-400 cursor-not-allowed'
                               : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-500/30'
                           }`}
                         >
@@ -1847,8 +2570,8 @@ const TraineeDashboard = () => {
                 </div>
 
                 {/* Payment Security Note */}
-                <div className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-4 text-center border border-slate-800">
-                  <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center justify-center gap-2">
+                <div className="bg-slate-800/50 rounded-xl p-4 text-center border border-slate-800">
+                  <p className="text-slate-400 text-sm flex items-center justify-center gap-2">
                     <Shield className="w-4 h-4" />
                     Secure payments powered by Razorpay. Your payment information is encrypted.
                   </p>
@@ -1856,81 +2579,90 @@ const TraineeDashboard = () => {
               </div>
             )}
 
-            {/* Messages Tab */}
+            {/* Messages Tab - Enhanced */}
             {activeTab === 'messages' && (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Header */}
-                <div className="bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-500 rounded-3xl p-6 lg:p-8 text-white shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-                  <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
+                <div className="bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-500 rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-8 text-white shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 sm:w-48 sm:h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
                   <div className="relative z-10">
-                    <div className="flex items-center gap-3 mb-2">
-                      <MessageCircle className="w-8 h-8" />
-                      <h2 className="text-2xl lg:text-3xl font-bold">Messages</h2>
+                    <div className="flex items-center gap-2 sm:gap-3 mb-1.5 sm:mb-2">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                        <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                      </div>
+                      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">Messages</h2>
                     </div>
-                    <p className="text-teal-100">Chat with your trainer or admin</p>
+                    <p className="text-xs sm:text-sm text-teal-100">Chat with your trainer or admin</p>
                     {unreadCount > 0 && (
-                      <div className="mt-3 inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full">
+                      <div className="mt-2 sm:mt-3 inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-white/30">
                         <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-                        <span className="text-sm font-medium">{unreadCount} unread message{unreadCount > 1 ? 's' : ''}</span>
+                        <span className="text-xs sm:text-sm font-medium">{unreadCount} unread</span>
                       </div>
                     )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                   {/* Contacts / Conversations List */}
-                  <div className="bg-slate-900 rounded-2xl shadow-lg overflow-hidden border border-slate-800">
-                    <div className="p-4 border-b border-slate-800 bg-gray-50 dark:bg-slate-800/50">
-                      <h3 className="font-semibold text-gray-800 dark:text-white flex items-center gap-2">
-                        <Users className="w-4 h-4 text-teal-500" />
-                        Conversations
+                  <div className="bg-slate-900 rounded-xl sm:rounded-2xl shadow-lg overflow-hidden border border-slate-800">
+                    <div className="p-3 sm:p-4 border-b border-slate-800 bg-slate-800/50 sticky top-0 z-10">
+                      <h3 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-teal-500/20 flex items-center justify-center">
+                          <Users className="w-4 h-4 text-teal-400" />
+                        </div>
+                        <span>Conversations</span>
+                        {conversations.length > 0 && (
+                          <span className="ml-auto text-xs bg-slate-700 px-2 py-0.5 rounded-full text-slate-300">{conversations.length}</span>
+                        )}
                       </h3>
                     </div>
-                    <div className="max-h-[500px] overflow-y-auto">
+                    <div className="max-h-[400px] sm:max-h-[500px] overflow-y-auto">
                       {/* Existing Conversations */}
                       {conversations.map((conv) => (
                         <button
                           key={conv.user_id}
                           onClick={() => selectConversation({ id: conv.user_id, name: conv.user_name, role: conv.user_role })}
-                          className={`w-full p-4 flex items-center gap-3 hover:bg-slate-700/30 transition-colors border-b border-gray-100 dark:border-slate-700 ${
-                            selectedConversation?.id === conv.user_id ? 'bg-teal-50 dark:bg-teal-900/20' : ''
+                          className={`w-full p-3 sm:p-4 flex items-center gap-3 hover:bg-slate-800/50 active:bg-slate-800 transition-all border-b border-slate-800 last:border-0 ${
+                            selectedConversation?.id === conv.user_id ? 'bg-teal-900/30 border-l-4 border-l-teal-500' : ''
                           }`}
                         >
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
-                            {conv.user_name?.charAt(0) || '?'}
-                          </div>
-                          <div className="flex-1 text-left">
-                            <div className="flex items-center justify-between">
-                              <p className="font-medium text-gray-800 dark:text-white">{conv.user_name}</p>
-                              {conv.unread_count > 0 && (
-                                <span className="w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center animate-pulse">
-                                  {conv.unread_count}
-                                </span>
-                              )}
+                          <div className="relative flex-shrink-0">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-md">
+                              {conv.user_name?.charAt(0)?.toUpperCase() || '?'}
                             </div>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{conv.last_message || 'No messages yet'}</p>
-                            <span className="text-[10px] text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 rounded-full">{conv.user_role}</span>
+                            {conv.unread_count > 0 && (
+                              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-[10px] flex items-center justify-center animate-pulse border-2 border-slate-900 font-bold">
+                                {conv.unread_count > 9 ? '9+' : conv.unread_count}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0 text-left">
+                            <div className="flex items-center justify-between gap-2 mb-0.5">
+                              <p className="font-semibold text-sm sm:text-base text-white truncate">{conv.user_name}</p>
+                              <span className="text-[10px] text-teal-400 bg-teal-500/20 px-2 py-0.5 rounded-full flex-shrink-0">{conv.user_role}</span>
+                            </div>
+                            <p className="text-xs text-slate-400 truncate">{conv.last_message || 'No messages yet'}</p>
                           </div>
                         </button>
                       ))}
                       
                       {/* New Contacts */}
                       {contacts.filter(c => !conversations.find(conv => conv.user_id === c.id)).length > 0 && (
-                        <div className="p-3 bg-gray-50 dark:bg-slate-800/50">
-                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">Start a new conversation</p>
+                        <div className="p-3 bg-slate-800/50">
+                          <p className="text-xs text-slate-400 mb-2 font-medium">Start a new conversation</p>
                           {contacts.filter(c => !conversations.find(conv => conv.user_id === c.id)).map((contact) => (
                             <button
                               key={contact.id}
                               onClick={() => selectConversation(contact)}
-                              className="w-full p-3 flex items-center gap-3 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors mb-1"
+                              className="w-full p-3 flex items-center gap-3 hover:bg-slate-700 rounded-lg transition-colors mb-1"
                             >
-                              <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-white font-bold text-xs">
+                              <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold text-xs">
                                 {contact.name?.charAt(0) || '?'}
                               </div>
                               <div className="flex-1 text-left">
-                                <p className="font-medium text-slate-700 dark:text-gray-200 text-sm">{contact.name}</p>
-                                <span className="text-[10px] text-slate-500 dark:text-slate-400">{contact.label}</span>
+                                <p className="font-medium text-gray-200 text-sm">{contact.name}</p>
+                                <span className="text-[10px] text-slate-400">{contact.label}</span>
                               </div>
                             </button>
                           ))}
@@ -1938,7 +2670,7 @@ const TraineeDashboard = () => {
                       )}
                       
                       {conversations.length === 0 && contacts.length === 0 && (
-                        <div className="p-6 text-center text-slate-400 dark:text-slate-500">
+                        <div className="p-6 text-center text-slate-500">
                           <Mail className="w-12 h-12 mx-auto mb-2 opacity-50" />
                           <p>No contacts available</p>
                         </div>
@@ -1947,31 +2679,38 @@ const TraineeDashboard = () => {
                   </div>
 
                   {/* Chat Area */}
-                  <div className="lg:col-span-2 bg-slate-900 rounded-2xl shadow-lg overflow-hidden flex flex-col h-[600px] border border-slate-800">
+                  <div className="lg:col-span-2 bg-slate-900 rounded-xl sm:rounded-2xl shadow-lg overflow-hidden flex flex-col h-[500px] sm:h-[600px] border border-slate-800">
                     {selectedConversation ? (
                       <>
                         {/* Chat Header */}
-                        <div className="p-4 border-b border-slate-800 bg-gradient-to-r from-teal-500 to-cyan-500 text-white">
+                        <div className="p-3 sm:p-4 border-b border-slate-800 bg-gradient-to-r from-teal-500 to-cyan-500 text-white sticky top-0 z-10">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold">
-                              {selectedConversation.name?.charAt(0) || '?'}
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center font-bold text-sm sm:text-base shadow-md">
+                              {selectedConversation.name?.charAt(0)?.toUpperCase() || '?'}
                             </div>
-                            <div>
-                              <p className="font-semibold">{selectedConversation.name}</p>
-                              <p className="text-xs text-teal-100">{selectedConversation.role || selectedConversation.label}</p>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm sm:text-base truncate">{selectedConversation.name}</p>
+                              <p className="text-xs text-teal-100 truncate">{selectedConversation.role || selectedConversation.label}</p>
                             </div>
                           </div>
                         </div>
 
                         {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-950/50">
+                        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-slate-950/50">
                           {messagesLoading ? (
                             <div className="flex items-center justify-center h-full">
-                              <RefreshCw className="w-6 h-6 animate-spin text-teal-500" />
+                              <div className="text-center">
+                                <RefreshCw className="w-8 h-8 animate-spin text-teal-500 mx-auto mb-2" />
+                                <p className="text-sm text-slate-400">Loading messages...</p>
+                              </div>
                             </div>
                           ) : conversationMessages.length === 0 ? (
-                            <div className="flex items-center justify-center h-full text-slate-400 dark:text-slate-500">
-                              <p>No messages yet. Start the conversation!</p>
+                            <div className="flex items-center justify-center h-full">
+                              <div className="text-center text-slate-400 p-4">
+                                <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                                <p className="font-medium">No messages yet</p>
+                                <p className="text-xs text-slate-500 mt-1">Start the conversation!</p>
+                              </div>
                             </div>
                           ) : (
                             conversationMessages.map((msg) => (
@@ -1980,14 +2719,14 @@ const TraineeDashboard = () => {
                                 className={`flex ${msg.is_mine ? 'justify-end' : 'justify-start'}`}
                               >
                                 <div
-                                  className={`max-w-[70%] p-3 rounded-2xl ${
+                                  className={`max-w-[85%] sm:max-w-[75%] p-3 rounded-2xl ${
                                     msg.is_mine
                                       ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-br-md shadow-md'
-                                      : 'bg-slate-900 text-gray-800 dark:text-gray-200 rounded-bl-md shadow-sm border border-slate-800'
+                                      : 'bg-slate-800 text-white rounded-bl-md shadow-sm border border-slate-700'
                                   }`}
                                 >
-                                  <p className="text-sm">{msg.message}</p>
-                                  <p className={`text-[10px] mt-1 ${msg.is_mine ? 'text-teal-100' : 'text-slate-400 dark:text-slate-500'}`}>
+                                  <p className="text-sm sm:text-base break-words">{msg.message}</p>
+                                  <p className={`text-[10px] mt-1.5 ${msg.is_mine ? 'text-teal-100' : 'text-slate-400'}`}>
                                     {msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                                   </p>
                                 </div>
@@ -1998,28 +2737,29 @@ const TraineeDashboard = () => {
                         </div>
 
                         {/* Message Input */}
-                        <div className="p-4 border-t border-slate-800 bg-slate-900">
-                          <div className="flex items-center gap-2">
+                        <div className="p-3 sm:p-4 border-t border-slate-800 bg-slate-900">
+                          <div className="flex items-end gap-2">
                             <input
                               type="text"
                               value={newMessage}
                               onChange={(e) => setNewMessage(e.target.value)}
-                              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                              onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
                               placeholder="Type a message..."
-                              className="flex-1 px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-400 bg-gray-50 dark:bg-slate-700 text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                              className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-800 text-white placeholder-slate-500 text-sm sm:text-base"
                             />
                             <button
                               onClick={handleSendMessage}
                               disabled={!newMessage.trim()}
-                              className="p-3 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                              className="p-2.5 sm:p-3 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-xl hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all active:scale-95 flex-shrink-0"
                             >
-                              <Send className="w-5 h-5" />
+                              <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                             </button>
                           </div>
+                          <p className="text-[10px] text-slate-500 mt-2">Press Enter to send</p>
                         </div>
                       </>
                     ) : (
-                      <div className="flex-1 flex items-center justify-center text-slate-400 dark:text-slate-500 bg-slate-950/50">
+                      <div className="flex-1 flex items-center justify-center text-slate-500 bg-slate-950/50">
                         <div className="text-center">
                           <MessageCircle className="w-16 h-16 mx-auto mb-4 opacity-50" />
                           <p className="text-lg font-medium">Select a conversation</p>

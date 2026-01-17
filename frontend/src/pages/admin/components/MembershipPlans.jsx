@@ -253,7 +253,7 @@ const MembershipPlans = () => {
               <p className="text-white/90 mb-3 text-sm">
                 {expiringMembers.length} member{expiringMembers.length > 1 ? 's have' : ' has'} membership{expiringMembers.length > 1 ? 's' : ''} expiring within the next 7 days
               </p>
-              <div className="bg-white/10 rounded-xl p-3 max-h-32 overflow-y-auto backdrop-blur-sm">
+              <div className="bg-white/10 rounded-xl p-3 max-h-32 overflow-y-auto">
                 {expiringMembers.slice(0, 5).map((member, idx) => (
                   <div key={idx} className="flex items-center justify-between py-2 border-b border-white/10 last:border-0">
                     <span className="text-sm font-medium">{member.full_name || member.username}</span>
@@ -276,11 +276,11 @@ const MembershipPlans = () => {
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-extrabold text-white flex items-center gap-3 tracking-tight">
+          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3 tracking-tight">
             <Award className="w-8 h-8 text-orange-500" />
             Membership Plans
           </h2>
-          <p className="text-gray-300 text-base mt-2 font-medium">Create and manage gym membership packages</p>
+          <p className="text-gray-600 dark:text-gray-300 text-base mt-2 font-medium">Create and manage gym membership packages</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowForm(true) }}
@@ -345,16 +345,27 @@ const MembershipPlans = () => {
       {/* Search and Filter */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input type="text" placeholder="Search plans..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+          <input 
+            type="text" 
+            placeholder="Search plans..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm" 
+          />
         </div>
         <div className="flex items-center gap-2">
-          <Filter className="w-5 h-5 text-gray-400" />
-          <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="px-4 py-3 bg-white rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+          <Filter className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+          <select 
+            value={filterType} 
+            onChange={(e) => setFilterType(e.target.value)} 
+            className="px-4 py-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 shadow-sm"
+          >
             <option value="all">All Types</option>
             <option value="basic">Basic</option>
             <option value="premium">Premium</option>
             <option value="vip">VIP</option>
+            <option value="pro">Pro</option>
           </select>
         </div>
       </div>
@@ -363,7 +374,16 @@ const MembershipPlans = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         <AnimatePresence>
           {filteredPlans.map((plan, index) => (
-            <motion.div key={plan.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ delay: index * 0.05 }} className={`relative bg-white rounded-2xl shadow-xl overflow-hidden border-2 transition-all ${getPlanBorder(plan.membership_type)} ${!plan.is_active && 'opacity-60'}`}>
+            <motion.div key={plan.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ delay: index * 0.05 }} className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border-2 transition-all hover:shadow-2xl ${getPlanBorder(plan.membership_type)} ${!plan.is_active && 'opacity-60'}`}>
+              {/* Popular Badge for Premium/VIP */}
+              {(plan.membership_type === 'vip' || plan.membership_type === 'premium') && plan.is_active && (
+                <div className="absolute top-3 right-3 z-10">
+                  <span className="px-2 py-1 bg-yellow-400 text-yellow-900 text-[10px] font-bold uppercase rounded-full shadow-lg flex items-center gap-1">
+                    <Sparkles className="w-3 h-3" /> Popular
+                  </span>
+                </div>
+              )}
+              
               {/* Plan Header */}
               <div className={`bg-gradient-to-r ${getPlanGradient(plan.membership_type)} p-5 text-white`}>
                 <div className="flex items-center justify-between">
@@ -382,30 +402,37 @@ const MembershipPlans = () => {
               <div className="p-5">
                 <div className="mb-4">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-extrabold text-gray-900">₹{(plan.price || 0).toLocaleString()}</span>
-                    <span className="text-gray-500 text-sm">/{plan.duration_months} {plan.duration_months === 1 ? 'month' : 'months'}</span>
+                    <span className="text-4xl font-extrabold text-gray-900 dark:text-white">₹{(plan.price || 0).toLocaleString()}</span>
+                    <span className="text-gray-500 dark:text-gray-400 text-sm">/{plan.duration_months} {plan.duration_months === 1 ? 'month' : 'months'}</span>
                   </div>
+                  {plan.discount_percent > 0 && (
+                    <span className="inline-block mt-2 px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold rounded-full">
+                      {plan.discount_percent}% OFF
+                    </span>
+                  )}
                 </div>
 
-                <div className="space-y-2 mb-4">
+                <div className="space-y-2.5 mb-4">
                   {(plan.features || 'No features specified').split(',').slice(0, 5).map((feature, i) => (
-                    <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
-                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <div key={i} className="flex items-center gap-2.5 text-sm text-gray-600 dark:text-gray-300">
+                      <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
+                        <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+                      </div>
                       <span>{feature.trim()}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 pb-4 border-b">
+                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
                   <Users className="w-4 h-4" />
                   <span>{plan.subscribers_count || 0} active subscribers</span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button onClick={() => handleEdit(plan)} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-all">
+                  <button onClick={() => handleEdit(plan)} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-medium transition-all">
                     <Edit2 className="w-4 h-4" />Edit
                   </button>
-                  <button onClick={() => handleDelete(plan.id)} className="p-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-all">
+                  <button onClick={() => handleDelete(plan.id)} className="p-2.5 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 rounded-xl transition-all" aria-label="Delete plan">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -415,12 +442,14 @@ const MembershipPlans = () => {
         </AnimatePresence>
 
         {filteredPlans.length === 0 && (
-          <div className="col-span-full bg-white rounded-2xl shadow-xl p-12 text-center">
-            <Award className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-600 mb-2">No plans found</h3>
-            <p className="text-gray-400 mb-4">Create your first membership plan to get started</p>
-            <button onClick={() => { resetForm(); setShowForm(true) }} className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-all">
-              <Plus className="w-4 h-4" />Create Plan
+          <div className="col-span-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-12 text-center border border-gray-100 dark:border-gray-700">
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 rounded-2xl flex items-center justify-center mb-4">
+              <Award className="w-10 h-10 text-orange-500" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">No Plans Found</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">Create your first membership plan to start managing gym subscriptions</p>
+            <button onClick={() => { resetForm(); setShowForm(true) }} className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all">
+              <Plus className="w-5 h-5" />Create Your First Plan
             </button>
           </div>
         )}
@@ -429,28 +458,31 @@ const MembershipPlans = () => {
       {/* Create/Edit Modal */}
       <AnimatePresence>
         {showForm && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowForm(false)}>
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-gray-200">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowForm(false)}>
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-orange-500/10 to-red-500/10 dark:from-orange-500/5 dark:to-red-500/5">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-orange-500" />
-                    {editingPlan ? 'Edit Plan' : 'Create New Plan'}
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+                      <Sparkles className="w-5 h-5 text-white" />
+                    </div>
+                    {editingPlan ? 'Edit Membership Plan' : 'Create New Plan'}
                   </h3>
-                  <button onClick={() => setShowForm(false)} className="p-2 hover:bg-gray-100 rounded-lg transition-all"><X className="w-5 h-5" /></button>
+                  <button onClick={() => setShowForm(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"><X className="w-5 h-5 text-gray-500 dark:text-gray-400" /></button>
                 </div>
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Plan Name *</label>
-                    <input type="text" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g., Gold Membership" />
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Plan Name *</label>
+                    <input type="text" className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all placeholder-gray-400 dark:placeholder-slate-500" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g., Gold Membership" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Plan Type *</label>
-                    <select className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.membership_type} onChange={(e) => setForm({ ...form, membership_type: e.target.value })}>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Plan Type *</label>
+                    <select className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.membership_type} onChange={(e) => setForm({ ...form, membership_type: e.target.value })}>
                       <option value="basic">Basic</option>
+                      <option value="pro">Pro</option>
                       <option value="premium">Premium</option>
                       <option value="vip">VIP</option>
                     </select>
@@ -459,66 +491,69 @@ const MembershipPlans = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹) *</label>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Price (₹) *</label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input type="number" className="w-full border border-gray-300 rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="2999" />
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                      <input type="number" className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all placeholder-gray-400 dark:placeholder-slate-500" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="2999" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Duration (Months)</label>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Duration (Months)</label>
                     <div className="relative">
-                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input type="number" className="w-full border border-gray-300 rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.duration_months} onChange={(e) => setForm({ ...form, duration_months: e.target.value })} min="1" />
+                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                      <input type="number" className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.duration_months} onChange={(e) => setForm({ ...form, duration_months: e.target.value })} min="1" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Discount %</label>
-                    <input type="number" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.discount_percent} onChange={(e) => setForm({ ...form, discount_percent: Number(e.target.value) })} min="0" max="100" placeholder="0" />
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Discount %</label>
+                    <input type="number" className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all placeholder-gray-400 dark:placeholder-slate-500" value={form.discount_percent} onChange={(e) => setForm({ ...form, discount_percent: Number(e.target.value) })} min="0" max="100" placeholder="0" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Included Benefits</label>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Included Benefits</label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <label className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-all">
-                      <input type="checkbox" className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" checked={form.includes_pt} onChange={(e) => setForm({ ...form, includes_pt: e.target.checked })} />
-                      <span className="text-sm text-gray-700">Personal Training</span>
+                    <label className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all border border-transparent hover:border-orange-200 dark:hover:border-orange-500/30">
+                      <input type="checkbox" className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-600" checked={form.includes_pt} onChange={(e) => setForm({ ...form, includes_pt: e.target.checked })} />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Personal Training</span>
                     </label>
-                    <label className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-all">
-                      <input type="checkbox" className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" checked={form.includes_diet_plan} onChange={(e) => setForm({ ...form, includes_diet_plan: e.target.checked })} />
-                      <span className="text-sm text-gray-700">Diet Plan</span>
+                    <label className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all border border-transparent hover:border-orange-200 dark:hover:border-orange-500/30">
+                      <input type="checkbox" className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-600" checked={form.includes_diet_plan} onChange={(e) => setForm({ ...form, includes_diet_plan: e.target.checked })} />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Diet Plan</span>
                     </label>
-                    <label className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-all">
-                      <input type="checkbox" className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" checked={form.includes_locker} onChange={(e) => setForm({ ...form, includes_locker: e.target.checked })} />
-                      <span className="text-sm text-gray-700">Personal Locker</span>
+                    <label className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all border border-transparent hover:border-orange-200 dark:hover:border-orange-500/30">
+                      <input type="checkbox" className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-600" checked={form.includes_locker} onChange={(e) => setForm({ ...form, includes_locker: e.target.checked })} />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Personal Locker</span>
                     </label>
-                    <label className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-all">
-                      <input type="checkbox" className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
-                      <span className="text-sm text-gray-700">Active</span>
+                    <label className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all border border-transparent hover:border-orange-200 dark:hover:border-orange-500/30">
+                      <input type="checkbox" className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-600" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Active</span>
                     </label>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Guest Passes / Month</label>
-                    <input type="number" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.guest_passes} onChange={(e) => setForm({ ...form, guest_passes: Number(e.target.value) })} min="0" placeholder="0" />
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Guest Passes / Month</label>
+                    <input type="number" className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all placeholder-gray-400 dark:placeholder-slate-500" value={form.guest_passes} onChange={(e) => setForm({ ...form, guest_passes: Number(e.target.value) })} min="0" placeholder="0" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Max Freeze Days</label>
-                    <input type="number" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.max_freeze_days} onChange={(e) => setForm({ ...form, max_freeze_days: Number(e.target.value) })} min="0" placeholder="0" />
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Max Freeze Days</label>
+                    <input type="number" className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all placeholder-gray-400 dark:placeholder-slate-500" value={form.max_freeze_days} onChange={(e) => setForm({ ...form, max_freeze_days: Number(e.target.value) })} min="0" placeholder="0" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Additional Features</label>
-                  <textarea className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" rows={3} value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} placeholder="Enter features separated by commas (e.g., Pool access, Sauna, Group classes)" />
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Additional Features</label>
+                  <textarea className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all placeholder-gray-400 dark:placeholder-slate-500" rows={3} value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} placeholder="Enter features separated by commas (e.g., Pool access, Sauna, Group classes)" />
                 </div>
 
-                <div className="flex items-center gap-3 pt-4 border-t">
-                  <button type="button" onClick={() => setShowForm(false)} className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-all">Cancel</button>
-                  <button type="submit" className="flex-1 px-4 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all">{editingPlan ? 'Update Plan' : 'Create Plan'}</button>
+                <div className="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <button type="button" onClick={() => setShowForm(false)} className="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-medium transition-all">Cancel</button>
+                  <button type="submit" className="flex-1 px-4 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    {editingPlan ? 'Update Plan' : 'Create Plan'}
+                  </button>
                 </div>
               </form>
             </motion.div>

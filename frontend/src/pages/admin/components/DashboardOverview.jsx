@@ -5,8 +5,10 @@ import {
   UserPlus, Wrench, Bell, Sparkles, ArrowRight, RefreshCw
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { useTheme } from '../../../contexts/ThemeContext'
 
 const DashboardOverview = ({ dashboardData }) => {
+  const { isDark } = useTheme()
   const [currentTime, setCurrentTime] = useState(new Date())
   const [autoRefresh, setAutoRefresh] = useState(true)
 
@@ -43,7 +45,8 @@ const DashboardOverview = ({ dashboardData }) => {
       value: totalMembers,
       subtitle: 'Registered trainees',
       icon: Users,
-      color: 'from-blue-500 to-cyan-500',
+      iconBg: isDark ? 'bg-blue-500/15' : 'bg-blue-50',
+      iconColor: 'text-blue-500',
       trend: newSignupsWeek > 0 ? `+${newSignupsWeek} this week` : 'No new signups',
       trendUp: newSignupsWeek > 0,
     },
@@ -52,7 +55,8 @@ const DashboardOverview = ({ dashboardData }) => {
       value: activeTrainers,
       subtitle: 'Handling members',
       icon: Dumbbell,
-      color: 'from-purple-500 to-pink-500',
+      iconBg: isDark ? 'bg-violet-500/15' : 'bg-violet-50',
+      iconColor: 'text-violet-500',
       trend: activeTrainers > 0 ? 'Active' : 'None',
       trendUp: activeTrainers > 0,
     },
@@ -61,7 +65,8 @@ const DashboardOverview = ({ dashboardData }) => {
       value: `₹${monthlyRevenue.toLocaleString()}`,
       subtitle: 'Last 30 days',
       icon: DollarSign,
-      color: 'from-green-500 to-emerald-500',
+      iconBg: isDark ? 'bg-emerald-500/15' : 'bg-emerald-50',
+      iconColor: 'text-emerald-500',
       trend: todaysRevenue > 0 ? `₹${todaysRevenue.toLocaleString()} today` : 'No revenue today',
       trendUp: todaysRevenue > 0,
     },
@@ -70,7 +75,8 @@ const DashboardOverview = ({ dashboardData }) => {
       value: recentWorkouts,
       subtitle: 'Tracked by system',
       icon: Activity,
-      color: 'from-orange-500 to-red-500',
+      iconBg: isDark ? 'bg-amber-500/15' : 'bg-amber-50',
+      iconColor: 'text-amber-500',
       trend: recentWorkouts > 0 ? 'Active tracking' : 'No recent workouts',
       trendUp: recentWorkouts > 0,
     },
@@ -121,11 +127,11 @@ const DashboardOverview = ({ dashboardData }) => {
       {/* Header with Auto-Refresh */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2.5">
-            <Sparkles className="w-7 h-7 text-sky-400" />
+          <h2 className={`text-2xl font-bold flex items-center gap-2.5 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <Sparkles className="w-6 h-6 text-indigo-500" />
             Real-Time Dashboard
           </h2>
-          <p className="text-slate-400 text-sm mt-1.5 font-medium">
+          <p className={`text-sm mt-1.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             Last updated: {currentTime.toLocaleTimeString()}
           </p>
         </div>
@@ -133,8 +139,12 @@ const DashboardOverview = ({ dashboardData }) => {
           onClick={() => setAutoRefresh(!autoRefresh)}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all font-medium text-sm ${
             autoRefresh
-              ? 'bg-green-500/15 text-green-400 border border-green-500/50'
-              : 'bg-slate-700/50 text-slate-400 border border-slate-600/50'
+              ? isDark 
+                ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/40'
+                : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+              : isDark 
+                ? 'bg-gray-700/50 text-gray-400 border border-gray-600'
+                : 'bg-gray-100 text-gray-500 border border-gray-300'
           }`}
         >
           <RefreshCw className={`w-4 h-4 ${autoRefresh ? 'animate-spin' : ''}`} />
@@ -152,37 +162,41 @@ const DashboardOverview = ({ dashboardData }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="relative group"
+              className="relative"
             >
-              <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-5 border border-slate-700/50 hover:border-sky-500/40 transition-all hover:-translate-y-0.5">
+              <div className={`rounded-xl p-5 border transition-all hover:-translate-y-0.5 ${
+                isDark 
+                  ? 'bg-gray-800 border-gray-700 hover:border-gray-600' 
+                  : 'bg-white border-gray-200 hover:border-gray-300 shadow-sm'
+              }`}>
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <p className="text-xs text-slate-400 uppercase tracking-wide font-semibold">
+                    <p className={`text-xs uppercase tracking-wide font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                       {metric.title}
                     </p>
-                    <p className="text-2xl font-bold text-white mt-2">{metric.value}</p>
-                    <p className="text-xs text-slate-500 mt-1">{metric.subtitle}</p>
+                    <p className={`text-2xl font-bold mt-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{metric.value}</p>
+                    <p className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{metric.subtitle}</p>
                   </div>
                   <div
-                    className={`w-11 h-11 rounded-lg bg-gradient-to-br ${metric.color} flex items-center justify-center`}
+                    className={`w-11 h-11 rounded-lg ${metric.iconBg} flex items-center justify-center`}
                   >
-                    <Icon className="w-5 h-5 text-white" />
+                    <Icon className={`w-5 h-5 ${metric.iconColor}`} />
                   </div>
                 </div>
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-700/50">
+                <div className={`flex items-center gap-2 mt-3 pt-3 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
                   {metric.trendUp ? (
-                    <TrendingUp className="w-4 h-4 text-green-500" />
+                    <TrendingUp className="w-4 h-4 text-emerald-500" />
                   ) : (
                     <TrendingDown className="w-4 h-4 text-red-500" />
                   )}
                   <span
-                    className={`text-xs font-semibold ${
-                      metric.trendUp ? 'text-green-400' : 'text-red-400'
+                    className={`text-xs font-medium ${
+                      metric.trendUp ? (isDark ? 'text-emerald-400' : 'text-emerald-600') : (isDark ? 'text-red-400' : 'text-red-600')
                     }`}
                   >
                     {metric.trend}
                   </span>
-                  <span className="text-xs text-slate-500">vs last month</span>
+                  <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>vs last month</span>
                 </div>
               </div>
             </motion.div>
@@ -195,14 +209,16 @@ const DashboardOverview = ({ dashboardData }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6"
+        className={`rounded-xl border p-6 ${
+          isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200 shadow-sm'
+        }`}
       >
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-green-500" />
+          <h3 className={`text-lg font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <DollarSign className="w-5 h-5 text-emerald-500" />
             Payment Insights
           </h3>
-          <button className="text-sm text-sky-400 hover:text-sky-300 font-medium flex items-center gap-1">
+          <button className={`text-sm font-medium flex items-center gap-1 ${isDark ? 'text-indigo-400 hover:text-indigo-300' : 'text-indigo-600 hover:text-indigo-700'}`}>
             View All
             <ArrowRight className="w-4 h-4" />
           </button>
@@ -210,34 +226,35 @@ const DashboardOverview = ({ dashboardData }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {paymentInsights.map((item, idx) => {
             const Icon = item.icon
+            const statusStyles = {
+              success: isDark ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-emerald-50 border-emerald-200',
+              warning: isDark ? 'bg-amber-500/10 border-amber-500/30' : 'bg-amber-50 border-amber-200',
+              danger: isDark ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200',
+              info: isDark ? 'bg-blue-500/10 border-blue-500/30' : 'bg-blue-50 border-blue-200'
+            }
+            const iconColors = {
+              success: 'text-emerald-500',
+              warning: 'text-amber-500',
+              danger: 'text-red-500',
+              info: 'text-blue-500'
+            }
             return (
               <div
                 key={idx}
-                className={`p-4 rounded-lg border ${
-                  item.status === 'success'
-                    ? 'bg-green-500/10 border-green-500/40'
-                    : item.status === 'warning'
-                    ? 'bg-yellow-500/10 border-yellow-500/40'
-                    : item.status === 'danger'
-                    ? 'bg-red-500/10 border-red-500/40'
-                    : 'bg-blue-500/10 border-blue-500/40'
-                }`}
+                className={`p-4 rounded-xl border-2 ${statusStyles[item.status] || statusStyles.info} transition-all hover:scale-[1.02]`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon
-                    className={`w-5 h-5 ${
-                      item.status === 'success'
-                        ? 'text-green-400'
-                        : item.status === 'warning'
-                        ? 'text-yellow-400'
-                        : item.status === 'danger'
-                        ? 'text-red-400'
-                        : 'text-blue-400'
-                    }`}
-                  />
+                  <div className={`w-11 h-11 rounded-lg flex items-center justify-center ${
+                    item.status === 'success' ? (isDark ? 'bg-emerald-500/20' : 'bg-emerald-100') :
+                    item.status === 'warning' ? (isDark ? 'bg-amber-500/20' : 'bg-amber-100') :
+                    item.status === 'danger' ? (isDark ? 'bg-red-500/20' : 'bg-red-100') :
+                    (isDark ? 'bg-blue-500/20' : 'bg-blue-100')
+                  }`}>
+                    <Icon className={`w-5 h-5 ${iconColors[item.status] || iconColors.info}`} />
+                  </div>
                   <div>
-                    <p className="text-xs text-slate-400 font-medium">{item.label}</p>
-                    <p className="text-lg font-bold text-white">{item.value}</p>
+                    <p className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{item.label}</p>
+                    <p className={`text-xl font-bold mt-0.5 ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.value}</p>
                   </div>
                 </div>
               </div>
@@ -253,10 +270,12 @@ const DashboardOverview = ({ dashboardData }) => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6"
+          className={`rounded-xl border p-6 ${
+            isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200 shadow-sm'
+          }`}
         >
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-sky-400" />
+          <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <Zap className="w-5 h-5 text-amber-500" />
             Quick Actions
           </h3>
           <div className="grid grid-cols-2 gap-3">
@@ -265,28 +284,34 @@ const DashboardOverview = ({ dashboardData }) => {
               return (
                 <button
                   key={idx}
-                  className={`p-4 rounded-lg border transition-all group ${
-                    action.color === 'blue'
-                      ? 'border-blue-500/40 hover:bg-blue-500/10'
-                      : action.color === 'green'
-                      ? 'border-green-500/40 hover:bg-green-500/10'
-                      : action.color === 'purple'
-                      ? 'border-purple-500/40 hover:bg-purple-500/10'
-                      : 'border-sky-500/40 hover:bg-sky-500/10'
+                  className={`p-4 rounded-xl border-2 transition-all hover:scale-[1.02] hover:shadow-md ${
+                    isDark 
+                      ? 'bg-gray-700/50 border-gray-600 hover:border-indigo-500/50 hover:bg-gray-700'
+                      : 'bg-white border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/30 shadow-sm'
                   }`}
                 >
-                  <Icon
-                    className={`w-5 h-5 mb-2 ${
-                      action.color === 'blue'
-                        ? 'text-blue-400'
-                        : action.color === 'green'
-                        ? 'text-green-400'
-                        : action.color === 'purple'
-                        ? 'text-purple-400'
-                        : 'text-sky-400'
-                    }`}
-                  />
-                  <p className="text-sm font-semibold text-white">{action.label}</p>
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${
+                    action.color === 'blue'
+                      ? (isDark ? 'bg-blue-500/20' : 'bg-blue-100')
+                      : action.color === 'green'
+                      ? (isDark ? 'bg-emerald-500/20' : 'bg-emerald-100')
+                      : action.color === 'purple'
+                      ? (isDark ? 'bg-violet-500/20' : 'bg-violet-100')
+                      : (isDark ? 'bg-amber-500/20' : 'bg-amber-100')
+                  }`}>
+                    <Icon
+                      className={`w-5 h-5 ${
+                        action.color === 'blue'
+                          ? 'text-blue-500'
+                          : action.color === 'green'
+                          ? 'text-emerald-500'
+                          : action.color === 'purple'
+                          ? 'text-violet-500'
+                          : 'text-amber-500'
+                      }`}
+                    />
+                  </div>
+                  <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{action.label}</p>
                 </button>
               )
             })}
@@ -298,19 +323,27 @@ const DashboardOverview = ({ dashboardData }) => {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-xl border border-purple-500/40 p-6"
+          className={`rounded-xl border p-6 ${
+            isDark 
+              ? 'bg-gray-800 border-gray-700' 
+              : 'bg-white border-gray-200 shadow-sm'
+          }`}
         >
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-400" />
-            🤖 FitMate AI Suggestions
+          <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <Sparkles className="w-5 h-5 text-indigo-500" />
+            AI Suggestions
           </h3>
           <div className="space-y-3">
             {aiSuggestions.map((suggestion, idx) => (
               <div
                 key={idx}
-                className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10 hover:bg-white/10 transition-all"
+                className={`rounded-lg p-3.5 border-l-4 border-l-indigo-500 transition-all ${
+                  isDark 
+                    ? 'bg-indigo-500/10 border border-indigo-500/20 hover:bg-indigo-500/15' 
+                    : 'bg-indigo-50/70 border border-indigo-100 hover:bg-indigo-50'
+                }`}
               >
-                <p className="text-sm text-slate-200">{suggestion}</p>
+                <p className={`text-sm font-medium ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>{suggestion}</p>
               </div>
             ))}
           </div>
@@ -324,40 +357,42 @@ const DashboardOverview = ({ dashboardData }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="lg:col-span-2 bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6"
+          className={`lg:col-span-2 rounded-xl border p-6 ${
+            isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200 shadow-sm'
+          }`}
         >
           <div className="flex items-center justify-between mb-5">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+            <h3 className={`text-lg font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
               <Award className="w-5 h-5 text-yellow-500" />
               Top Performing Plans
             </h3>
-            <button className="text-sm text-sky-400 hover:text-sky-300 font-medium">
+            <button className={`text-sm font-medium ${isDark ? 'text-indigo-400 hover:text-indigo-300' : 'text-indigo-600 hover:text-indigo-700'}`}>
               View All
             </button>
           </div>
           <div className="space-y-4">
             {topPlans.map((plan, idx) => (
               <div key={idx} className="flex items-center gap-4">
-                <div className={`w-11 h-11 rounded-lg ${plan.color} flex items-center justify-center text-white font-bold text-sm`}>
+                <div className={`w-11 h-11 rounded-lg ${isDark ? 'bg-indigo-500/15' : 'bg-indigo-50'} flex items-center justify-center text-indigo-500 font-bold text-sm`}>
                   #{idx + 1}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
-                    <p className="font-semibold text-white text-sm">{plan.name}</p>
-                    <p className="text-sm font-bold text-green-400">
+                    <p className={`font-medium text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>{plan.name}</p>
+                    <p className={`text-sm font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                       ₹{plan.revenue.toLocaleString()}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                  <div className={`flex items-center gap-2 text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                     <Users className="w-3 h-3" />
                     {plan.members} members
                     {plan.renewalRate > 0 && (
                       <span className="ml-2">• {(plan.renewalRate * 100).toFixed(0)}% renewal</span>
                     )}
                   </div>
-                  <div className="mt-2 h-2 bg-slate-700 rounded-full overflow-hidden">
+                  <div className={`mt-2 h-2 rounded-full overflow-hidden ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}>
                     <div
-                      className={`h-full ${plan.color}`}
+                      className="h-full bg-indigo-500"
                       style={{ width: `${Math.min((plan.revenue / maxRevenue) * 100, 100)}%` }}
                     />
                   </div>
@@ -365,7 +400,7 @@ const DashboardOverview = ({ dashboardData }) => {
               </div>
             ))}
             {topPlans.length === 0 && (
-              <p className="text-sm text-slate-400 text-center py-4">No plans data available</p>
+              <p className={`text-sm text-center py-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>No plans data available</p>
             )}
           </div>
         </motion.div>
@@ -375,18 +410,20 @@ const DashboardOverview = ({ dashboardData }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6"
+          className={`rounded-xl border p-6 ${
+            isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200 shadow-sm'
+          }`}
         >
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-green-500" />
+          <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <Activity className="w-5 h-5 text-emerald-500" />
             System Health
           </h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-400">Status</span>
+              <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Status</span>
               <span className={`text-sm font-semibold flex items-center gap-1 ${
-                systemHealth.status === 'Healthy' ? 'text-green-400' : 
-                systemHealth.status === 'Warning' ? 'text-yellow-400' : 'text-red-400'
+                systemHealth.status === 'Healthy' ? (isDark ? 'text-emerald-400' : 'text-emerald-600') : 
+                systemHealth.status === 'Warning' ? (isDark ? 'text-amber-400' : 'text-amber-600') : (isDark ? 'text-red-400' : 'text-red-600')
               }`}>
                 {systemHealth.status === 'Healthy' && <CheckCircle className="w-4 h-4" />}
                 {systemHealth.status === 'Warning' && <AlertCircle className="w-4 h-4" />}
@@ -394,19 +431,19 @@ const DashboardOverview = ({ dashboardData }) => {
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-400">New Today</span>
-              <span className="text-sm font-semibold text-blue-400">{newSignupsToday} signups</span>
+              <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>New Today</span>
+              <span className={`text-sm font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>{newSignupsToday} signups</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-400">Active Trainers</span>
-              <span className="text-sm font-semibold text-purple-400">{activeTrainers} online</span>
+              <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Active Trainers</span>
+              <span className={`text-sm font-semibold ${isDark ? 'text-violet-400' : 'text-violet-600'}`}>{activeTrainers} online</span>
             </div>
-            <div className="pt-4 border-t border-slate-700/50">
+            <div className={`pt-4 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-slate-400">Equipment Alert</span>
-                <Wrench className={`w-4 h-4 ${equipmentMaintenance > 0 ? 'text-yellow-400' : 'text-green-400'}`} />
+                <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Equipment Alert</span>
+                <Wrench className={`w-4 h-4 ${equipmentMaintenance > 0 ? (isDark ? 'text-amber-400' : 'text-amber-500') : (isDark ? 'text-emerald-400' : 'text-emerald-500')}`} />
               </div>
-              <p className="text-xs text-slate-400">
+              <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                 {equipmentMaintenance > 0 
                   ? `${equipmentMaintenance} equipment needs maintenance`
                   : 'All equipment in good condition'}
@@ -421,32 +458,36 @@ const DashboardOverview = ({ dashboardData }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7 }}
-        className="bg-gradient-to-r from-sky-600/20 to-blue-600/20 rounded-xl border border-sky-500/40 p-6"
+        className={`rounded-xl border p-6 ${
+          isDark 
+            ? 'bg-gray-800 border-gray-700' 
+            : 'bg-white border-gray-200 shadow-sm'
+        }`}
       >
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm uppercase tracking-wide text-sky-300">Today's Summary</p>
-            <h3 className="text-2xl font-bold text-white mt-1">Real-Time Metrics</h3>
-            <div className="flex items-center gap-6 mt-4">
+            <p className={`text-sm uppercase tracking-wide font-medium ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>Today's Summary</p>
+            <h3 className={`text-2xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>Real-Time Metrics</h3>
+            <div className="flex items-center gap-6 mt-4 flex-wrap">
               <div>
-                <p className="text-xs text-slate-400">New Today</p>
-                <p className="text-xl font-bold text-white">{newSignupsToday} Signups</p>
+                <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>New Today</p>
+                <p className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{newSignupsToday} Signups</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">This Week</p>
-                <p className="text-xl font-bold text-white">{newSignupsWeek} Members</p>
+                <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>This Week</p>
+                <p className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{newSignupsWeek} Members</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">Total Active</p>
-                <p className="text-xl font-bold text-white">{totalMembers}</p>
+                <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Total Active</p>
+                <p className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{totalMembers}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">Today's Revenue</p>
-                <p className="text-xl font-bold text-white">₹{todaysRevenue.toLocaleString()}</p>
+                <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Today's Revenue</p>
+                <p className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>₹{todaysRevenue.toLocaleString()}</p>
               </div>
             </div>
           </div>
-          <Eye className="w-16 h-16 text-sky-400/20" />
+          <Eye className={`w-16 h-16 ${isDark ? 'text-indigo-500/20' : 'text-indigo-100'}`} />
         </div>
       </motion.div>
     </div>

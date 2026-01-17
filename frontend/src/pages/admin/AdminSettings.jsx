@@ -7,8 +7,10 @@ import {
   Smartphone, Lock, Globe, Activity, Key, Server, RefreshCw
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const AdminSettings = () => {
+  const { isDark } = useTheme();
   const [settings, setSettings] = useState({
     gym_name: 'FitMate Pro Gym',
     email: 'admin@fitmate.com',
@@ -75,7 +77,7 @@ const AdminSettings = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-sky-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-indigo-500"></div>
       </div>
     );
   }
@@ -94,12 +96,12 @@ const AdminSettings = () => {
         checked={checked}
         onChange={onChange}
       />
-      <div className="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-sky-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
+      <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
     </label>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8">
+    <div className={`min-h-screen p-4 md:p-8 ${isDark ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'}`}>
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -107,12 +109,12 @@ const AdminSettings = () => {
       >
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 bg-gradient-to-br from-sky-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+          <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
             <Settings className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-4xl font-bold text-white">Settings</h1>
-            <p className="text-slate-400 text-sm mt-1">Manage your gym preferences and configurations</p>
+            <h1 className={`text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Settings</h1>
+            <p className={`text-sm mt-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Manage your gym preferences and configurations</p>
           </div>
         </div>
 
@@ -128,8 +130,10 @@ const AdminSettings = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-3 rounded-xl font-semibold transition-all ${
                   activeTab === tab.id
-                    ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    ? 'bg-gradient-to-r from-indigo-500 to-blue-600 text-white shadow-lg'
+                    : isDark 
+                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                 }`}
               >
                 <Icon className="w-5 h-5" />
@@ -147,48 +151,48 @@ const AdminSettings = () => {
             className="space-y-6"
           >
             {/* Gym Information */}
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-slate-700 shadow-xl">
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <Globe className="w-6 h-6 text-sky-400" />
+            <div className={`rounded-2xl p-6 border shadow-xl ${isDark ? 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700' : 'bg-white border-gray-200'}`}>
+              <h2 className={`text-2xl font-bold mb-6 flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                <Globe className="w-6 h-6 text-indigo-500" />
                 Gym Information
               </h2>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-2">Gym Name</label>
+                  <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Gym Name</label>
                   <input
                     type="text"
                     value={settings.gym_name}
                     onChange={e => setSettings({ ...settings, gym_name: e.target.value })}
-                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
+                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'}`}
                     placeholder="Enter gym name"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-2">Contact Email</label>
+                  <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Contact Email</label>
                   <input
                     type="email"
                     value={settings.email}
                     onChange={e => setSettings({ ...settings, email: e.target.value })}
-                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
+                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'}`}
                     placeholder="admin@fitmate.com"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-2">Phone Number</label>
+                  <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Phone Number</label>
                   <input
                     type="tel"
                     value={settings.phone}
                     onChange={e => setSettings({ ...settings, phone: e.target.value })}
-                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
+                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'}`}
                     placeholder="+1-800-FITMATE"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-2">Currency</label>
+                  <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Currency</label>
                   <select
                     value={settings.currency}
                     onChange={e => setSettings({ ...settings, currency: e.target.value })}
-                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
+                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'}`}
                   >
                     <option value="USD">USD ($)</option>
                     <option value="EUR">EUR (€)</option>
@@ -198,30 +202,30 @@ const AdminSettings = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2 mt-4">Gym Address</label>
+                <label className={`block text-sm font-semibold mb-2 mt-4 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Gym Address</label>
                 <textarea
                   value={settings.address}
                   onChange={e => setSettings({ ...settings, address: e.target.value })}
                   rows="3"
-                  className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
+                  className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'}`}
                   placeholder="Enter complete gym address"
                 />
               </div>
             </div>
 
             {/* Display & Regional Settings */}
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-slate-700 shadow-xl">
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <Palette className="w-6 h-6 text-sky-400" />
+            <div className={`rounded-2xl p-6 border shadow-xl ${isDark ? 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700' : 'bg-white border-gray-200'}`}>
+              <h2 className={`text-2xl font-bold mb-6 flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                <Palette className="w-6 h-6 text-indigo-500" />
                 Display & Regional
               </h2>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-2">Theme</label>
+                  <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Theme</label>
                   <select
                     value={settings.theme}
                     onChange={e => setSettings({ ...settings, theme: e.target.value })}
-                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
+                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'}`}
                   >
                     <option value="dark">Dark Mode</option>
                     <option value="light">Light Mode</option>
@@ -229,11 +233,11 @@ const AdminSettings = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-2">Timezone</label>
+                  <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Timezone</label>
                   <select
                     value={settings.timezone}
                     onChange={e => setSettings({ ...settings, timezone: e.target.value })}
-                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
+                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'}`}
                   >
                     <option value="UTC">UTC (GMT+0)</option>
                     <option value="EST">EST (GMT-5)</option>
@@ -252,10 +256,10 @@ const AdminSettings = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-slate-700 shadow-xl"
+            className={`rounded-2xl p-6 border shadow-xl ${isDark ? 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700' : 'bg-white border-gray-200'}`}
           >
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-              <Bell className="w-6 h-6 text-sky-400" />
+            <h2 className={`text-2xl font-bold mb-6 flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <Bell className="w-6 h-6 text-indigo-500" />
               Notification Preferences
             </h2>
             <div className="space-y-4">
@@ -265,12 +269,12 @@ const AdminSettings = () => {
                 { key: 'maintenance_reminders', label: 'Equipment Maintenance Reminders', icon: AlertCircle, desc: 'Alerts when equipment needs maintenance' },
                 { key: 'schedule_notifications', label: 'Schedule & Class Notifications', icon: Clock, desc: 'Notifications for schedule changes' },
               ].map((item) => (
-                <div key={item.key} className="flex items-center justify-between p-4 bg-slate-700/50 rounded-xl hover:bg-slate-700 transition">
+                <div key={item.key} className={`flex items-center justify-between p-4 rounded-xl transition ${isDark ? 'bg-gray-700/50 hover:bg-gray-700' : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'}`}>
                   <div className="flex items-center gap-3">
-                    <item.icon className="w-5 h-5 text-sky-400" />
+                    <item.icon className="w-5 h-5 text-indigo-500" />
                     <div>
-                      <label className="text-gray-200 font-semibold cursor-pointer block">{item.label}</label>
-                      <p className="text-xs text-slate-400">{item.desc}</p>
+                      <label className={`font-semibold cursor-pointer block ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>{item.label}</label>
+                      <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{item.desc}</p>
                     </div>
                   </div>
                   <ToggleSwitch
@@ -291,20 +295,20 @@ const AdminSettings = () => {
             className="space-y-6"
           >
             {/* Security Settings */}
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 sm:p-8 border border-slate-700 shadow-xl">
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <Shield className="w-6 h-6 text-sky-400" />
+            <div className={`rounded-2xl p-6 sm:p-8 border shadow-xl ${isDark ? 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700' : 'bg-white border-gray-200'}`}>
+              <h2 className={`text-2xl font-bold mb-6 flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                <Shield className="w-6 h-6 text-indigo-500" />
                 Security & Authentication
               </h2>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-5 bg-slate-700/50 rounded-xl hover:bg-slate-700 transition border border-slate-600">
+                <div className={`flex items-center justify-between p-5 rounded-xl transition border ${isDark ? 'bg-gray-700/50 hover:bg-gray-700 border-gray-600' : 'bg-gray-50 hover:bg-gray-100 border-gray-200'}`}>
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
                       <Key className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <label className="text-gray-200 font-bold cursor-pointer block text-lg">Two-Factor Authentication</label>
-                      <p className="text-sm text-slate-400">Enhance account security with 2FA</p>
+                      <label className={`font-bold cursor-pointer block text-lg ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>Two-Factor Authentication</label>
+                      <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Enhance account security with 2FA</p>
                     </div>
                   </div>
                   <ToggleSwitch
@@ -313,12 +317,12 @@ const AdminSettings = () => {
                   />
                 </div>
 
-                <div className="p-5 bg-slate-700/50 rounded-xl border border-slate-600">
-                  <label className="block text-sm font-semibold text-slate-300 mb-3">Session Timeout</label>
+                <div className={`p-5 rounded-xl border ${isDark ? 'bg-gray-700/50 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                  <label className={`block text-sm font-semibold mb-3 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Session Timeout</label>
                   <select
                     value={settings.session_timeout_minutes}
                     onChange={e => setSettings({ ...settings, session_timeout_minutes: parseInt(e.target.value) })}
-                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 transition"
+                    className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 transition ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                   >
                     <option value="15">15 minutes</option>
                     <option value="30">30 minutes</option>
@@ -326,7 +330,7 @@ const AdminSettings = () => {
                     <option value="120">2 hours</option>
                     <option value="240">4 hours</option>
                   </select>
-                  <p className="text-xs text-slate-400 mt-2">Auto logout if inactive</p>
+                  <p className={`text-xs mt-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Auto logout if inactive</p>
                 </div>
               </div>
             </div>
@@ -342,7 +346,7 @@ const AdminSettings = () => {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 min-w-[200px]"
+            className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 min-w-[200px]"
           >
             {saving ? (
               <>

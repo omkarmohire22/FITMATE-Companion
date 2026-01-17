@@ -199,6 +199,35 @@ async def mark_notification_as_read(
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@router.put("/notifications/mark-all-read")
+async def mark_all_notifications_as_read(
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db),
+):
+    """Mark all notifications as read for admin user"""
+    try:
+        unread_notifications = db.query(Notification).filter(
+            Notification.user_id == current_user.id,
+            Notification.is_read == False
+        ).all()
+        
+        now = datetime.utcnow()
+        for notification in unread_notifications:
+            notification.is_read = True
+            notification.read_at = now
+        
+        db.commit()
+        
+        return {
+            "success": True, 
+            "message": f"Marked {len(unread_notifications)} notifications as read",
+            "count": len(unread_notifications)
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ====================== ADMIN SETTINGS ======================
 
 @router.get("/settings")
@@ -749,11 +778,25 @@ async def get_complete_dashboard(
         # ===== NOTIFICATIONS =====
         # Fetch real notifications from database (including feedback)
         notifications = []
+        unread_count = 0
+        unread_message_count = 0
         try:
             # Get actual notifications for the admin user
             db_notifications = db.query(Notification).filter(
                 Notification.user_id == current_user.id
             ).order_by(Notification.created_at.desc()).limit(15).all()
+            
+            # Count unread notifications
+            unread_count = db.query(Notification).filter(
+                Notification.user_id == current_user.id,
+                Notification.is_read == False
+            ).count()
+            
+            # Count unread messages for admin
+            unread_message_count = db.query(Message).filter(
+                Message.receiver_id == current_user.id,
+                Message.is_read == False
+            ).count()
             
             for n in db_notifications:
                 # Format message to show title and content
@@ -839,6 +882,8 @@ async def get_complete_dashboard(
             },
             "top_plans": top_plans,
             "notifications": notifications[:10],
+            "unread_count": unread_count,
+            "unread_message_count": unread_message_count,
             "system_health": health_status,
             "ai_suggestions": suggestions,
             "progress_analytics": {
@@ -1045,28 +1090,34 @@ async def create_manual_payment(
 ):
     """
     Admin: Create a manual payment record for membership billing
+    The trainee_id from frontend is actually the user.id (from /admin/members endpoint)
     """
     try:
-        # Extract data
-        trainee_id = data.get("trainee_id")
+        # Extract data - trainee_id is actually user.id from the members list
+        user_id = data.get("trainee_id")
         amount = data.get("amount")
         payment_mode = data.get("payment_mode", "cash")
         transaction_id = data.get("transaction_id")
         notes = data.get("notes", "")
         membership_plan_id = data.get("membership_plan_id")
         
-        # Validate trainee exists
-        trainee = db.query(Trainee).filter(Trainee.id == trainee_id).first()
+        # Validate user exists and is a trainee
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Verify user has a trainee profile
+        trainee = db.query(Trainee).filter(Trainee.user_id == user_id).first()
         if not trainee:
-            raise HTTPException(status_code=404, detail="Trainee not found")
+            raise HTTPException(status_code=404, detail="Trainee profile not found for this user")
         
         # Generate receipt number if not provided
         if not transaction_id:
             transaction_id = f"REC-{datetime.now().strftime('%Y%m%d%H%M%S')}-{random.randint(1000, 9999)}"
         
-        # Create payment record
+        # Create payment record - trainee_id in Payment model references users.id
         payment = Payment(
-            trainee_id=trainee_id,
+            trainee_id=user_id,  # This is the user.id, matching Payment.trainee_id FK to users.id
             amount=amount,
             status="completed",
             payment_mode=payment_mode,
@@ -1087,6 +1138,8 @@ async def create_manual_payment(
             "receipt_number": payment.receipt_number
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
@@ -1106,6 +1159,8 @@ async def get_receipt(
     from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
     from reportlab.lib import colors
     from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
     
     payment = db.query(Payment).filter(Payment.id == payment_id).first()
     if not payment:
@@ -1132,6 +1187,10 @@ async def get_receipt(
     elements = []
     styles = getSampleStyleSheet()
     
+    # Use Rs. instead of ₹ symbol for better PDF compatibility
+    def format_currency(amount):
+        return f"Rs. {amount:,.2f}"
+    
     # Custom styles
     title_style = ParagraphStyle(
         'CustomTitle',
@@ -1150,8 +1209,8 @@ async def get_receipt(
         spaceAfter=12
     )
     
-    # Title
-    title = Paragraph("<b>FITMATE GYM</b>", title_style)
+    # Title - Updated to Omkar Fitness Gym
+    title = Paragraph("<b>OMKAR FITNESS GYM</b>", title_style)
     elements.append(title)
     
     subtitle = Paragraph("Payment Receipt", styles['Heading2'])
@@ -1205,9 +1264,9 @@ async def get_receipt(
     elements.append(Paragraph("<b>Payment Details</b>", heading_style))
     payment_details_data = [
         ['Description', 'Amount'],
-        [payment.provider or 'Membership Payment', f'₹{payment.amount:.2f}'],
-        ['Payment Mode', payment.payment_mode or 'Cash'],
-        ['Transaction ID', payment.transaction_id or 'N/A'],
+        [payment.provider or 'Manual by Admin', format_currency(payment.amount)],
+        ['Payment Mode', payment.payment_mode or 'cash'],
+        ['Transaction ID', payment.receipt_number or f'MAN-{payment.id}'],
     ]
     
     payment_details_table = Table(payment_details_data, colWidths=[4*inch, 2*inch])
@@ -1226,7 +1285,7 @@ async def get_receipt(
     elements.append(Spacer(1, 0.3*inch))
     
     # Total Amount
-    total_data = [['TOTAL AMOUNT', f'₹{payment.amount:.2f}']]
+    total_data = [['TOTAL AMOUNT', format_currency(payment.amount)]]
     total_table = Table(total_data, colWidths=[4*inch, 2*inch])
     total_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#10b981')),
@@ -1252,9 +1311,9 @@ async def get_receipt(
     
     footer_text = """
     <br/><br/>
-    <b>Thank you for choosing FitMate Gym!</b><br/>
+    <b>Thank you for choosing Omkar Fitness Gym!</b><br/>
     This is a computer-generated receipt and does not require a signature.<br/>
-    For queries, contact: support@fitmate.com | +91-XXXX-XXXXXX
+    For queries, contact: support@omkarfitness.com | +91-XXXX-XXXXXX
     """
     elements.append(Paragraph(footer_text, footer_style))
     
@@ -1263,7 +1322,7 @@ async def get_receipt(
     buffer.seek(0)
     
     # Return PDF as downloadable file
-    filename = f"FitMate_Receipt_{payment.receipt_number or payment.id}.pdf"
+    filename = f"Omkar_Fitness_Receipt_{payment.receipt_number or payment.id}.pdf"
     return StreamingResponse(
         buffer,
         media_type="application/pdf",
@@ -2560,8 +2619,9 @@ def get_trainer_details(
     current_user: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
-    """Get detailed information about a specific trainer"""
+    """Get detailed information about a specific trainer including trainees, attendance, etc."""
     from uuid import UUID as PyUUID
+    from datetime import datetime, timedelta
     
     try:
         trainer_uuid = PyUUID(trainer_id)
@@ -2575,7 +2635,8 @@ def get_trainer_details(
     # Get trainer salary info
     salary = db.query(TrainerSalary).filter(TrainerSalary.trainer_id == trainer_uuid).first()
 
-    return {
+    # Build trainer profile
+    trainer_profile = {
         "id": str(trainer.id),
         "name": trainer.user.name,
         "email": trainer.user.email,
@@ -2586,10 +2647,103 @@ def get_trainer_details(
         "bio": trainer.bio,
         "status": "active" if trainer.user.is_active else "inactive",
         "is_active": trainer.user.is_active,
-        "salary_model": salary.salary_model if salary else "fixed",
+        "created_at": trainer.created_at.isoformat() if getattr(trainer, "created_at", None) else None,
+    }
+
+    # Build salary config
+    salary_config = {
+        "model": salary.salary_model if salary else "fixed",
         "base_salary": float(salary.base_salary) if salary else 0,
         "commission_per_session": float(salary.commission_per_session) if salary else 0,
-        "created_at": trainer.created_at.isoformat() if getattr(trainer, "created_at", None) else None,
+    }
+
+    # Get assigned trainees
+    trainees_list = []
+    try:
+        trainees = db.query(Trainee).filter(Trainee.assigned_trainer_id == trainer_uuid).all()
+        for trainee in trainees:
+            trainees_list.append({
+                "id": str(trainee.id),
+                "name": trainee.user.name if trainee.user else "Unknown",
+                "email": trainee.user.email if trainee.user else "",
+                "phone": trainee.user.phone if trainee.user else "",
+                "status": "active" if (trainee.user and trainee.user.is_active) else "inactive",
+                "fitness_goal": getattr(trainee, "fitness_goal", None),
+                "membership_type": getattr(trainee, "membership_type", "standard"),
+            })
+    except Exception as e:
+        print(f"Error fetching trainees: {e}")
+
+    # Get trainer attendance (last 30 days)
+    attendance_list = []
+    try:
+        thirty_days_ago = datetime.now() - timedelta(days=30)
+        attendance_records = db.query(TrainerAttendance).filter(
+            TrainerAttendance.trainer_id == trainer_uuid,
+            TrainerAttendance.date >= thirty_days_ago.date()
+        ).order_by(TrainerAttendance.date.desc()).limit(30).all()
+        
+        for record in attendance_records:
+            attendance_list.append({
+                "id": str(record.id),
+                "date": record.date.isoformat() if record.date else None,
+                "status": record.status,
+                "check_in_time": record.check_in_time.isoformat() if getattr(record, "check_in_time", None) else None,
+                "check_out_time": record.check_out_time.isoformat() if getattr(record, "check_out_time", None) else None,
+            })
+    except Exception as e:
+        print(f"Error fetching attendance: {e}")
+
+    # Get PT sessions (last 30 days)
+    pt_sessions = []
+    try:
+        sessions = db.query(PTSession).filter(
+            PTSession.trainer_id == trainer_uuid,
+            PTSession.session_date >= thirty_days_ago.date()
+        ).order_by(PTSession.session_date.desc()).limit(30).all()
+        
+        for session in sessions:
+            trainee_name = "Unknown"
+            if session.trainee:
+                trainee_name = session.trainee.user.name if session.trainee.user else "Unknown"
+            pt_sessions.append({
+                "id": str(session.id),
+                "trainee_name": trainee_name,
+                "session_date": session.session_date.isoformat() if session.session_date else None,
+                "session_type": getattr(session, "session_type", "PT"),
+                "status": session.status,
+                "notes": getattr(session, "notes", None),
+            })
+    except Exception as e:
+        print(f"Error fetching PT sessions: {e}")
+
+    # Get payouts
+    payouts = []
+    try:
+        payout_records = db.query(TrainerRevenue).filter(
+            TrainerRevenue.trainer_id == trainer_uuid
+        ).order_by(TrainerRevenue.period_start.desc()).limit(12).all()
+        
+        for payout in payout_records:
+            payouts.append({
+                "id": str(payout.id),
+                "period_start": payout.period_start.isoformat() if payout.period_start else None,
+                "period_end": payout.period_end.isoformat() if payout.period_end else None,
+                "total_amount": float(payout.total_amount) if payout.total_amount else 0,
+                "status": payout.status,
+                "paid_at": payout.paid_at.isoformat() if getattr(payout, "paid_at", None) else None,
+            })
+    except Exception as e:
+        print(f"Error fetching payouts: {e}")
+
+    return {
+        "trainer": trainer_profile,
+        "salary_config": salary_config,
+        "trainees": trainees_list,
+        "attendance_list": attendance_list,
+        "pt_sessions": pt_sessions,
+        "schedule_list": [],  # Can be populated if schedule model exists
+        "payouts": payouts,
     }
 
 
@@ -2885,21 +3039,23 @@ async def create_gym_schedule_slot(
         slot_day = slot.day_of_week
         slot_start = slot.start_time
         slot_end = slot.end_time
+        notification_count = 0
         
         # Send notifications if requested
         if notify:
             try:
-                # Get all active trainees and trainers
+                # Get all active trainees and trainers (using proper enum values)
                 trainees = db.query(User).filter(
-                    User.role == "trainee",
+                    User.role == UserRole.TRAINEE,
                     User.is_active == True
                 ).all()
                 
                 trainers = db.query(User).filter(
-                    User.role == "trainer",
+                    User.role == UserRole.TRAINER,
                     User.is_active == True
                 ).all()
                 
+                notification_count = 0
                 # Create notifications for all users
                 for user in trainees + trainers:
                     notification = Notification(
@@ -2910,16 +3066,21 @@ async def create_gym_schedule_slot(
                         is_read=False,
                     )
                     db.add(notification)
+                    notification_count += 1
+                print(f"✅ Created {notification_count} notifications for {len(trainees)} trainees and {len(trainers)} trainers")
             except Exception as notif_err:
                 # Log notification error but don't fail the schedule creation
-                print(f"Notification error: {notif_err}")
+                print(f"❌ Notification error: {notif_err}")
+                import traceback
+                traceback.print_exc()
         
         db.commit()
         
         return {
             "success": True,
-            "message": f"Schedule created{' and notifications sent!' if notify else ''}",
+            "message": f"Schedule created{f' and {notification_count} notifications sent to trainees & trainers!' if notify else ''}",
             "slot_id": slot_id,
+            "notifications_sent": notification_count if notify else 0,
             "slot": {
                 "id": slot_id,
                 "day_of_week": slot_day,
@@ -2972,16 +3133,17 @@ async def update_gym_schedule_slot(
         if notify:
             try:
                 trainees = db.query(User).filter(
-                    User.role == "trainee",
+                    User.role == UserRole.TRAINEE,
                     User.is_active == True
                 ).all()
                 
                 trainers = db.query(User).filter(
-                    User.role == "trainer",
+                    User.role == UserRole.TRAINER,
                     User.is_active == True
                 ).all()
                 
                 slot_title = slot.title or f"{slot.slot_type.replace('_', ' ').title()} Session"
+                notification_count = 0
                 
                 for user in trainees + trainers:
                     notification = Notification(
@@ -2992,9 +3154,11 @@ async def update_gym_schedule_slot(
                         is_read=False,
                     )
                     db.add(notification)
+                    notification_count += 1
                 db.commit()
+                print(f"✅ Sent {notification_count} update notifications")
             except Exception as notif_err:
-                print(f"Notification error: {notif_err}")
+                print(f"❌ Notification error: {notif_err}")
         
         return {
             "success": True,
@@ -3032,15 +3196,16 @@ async def delete_gym_schedule_slot(
         if notify:
             try:
                 trainees = db.query(User).filter(
-                    User.role == "trainee",
+                    User.role == UserRole.TRAINEE,
                     User.is_active == True
                 ).all()
                 
                 trainers = db.query(User).filter(
-                    User.role == "trainer",
+                    User.role == UserRole.TRAINER,
                     User.is_active == True
                 ).all()
                 
+                notification_count = 0
                 for user in trainees + trainers:
                     notification = Notification(
                         user_id=user.id,
@@ -3050,9 +3215,11 @@ async def delete_gym_schedule_slot(
                         is_read=False,
                     )
                     db.add(notification)
+                    notification_count += 1
                 db.commit()
+                print(f"✅ Sent {notification_count} deletion notifications")
             except Exception as notif_err:
-                print(f"Notification error: {notif_err}")
+                print(f"❌ Notification error: {notif_err}")
         
         return {
             "success": True,
@@ -3290,6 +3457,33 @@ async def mark_message_read(
     msg.is_read = True
     db.commit()
     return {"message": "Message marked as read"}
+
+
+@router.put("/messages/mark-all-read")
+async def mark_all_messages_read(
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db),
+):
+    """Mark all unread messages as read in admin inbox"""
+    try:
+        unread_messages = db.query(Message).filter(
+            Message.receiver_id == current_user.id,
+            Message.is_read == False
+        ).all()
+        
+        for msg in unread_messages:
+            msg.is_read = True
+        
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": f"Marked {len(unread_messages)} messages as read",
+            "count": len(unread_messages)
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/billing/refund")
 async def refund_payment(data: RefundPaymentRequest, db: Session = Depends(get_db)):

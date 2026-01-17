@@ -274,11 +274,11 @@ const EquipmentManagement = () => {
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-extrabold text-white flex items-center gap-3 tracking-tight">
+          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3 tracking-tight">
             <Dumbbell className="w-8 h-8 text-orange-500" />
             Equipment Management
           </h2>
-          <p className="text-gray-300 text-base mt-2 font-medium">Track, maintain and manage gym equipment</p>
+          <p className="text-gray-600 dark:text-gray-300 text-base mt-2 font-medium">Track, maintain and manage gym equipment</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowForm(true) }}
@@ -471,15 +471,15 @@ const EquipmentManagement = () => {
       {/* Add/Edit Modal */}
       <AnimatePresence>
         {showForm && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowForm(false)}>
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-gray-200">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowForm(false)}>
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <Dumbbell className="w-5 h-5 text-orange-500" />
                     {editingEquipment ? 'Edit Equipment' : 'Add New Equipment'}
                   </h3>
-                  <button onClick={() => setShowForm(false)} className="p-2 hover:bg-gray-100 rounded-lg transition-all"><X className="w-5 h-5" /></button>
+                  <button onClick={() => setShowForm(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all"><X className="w-5 h-5 text-gray-600 dark:text-gray-300" /></button>
                 </div>
               </div>
 
@@ -487,12 +487,12 @@ const EquipmentManagement = () => {
                 {/* Basic Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Equipment Name *</label>
-                    <input type="text" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g., Treadmill Pro X500" />
+                    <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">Equipment Name *</label>
+                    <input type="text" className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g., Treadmill Pro X500" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Type *</label>
-                    <select className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
+                    <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">Type *</label>
+                    <select className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
                       <option value="">Select type</option>
                       <option value="Cardio">Cardio</option>
                       <option value="Strength">Strength</option>
@@ -506,20 +506,20 @@ const EquipmentManagement = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
-                    <input type="number" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} min="1" />
+                    <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">Quantity</label>
+                    <input type="number" className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} min="1" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Condition</label>
-                    <select className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value })}>
+                    <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">Condition</label>
+                    <select className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value })}>
                       <option value="good">Good</option>
                       <option value="fair">Fair</option>
                       <option value="poor">Poor</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <select className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+                    <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">Status</label>
+                    <select className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
                       <option value="operational">Operational</option>
                       <option value="maintenance">Under Maintenance</option>
                       <option value="out_of_order">Out of Order</option>
@@ -528,35 +528,35 @@ const EquipmentManagement = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                  <input type="text" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="e.g., Floor 1 - Cardio Zone" />
+                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">Location</label>
+                  <input type="text" className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="e.g., Floor 1 - Cardio Zone" />
                 </div>
 
                 {/* Maintenance Section */}
-                <div className="p-4 bg-orange-50 rounded-xl border border-orange-100">
-                  <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-100 dark:border-orange-800/50">
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                     <Wrench className="w-4 h-4 text-orange-500" />
                     Maintenance Schedule
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Last Maintenance</label>
-                      <input type="date" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.last_maintenance} onChange={(e) => setForm({ ...form, last_maintenance: e.target.value })} />
+                      <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">Last Maintenance</label>
+                      <input type="date" className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.last_maintenance} onChange={(e) => setForm({ ...form, last_maintenance: e.target.value })} />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Next Maintenance</label>
-                      <input type="date" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.next_maintenance} onChange={(e) => setForm({ ...form, next_maintenance: e.target.value })} />
+                      <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">Next Maintenance</label>
+                      <input type="date" className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" value={form.next_maintenance} onChange={(e) => setForm({ ...form, next_maintenance: e.target.value })} />
                     </div>
                   </div>
                   <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Maintenance Notes</label>
-                    <textarea className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" rows={2} value={form.maintenance_notes} onChange={(e) => setForm({ ...form, maintenance_notes: e.target.value })} placeholder="Any notes about maintenance history or requirements..." />
+                    <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">Maintenance Notes</label>
+                    <textarea className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" rows={2} value={form.maintenance_notes} onChange={(e) => setForm({ ...form, maintenance_notes: e.target.value })} placeholder="Any notes about maintenance history or requirements..." />
                   </div>
                 </div>
 
                 {/* Submit Buttons */}
-                <div className="flex items-center gap-3 pt-4 border-t">
-                  <button type="button" onClick={() => setShowForm(false)} className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-all">Cancel</button>
+                <div className="flex items-center gap-3 pt-4 border-t dark:border-gray-700">
+                  <button type="button" onClick={() => setShowForm(false)} className="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-medium transition-all">Cancel</button>
                   <button type="submit" className="flex-1 px-4 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all">{editingEquipment ? 'Update Equipment' : 'Add Equipment'}</button>
                 </div>
               </form>

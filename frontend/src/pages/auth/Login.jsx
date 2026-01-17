@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../../contexts/AuthContext";
+import { authApi } from "../../utils/api";
 import {
   Mail,
   Lock,
@@ -23,7 +25,7 @@ import {
   Check
 } from "lucide-react";
 
-import "./login.css";
+import "./Login.css";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -38,9 +40,9 @@ const Login = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [rememberMe, setRememberMe] = useState(true);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState("");
   const [emailValid, setEmailValid] = useState(true);
+  const [loginSuccess, setLoginSuccess] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const slides = [
     {
@@ -121,26 +123,28 @@ const Login = () => {
 
       if (!result.success) throw new Error(result.error);
 
-      if (result.user.role === "admin") navigate("/admin");
-      else if (result.user.role === "trainer") navigate("/trainer");
-      else navigate("/trainee");
+      // Show success feedback
+      setLoginSuccess(true);
+      
+      setTimeout(() => {
+        if (result.user.role === "admin") navigate("/admin");
+        else if (result.user.role === "trainer") navigate("/trainer");
+        else navigate("/trainee");
+      }, 800);
     } catch (err) {
-      setError(err.message || "Invalid email or password");
+      const errorMsg = err.message?.toLowerCase() || "";
+      if (errorMsg.includes("password") || errorMsg.includes("credential")) {
+        setError("Incorrect password. Please try again.");
+      } else if (errorMsg.includes("not found") || errorMsg.includes("email")) {
+        setError("No account found with this email address.");
+      } else if (errorMsg.includes("network")) {
+        setError("Network error. Please check your connection.");
+      } else {
+        setError(err.message || "Unable to sign in. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
-    if (!forgotEmail) {
-      setError("Please enter your email address");
-      return;
-    }
-    // In a real app, this would trigger a password reset email
-    alert(`Password reset link has been sent to ${forgotEmail}. Check your email!`);
-    setShowForgotPassword(false);
-    setForgotEmail("");
   };
 
   return (
@@ -306,10 +310,13 @@ const Login = () => {
                     disabled={loading}
                     autoFocus
                     autoComplete="email"
+                    aria-label="Email address"
+                    aria-describedby="email-error"
+                    aria-invalid={email && !emailValid}
                     className={`w-full bg-white/5 border rounded-xl py-3.5 pl-12 pr-10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-white/10 text-sm sm:text-base ${
                       focusedField === "email" ? "border-green-500/50 shadow-lg shadow-green-500/10" : email && !emailValid ? "border-red-500/50" : "border-gray-600"
                     }`}
-                    placeholder="you@example.com"
+                    placeholder="Enter your email address"
                     required
                   />
                   {email && emailValid && (
@@ -351,20 +358,32 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
+                <p className="text-slate-500 text-xs mt-1">Minimum 8 characters required</p>
               </div>
 
               {/* SUBMIT BUTTON */}
               <button
                 type="submit"
-                disabled={loading || !emailValid || !email || !password}
-                className="group w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 py-4 rounded-xl text-white font-bold text-lg shadow-lg shadow-green-500/30 hover:shadow-green-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+                disabled={loading || loginSuccess || !emailValid || !email || !password}
+                aria-label="Sign in to your account"
+                className={`group w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                  loginSuccess
+                    ? "bg-gradient-to-r from-green-500 to-emerald-600 shadow-green-500/50"
+                    : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-green-500/30 hover:shadow-green-500/50 disabled:opacity-50 disabled:hover:scale-100 hover:scale-[1.02] active:scale-[0.98]"
+                }`}
               >
-                {loading ? (
+                {loginSuccess ? (
+                  <>
+                    <CheckCircle className="w-5 h-5 animate-bounce" />
+                    <span>Welcome Back!</span>
+                  </>
+                ) : loading ? (
                   <>
                     <Loader className="w-5 h-5 animate-spin" />
                     <span>Signing In...</span>

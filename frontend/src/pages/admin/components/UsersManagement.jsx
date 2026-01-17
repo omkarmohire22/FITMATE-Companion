@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { adminApi } from '../../../utils/api'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTheme } from '../../../contexts/ThemeContext'
 import { 
   Users, Edit, Trash2, Search, Filter, Lock, Unlock, 
   Mail, Phone, Calendar, CheckCircle, XCircle, Eye, 
@@ -9,6 +10,7 @@ import {
 import toast from 'react-hot-toast'
 
 const UsersManagement = () => {
+  const { isDark } = useTheme()
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [loaded, setLoaded] = useState(false)
@@ -131,13 +133,13 @@ const UsersManagement = () => {
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <Users className="w-7 h-7 text-sky-400" />
+          <h2 className={`text-2xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <Users className="w-7 h-7 text-indigo-400" />
             System Users
           </h2>
-          <p className="text-slate-400 text-sm mt-1">Manage all admin, trainer, and trainee accounts</p>
+          <p className={`text-sm mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Manage all admin, trainer, and trainee accounts</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all">
+        <button className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all">
           <Plus className="w-5 h-5" />
           Add User
         </button>
@@ -145,50 +147,58 @@ const UsersManagement = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-lg p-4">
-          <p className="text-xs text-slate-400 font-medium">Total Users</p>
-          <p className="text-2xl font-bold text-white mt-1">{totalUsers}</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className={`backdrop-blur-sm rounded-xl border shadow-lg p-4 ${isDark ? 'bg-gray-800/60 border-gray-700/50' : 'bg-white border-gray-200'}`}>
+          <p className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Total Users</p>
+          <p className={`text-2xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{totalUsers}</p>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-red-500/40 shadow-lg p-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className={`backdrop-blur-sm rounded-xl border shadow-lg p-4 ${isDark ? 'bg-gray-800/60 border-red-500/40' : 'bg-red-50 border-red-200'}`}>
           <p className="text-xs text-red-400 font-medium">Admins</p>
-          <p className="text-2xl font-bold text-white mt-1">{adminCount}</p>
+          <p className={`text-2xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{adminCount}</p>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-blue-500/40 shadow-lg p-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className={`backdrop-blur-sm rounded-xl border shadow-lg p-4 ${isDark ? 'bg-gray-800/60 border-blue-500/40' : 'bg-blue-50 border-blue-200'}`}>
           <p className="text-xs text-blue-400 font-medium">Trainers</p>
-          <p className="text-2xl font-bold text-white mt-1">{trainerCount}</p>
+          <p className={`text-2xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{trainerCount}</p>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-emerald-500/40 shadow-lg p-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className={`backdrop-blur-sm rounded-xl border shadow-lg p-4 ${isDark ? 'bg-gray-800/60 border-emerald-500/40' : 'bg-emerald-50 border-emerald-200'}`}>
           <p className="text-xs text-emerald-400 font-medium">Trainees</p>
-          <p className="text-2xl font-bold text-white mt-1">{traineeCount}</p>
+          <p className={`text-2xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{traineeCount}</p>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-green-500/40 shadow-lg p-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className={`backdrop-blur-sm rounded-xl border shadow-lg p-4 ${isDark ? 'bg-gray-800/60 border-green-500/40' : 'bg-green-50 border-green-200'}`}>
           <p className="text-xs text-green-400 font-medium">Active</p>
-          <p className="text-2xl font-bold text-white mt-1">{activeCount}</p>
+          <p className={`text-2xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{activeCount}</p>
         </motion.div>
       </div>
 
       {/* Search and Filter */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-400'}`} />
           <input
             type="text"
             placeholder="Search users by name or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-800/60 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
+            className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
+              isDark 
+                ? 'bg-gray-800/60 border-gray-700/50 text-white placeholder-slate-400' 
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+            }`}
           />
         </div>
         <div className="flex items-center gap-2">
-          <Filter className="w-5 h-5 text-slate-400" />
+          <Filter className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-400'}`} />
           <select
             value={filterRole}
             onChange={(e) => setFilterRole(e.target.value)}
-            className="px-4 py-2.5 bg-slate-800/60 border border-slate-700/50 rounded-lg text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
+            className={`px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
+              isDark 
+                ? 'bg-gray-800/60 border-gray-700/50 text-white' 
+                : 'bg-white border-gray-300 text-gray-900'
+            }`}
           >
             <option value="all">All Roles</option>
             <option value="admin">Admin</option>
@@ -198,23 +208,33 @@ const UsersManagement = () => {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2.5 bg-slate-800/60 border border-slate-700/50 rounded-lg text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
+            className={`px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
+              isDark 
+                ? 'bg-gray-800/60 border-gray-700/50 text-white' 
+                : 'bg-white border-gray-300 text-gray-900'
+            }`}
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
-          <button onClick={loadUsers} className="p-2.5 bg-slate-800/60 border border-slate-700/50 rounded-lg text-white hover:bg-slate-700/60 transition-all">
+          <button onClick={loadUsers} className={`p-2.5 border rounded-lg transition-all ${
+            isDark 
+              ? 'bg-gray-800/60 border-gray-700/50 text-white hover:bg-gray-700/60' 
+              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
+          }`}>
             <RefreshCw className="w-5 h-5" />
           </button>
         </div>
       </div>
 
       {/* Users Table */}
-      <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden border border-slate-700/50">
+      <div className={`backdrop-blur-sm rounded-xl shadow-xl overflow-hidden border ${
+        isDark ? 'bg-gray-800/60 border-gray-700/50' : 'bg-white border-gray-200'
+      }`}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-slate-700/50 border-b border-slate-700">
+            <thead className={`border-b ${isDark ? 'bg-gray-700/50 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
               <tr>
                 <th className="py-4 px-6 text-left">
                   <input
@@ -229,14 +249,14 @@ const UsersManagement = () => {
                     className="w-4 h-4 rounded border-gray-600"
                   />
                 </th>
-                <th className="py-4 px-6 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">User</th>
-                <th className="py-4 px-6 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Role</th>
-                <th className="py-4 px-6 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Status</th>
-                <th className="py-4 px-6 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Joined</th>
-                <th className="py-4 px-6 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Actions</th>
+                <th className={`py-4 px-6 text-left text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>User</th>
+                <th className={`py-4 px-6 text-left text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Role</th>
+                <th className={`py-4 px-6 text-left text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Status</th>
+                <th className={`py-4 px-6 text-left text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Joined</th>
+                <th className={`py-4 px-6 text-left text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-700">
+            <tbody className={`divide-y ${isDark ? 'divide-slate-700' : 'divide-gray-200'}`}>
               <AnimatePresence>
                 {filteredUsers.length > 0 ? (
                   filteredUsers.map((u, index) => (
@@ -246,14 +266,14 @@ const UsersManagement = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ delay: index * 0.02 }}
-                      className="hover:bg-slate-700/30 transition-colors"
+                      className={`transition-colors ${isDark ? 'hover:bg-gray-700/30' : 'hover:bg-gray-50'}`}
                     >
                       <td className="py-4 px-6">
                         <input
                           type="checkbox"
                           checked={selectedUsers.has(u.id)}
                           onChange={() => handleSelectUser(u.id)}
-                          className="w-4 h-4 rounded border-slate-600 cursor-pointer"
+                          className="w-4 h-4 rounded border-gray-600 cursor-pointer"
                         />
                       </td>
                       <td className="py-4 px-6">
@@ -266,8 +286,8 @@ const UsersManagement = () => {
                             {(u.name || 'U')[0]}
                           </div>
                           <div>
-                            <p className="font-semibold text-white">{u.name}</p>
-                            <p className="text-xs text-slate-400">{u.email}</p>
+                            <p className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{u.name}</p>
+                            <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{u.email}</p>
                           </div>
                         </div>
                       </td>
@@ -292,7 +312,7 @@ const UsersManagement = () => {
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <div className="flex items-center gap-1 text-slate-400 text-xs">
+                        <div className={`flex items-center gap-1 text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                           <Calendar className="w-3 h-3" />
                           {u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}
                         </div>
@@ -302,13 +322,13 @@ const UsersManagement = () => {
                           <button
                             onClick={() => handleToggleStatus(u)}
                             title={u.is_active ? 'Deactivate' : 'Activate'}
-                            className="p-2 hover:bg-slate-700 rounded-lg transition-colors text-sky-400"
+                            className={`p-2 rounded-lg transition-colors text-indigo-400 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
                           >
                             {u.is_active ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
                           </button>
                           <button
                             onClick={() => setExpandedUser(expandedUser === u.id ? null : u.id)}
-                            className="p-2 hover:bg-slate-700 rounded-lg transition-colors text-blue-400"
+                            className={`p-2 rounded-lg transition-colors text-blue-400 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
                           >
                             <Eye className="w-4 h-4" />
                           </button>
@@ -318,8 +338,8 @@ const UsersManagement = () => {
                             title={u.role?.toUpperCase() === 'ADMIN' ? 'Cannot delete admin users' : 'Delete user'}
                             className={`p-2 rounded-lg transition-colors ${
                               u.role?.toUpperCase() === 'ADMIN'
-                                ? 'text-slate-500 cursor-not-allowed opacity-50'
-                                : 'hover:bg-red-900/30 text-red-400 cursor-pointer'
+                                ? 'text-gray-500 cursor-not-allowed opacity-50'
+                                : `${isDark ? 'hover:bg-red-900/30' : 'hover:bg-red-100'} text-red-400 cursor-pointer`
                             }`}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -332,8 +352,8 @@ const UsersManagement = () => {
                   <tr>
                     <td colSpan="6" className="py-12 px-6 text-center">
                       <div className="flex flex-col items-center gap-2">
-                        <AlertCircle className="w-8 h-8 text-slate-500" />
-                        <p className="text-slate-400">No users found matching your criteria</p>
+                        <AlertCircle className={`w-8 h-8 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
+                        <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>No users found matching your criteria</p>
                       </div>
                     </td>
                   </tr>
@@ -351,35 +371,37 @@ const UsersManagement = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="bg-slate-800/60 backdrop-blur-sm rounded-xl shadow-xl p-6 border border-slate-700/50"
+            className={`backdrop-blur-sm rounded-xl shadow-xl p-6 border ${
+              isDark ? 'bg-gray-800/60 border-gray-700/50' : 'bg-white border-gray-200'
+            }`}
           >
             {users.find(u => u.id === expandedUser) && (
               <div>
-                <h3 className="text-lg font-bold text-white mb-4">User Details</h3>
+                <h3 className={`text-lg font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>User Details</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="text-xs text-slate-400 font-semibold uppercase">Full Name</label>
-                    <p className="text-white mt-1">{users.find(u => u.id === expandedUser)?.name}</p>
+                    <label className={`text-xs font-semibold uppercase ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Full Name</label>
+                    <p className={`mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{users.find(u => u.id === expandedUser)?.name}</p>
                   </div>
                   <div>
-                    <label className="text-xs text-slate-400 font-semibold uppercase">Email</label>
-                    <p className="text-white mt-1 flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-sky-400" />
+                    <label className={`text-xs font-semibold uppercase ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Email</label>
+                    <p className={`mt-1 flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      <Mail className="w-4 h-4 text-indigo-400" />
                       {users.find(u => u.id === expandedUser)?.email}
                     </p>
                   </div>
                   {users.find(u => u.id === expandedUser)?.phone && (
                     <div>
-                      <label className="text-xs text-slate-400 font-semibold uppercase">Phone</label>
-                      <p className="text-white mt-1 flex items-center gap-2">
-                        <Phone className="w-4 h-4 text-sky-400" />
+                      <label className={`text-xs font-semibold uppercase ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Phone</label>
+                      <p className={`mt-1 flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                        <Phone className="w-4 h-4 text-indigo-400" />
                         {users.find(u => u.id === expandedUser)?.phone}
                       </p>
                     </div>
                   )}
                   <div>
-                    <label className="text-xs text-slate-400 font-semibold uppercase">Role</label>
-                    <p className="text-white mt-1">{users.find(u => u.id === expandedUser)?.role}</p>
+                    <label className={`text-xs font-semibold uppercase ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Role</label>
+                    <p className={`mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{users.find(u => u.id === expandedUser)?.role}</p>
                   </div>
                 </div>
               </div>

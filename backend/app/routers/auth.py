@@ -5,7 +5,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
-from datetime import datetime
+from datetime import datetime, timedelta
+import random
+import os
 from app.schemas import LoginRequest
 
 from app.database import get_db
@@ -43,6 +45,11 @@ class TrainerLoginRequest(BaseModel):
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
+
+
+class AdminOTPVerifyRequest(BaseModel):
+    email: EmailStr
+    otp: str
 
 
 # =============== REGISTER ===============
@@ -114,6 +121,11 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
 
 @router.post("/admin/login")
 async def admin_login(data: LoginRequest, db: Session = Depends(get_db)):
+    """
+    Admin login with optional OTP verification.
+    If OTP is enabled, returns otp_required=True and sends OTP to email.
+    """
+    from app.utils.email import send_email
 
     # 1. Check if user exists
     user = db.query(User).filter(User.email == data.email.lower()).first()
@@ -129,7 +141,91 @@ async def admin_login(data: LoginRequest, db: Session = Depends(get_db)):
     if not verify_password(data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Incorrect admin password")
 
-    # 4. Create tokens
+    # 4. Check if OTP is enabled (from env or admin settings)
+    otp_enabled = os.getenv("ADMIN_OTP_ENABLED", "false").lower() == "true"
+    
+    if otp_enabled:
+        # Generate 6-digit OTP
+        otp_code = str(random.randint(100000, 999999))
+        expires_at = datetime.utcnow() + timedelta(minutes=10)
+        
+        # Delete any existing OTP for this admin
+        db.query(AdminOTP).filter(AdminOTP.admin_id == user.id).delete()
+        
+        # Store new OTP
+        new_otp = AdminOTP(
+            admin_id=user.id,
+            otp=otp_code,
+            expires_at=expires_at
+        )
+        db.add(new_otp)
+        db.commit()
+        
+        # Send OTP via email using HTML template
+        try:
+            from app.utils.email import send_admin_otp_email
+            send_admin_otp_email(user.email, otp_code)
+        except Exception as e:
+            print(f"[OTP] Failed to send email: {e}")
+            # Still allow login - OTP will be in server logs for debugging
+        
+        return {
+            "otp_required": True,
+            "message": "OTP sent to your email. Please verify to continue."
+        }
+
+    # 5. If OTP not enabled, create tokens directly
+    access_token = create_access_token({"sub": str(user.id), "role": "ADMIN"})
+    refresh_token = create_refresh_token({"sub": str(user.id)})
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "role": "ADMIN"
+        }
+    }
+
+
+# =============== ADMIN VERIFY OTP ===============
+
+@router.post("/admin/verify-otp")
+async def admin_verify_otp(data: AdminOTPVerifyRequest, db: Session = Depends(get_db)):
+    """
+    Verify OTP for admin login and return access tokens.
+    """
+    # 1. Find user
+    user = db.query(User).filter(User.email == data.email.lower()).first()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="Admin account does not exist")
+    
+    if user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="You are not an admin")
+    
+    # 2. Find and verify OTP
+    otp_record = db.query(AdminOTP).filter(
+        AdminOTP.admin_id == user.id,
+        AdminOTP.otp == data.otp
+    ).first()
+    
+    if not otp_record:
+        raise HTTPException(status_code=401, detail="Invalid OTP")
+    
+    # 3. Check expiry
+    if datetime.utcnow() > otp_record.expires_at:
+        db.delete(otp_record)
+        db.commit()
+        raise HTTPException(status_code=401, detail="OTP has expired. Please login again.")
+    
+    # 4. Delete used OTP
+    db.delete(otp_record)
+    db.commit()
+    
+    # 5. Create tokens
     access_token = create_access_token({"sub": str(user.id), "role": "ADMIN"})
     refresh_token = create_refresh_token({"sub": str(user.id)})
 

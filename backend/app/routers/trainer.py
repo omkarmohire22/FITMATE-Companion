@@ -35,6 +35,7 @@ from app.models import (
     TrainerAttendance,
     TrainerSchedule,
     PTPackage,
+    Notification,      # ✅ Added for trainer notifications
     # 👇 adjust these two names to your real models if different
     AIReport,          # model with (id, trainee_id, workout_id, report_type, report_json, created_at)
     TrainerMessage     # model with (id, trainee_id, trainer_id, sender_id, receiver_id, message, created_at)
@@ -1152,18 +1153,27 @@ def get_trainer_attendance_summary(
 
     summary = {}
     for t in trainees:
-        # Get attendance records for this trainee
+        # Get attendance records for this trainee (by user_id since Attendance uses users.id)
         records = db.query(Attendance).filter(Attendance.trainee_id == t.user_id).all()
         total = len(records)
-        present = len([r for r in records if r.status == 'present'])
-        absent = len([r for r in records if r.status == 'absent'])
         
+        # Count "present" as having a check_in_time (successful check-in)
+        # The Attendance model tracks check-ins, so any record = present
+        present = len([r for r in records if r.check_in_time is not None])
+        
+        # Calculate attendance percentage based on expected days
+        # For now, we use total records as base (each record = 1 day attempted)
         summary[str(t.id)] = {
             "total_days": total,
             "present": present,
-            "absent": absent,
-            "percentage": round((present / total * 100), 1) if total > 0 else 0
+            "absent": 0,  # With check-in model, absence = no record for that day
+            "percentage": round((present / max(total, 1) * 100), 1) if total > 0 else 0,
+            "last_check_in": max((r.check_in_time for r in records if r.check_in_time), default=None)
         }
+        
+        # Convert last_check_in to string for JSON serialization
+        if summary[str(t.id)]["last_check_in"]:
+            summary[str(t.id)]["last_check_in"] = summary[str(t.id)]["last_check_in"].isoformat()
 
     return summary
 
@@ -1187,16 +1197,22 @@ def mark_trainee_attendance(
         func.date(Attendance.check_in_time) == attendance_date
     ).first()
     
-    if existing:
-        existing.status = data.status
-    else:
-        new_attendance = Attendance(
-            trainee_id=trainee.user_id,
-            status=data.status,
-            check_in_time=datetime.combine(attendance_date, datetime.min.time()) if data.date else datetime.utcnow(),
-            check_in_method="trainer_manual"
-        )
-        db.add(new_attendance)
+    if data.status == 'present':
+        # Mark as present by creating/updating check-in record
+        if existing:
+            # Already has a check-in for this day, just update the method
+            existing.check_in_method = "trainer_manual"
+        else:
+            new_attendance = Attendance(
+                trainee_id=trainee.user_id,
+                check_in_time=datetime.combine(attendance_date, datetime.min.time()) if data.date else datetime.utcnow(),
+                check_in_method="trainer_manual"
+            )
+            db.add(new_attendance)
+    elif data.status == 'absent':
+        # Mark as absent by removing any existing check-in record for that day
+        if existing:
+            db.delete(existing)
     
     db.commit()
     return {"message": f"Attendance marked as {data.status}"}
@@ -1268,16 +1284,19 @@ def get_trainer_activity(
         })
         
     for w in workouts:
-        activities.append({
-            "user": w.trainee.name,
-            "action": f"Completed {w.exercise_type} workout",
-            "icon": "CheckCircle",
-            "color": "text-purple-500",
-            "bgColor": "bg-purple-100",
-            "time": w.created_at.isoformat()
-        })
+        trainee_user = w.trainee
+        if w.start_time:  # Only add if we have a valid time
+            activities.append({
+                "user": trainee_user.name if trainee_user else "Unknown",
+                "action": f"Completed {w.exercise_type or 'a'} workout",
+                "icon": "CheckCircle",
+                "color": "text-purple-500",
+                "bgColor": "bg-purple-100",
+                "time": w.start_time.isoformat()
+            })
         
-    # Sort by time
+    # Sort by time (filter out None times first)
+    activities = [a for a in activities if a.get('time')]
     activities.sort(key=lambda x: x['time'], reverse=True)
     
     return activities[:10]
@@ -1290,27 +1309,44 @@ async def get_my_schedule(
     current_user: User = Depends(require_trainer_or_admin),
     db: Session = Depends(get_db)
 ):
-    """Get logged-in trainer's weekly schedule"""
+    """Get logged-in trainer's weekly schedule with trainee assignments"""
     trainer = get_trainer_profile(db, current_user)
     if not trainer:
         raise HTTPException(status_code=403, detail="Not a trainer")
 
     schedule = db.query(TrainerSchedule).filter(
         TrainerSchedule.trainer_id == trainer.id
-    ).order_by(TrainerSchedule.day_of_week).all()
+    ).order_by(TrainerSchedule.day_of_week, TrainerSchedule.start_time).all()
     
     days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     
-    return {
-        "schedule": [{
+    result = []
+    for s in schedule:
+        slot_data = {
             "id": s.id,
             "day_of_week": s.day_of_week,
             "day_name": days[s.day_of_week] if s.day_of_week < 7 else "Unknown",
             "start_time": s.start_time.strftime("%H:%M") if s.start_time else None,
             "end_time": s.end_time.strftime("%H:%M") if s.end_time else None,
-            "is_available": s.is_available
-        } for s in schedule]
-    }
+            "is_available": s.is_available,
+            "session_type": getattr(s, 'session_type', None),
+            "notes": getattr(s, 'notes', None),
+            "trainee": None
+        }
+        
+        # Include trainee info if assigned
+        if s.trainee_id:
+            trainee = db.query(Trainee).filter(Trainee.id == s.trainee_id).first()
+            if trainee:
+                slot_data["trainee"] = {
+                    "id": trainee.id,
+                    "name": trainee.user.name,
+                    "email": trainee.user.email
+                }
+        
+        result.append(slot_data)
+    
+    return {"schedule": result}
 
 
 @router.post("/schedule")
@@ -1324,7 +1360,11 @@ async def add_my_schedule(
     if not trainer:
         raise HTTPException(status_code=403, detail="Not a trainer")
     
-    # Check if schedule already exists for this day
+    # Validate time range
+    if data.start_time >= data.end_time:
+        raise HTTPException(status_code=400, detail="End time must be after start time")
+    
+    # Check if exact schedule already exists for this slot
     existing = db.query(TrainerSchedule).filter(
         TrainerSchedule.trainer_id == trainer.id,
         TrainerSchedule.day_of_week == data.day_of_week,
@@ -1334,18 +1374,34 @@ async def add_my_schedule(
     
     if existing:
         existing.is_available = data.is_available
-    else:
-        schedule = TrainerSchedule(
-            trainer_id=trainer.id,
-            day_of_week=data.day_of_week,
-            start_time=data.start_time,
-            end_time=data.end_time,
-            is_available=data.is_available
-        )
-        db.add(schedule)
+        db.commit()
+        return {"message": "Schedule slot updated successfully", "id": existing.id}
     
+    # Check for overlapping time slots on the same day
+    overlapping = db.query(TrainerSchedule).filter(
+        TrainerSchedule.trainer_id == trainer.id,
+        TrainerSchedule.day_of_week == data.day_of_week,
+        TrainerSchedule.start_time < data.end_time,
+        TrainerSchedule.end_time > data.start_time
+    ).first()
+    
+    if overlapping:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Time slot overlaps with existing slot ({overlapping.start_time.strftime('%H:%M')} - {overlapping.end_time.strftime('%H:%M')})"
+        )
+    
+    schedule = TrainerSchedule(
+        trainer_id=trainer.id,
+        day_of_week=data.day_of_week,
+        start_time=data.start_time,
+        end_time=data.end_time,
+        is_available=data.is_available
+    )
+    db.add(schedule)
     db.commit()
-    return {"message": "Schedule slot added successfully", "id": existing.id if existing else schedule.id}
+    db.refresh(schedule)
+    return {"message": "Schedule slot added successfully", "id": schedule.id}
 
 
 @router.put("/schedule/{schedule_id}")
@@ -1360,6 +1416,10 @@ async def update_my_schedule(
     if not trainer:
         raise HTTPException(status_code=403, detail="Not a trainer")
     
+    # Validate time range
+    if data.start_time >= data.end_time:
+        raise HTTPException(status_code=400, detail="End time must be after start time")
+    
     schedule = db.query(TrainerSchedule).filter(
         TrainerSchedule.id == schedule_id,
         TrainerSchedule.trainer_id == trainer.id
@@ -1367,6 +1427,21 @@ async def update_my_schedule(
     
     if not schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
+    
+    # Check for overlapping time slots (excluding current slot)
+    overlapping = db.query(TrainerSchedule).filter(
+        TrainerSchedule.trainer_id == trainer.id,
+        TrainerSchedule.day_of_week == data.day_of_week,
+        TrainerSchedule.id != schedule_id,  # Exclude current slot
+        TrainerSchedule.start_time < data.end_time,
+        TrainerSchedule.end_time > data.start_time
+    ).first()
+    
+    if overlapping:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Time slot overlaps with existing slot ({overlapping.start_time.strftime('%H:%M')} - {overlapping.end_time.strftime('%H:%M')})"
+        )
     
     schedule.day_of_week = data.day_of_week
     schedule.start_time = data.start_time
@@ -1395,6 +1470,22 @@ async def delete_my_schedule(
     
     if not schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
+    
+    # If trainee is assigned, notify them about cancellation before deleting
+    if schedule.trainee_id:
+        trainee = db.query(Trainee).filter(Trainee.id == schedule.trainee_id).first()
+        if trainee:
+            days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+            day_name = days[schedule.day_of_week] if schedule.day_of_week < 7 else "Unknown"
+            
+            from app.models import Notification
+            notification = Notification(
+                user_id=trainee.user_id,
+                title="⚠️ Training Session Cancelled",
+                message=f"Your training session on {day_name} from {schedule.start_time.strftime('%H:%M')} to {schedule.end_time.strftime('%H:%M')} has been cancelled.",
+                notification_type="schedule"
+            )
+            db.add(notification)
     
     db.delete(schedule)
     db.commit()
@@ -1559,16 +1650,6 @@ async def unassign_trainee_from_schedule(
     
     db.commit()
     return {"message": "Trainee unassigned from schedule successfully"}
-    
-    return {
-        "schedule": [{
-            "day_of_week": s.day_of_week,
-            "day_name": days[s.day_of_week] if s.day_of_week < 7 else "Unknown",
-            "start_time": s.start_time.isoformat() if s.start_time else None,
-            "end_time": s.end_time.isoformat() if s.end_time else None,
-            "is_available": s.is_available
-        } for s in schedule]
-    }
 
 
 @router.post("/trainers/schedule/add")
@@ -1641,10 +1722,13 @@ def get_trainee_progress_summary(
     """Get trainee's progress metrics (weight, body fat, workouts)"""
     trainee = ensure_trainee_access(db, current_user, trainee_id)
     
+    # Use user_id for Measurement and Workout tables (they reference users.id, not trainees.id)
+    user_id = trainee.user_id
+    
     # Get measurements
     from app.models import Measurement
     measurements = db.query(Measurement).filter(
-        Measurement.trainee_id == trainee_id
+        Measurement.trainee_id == user_id
     ).order_by(Measurement.created_at).all()
     
     # Weight progress
@@ -1655,7 +1739,7 @@ def get_trainee_progress_summary(
     
     # Workouts
     workouts = db.query(Workout).filter(
-        Workout.trainee_id == trainee_id
+        Workout.trainee_id == user_id
     ).all()
     
     # Calculate stats
@@ -1684,8 +1768,8 @@ def get_trainee_progress_summary(
         },
         "workouts": {
             "total": len(workouts),
-            "completed": len([w for w in workouts if w.completed]),
-            "last_workout": workouts[-1].date.isoformat() if workouts else None
+            "completed": len([w for w in workouts if w.end_time is not None]),
+            "last_workout": workouts[-1].start_time.isoformat() if workouts and workouts[-1].start_time else None
         },
         "compliance": {
             "measurement_frequency": len(measurements),
@@ -1704,6 +1788,9 @@ def get_trainee_milestones(
     """Get trainee's achievements and upcoming milestones"""
     trainee = ensure_trainee_access(db, current_user, trainee_id)
     
+    # Use user_id for Measurement and Workout tables (they reference users.id, not trainees.id)
+    user_id = trainee.user_id
+    
     from app.models import Measurement
     
     achievements = []
@@ -1712,7 +1799,7 @@ def get_trainee_milestones(
     if trainee.target_weight:
         from app.models import Measurement
         latest_measurement = db.query(Measurement).filter(
-            Measurement.trainee_id == trainee_id
+            Measurement.trainee_id == user_id
         ).order_by(Measurement.created_at.desc()).first()
         
         if latest_measurement and latest_measurement.weight:
@@ -1753,7 +1840,7 @@ def get_trainee_milestones(
                     })
     
     # Workout milestones
-    workouts = db.query(Workout).filter(Workout.trainee_id == trainee_id).all()
+    workouts = db.query(Workout).filter(Workout.trainee_id == user_id).all()
     if len(workouts) >= 10:
         achievements.append({
             "title": "🏋️ 10 Workouts",
@@ -1792,16 +1879,19 @@ def get_compliance_overview(
     
     compliance_data = []
     for trainee in trainees:
+        # Use user_id for Measurement and Workout tables (they reference users.id, not trainees.id)
+        user_id = trainee.user_id
+        
         measurements = db.query(Measurement).filter(
-            Measurement.trainee_id == trainee.id
+            Measurement.trainee_id == user_id
         ).count()
         
         workouts = db.query(Workout).filter(
-            Workout.trainee_id == trainee.id
+            Workout.trainee_id == user_id
         ).count()
         
         last_measurement = db.query(Measurement).filter(
-            Measurement.trainee_id == trainee.id
+            Measurement.trainee_id == user_id
         ).order_by(Measurement.created_at.desc()).first()
         
         # Calculate adherence (measurements per expected frequency)
@@ -1827,3 +1917,135 @@ def get_compliance_overview(
         "compliance_data": sorted(compliance_data, key=lambda x: x['adherence_rate'], reverse=True),
         "average_adherence": round(sum(c['adherence_rate'] for c in compliance_data) / max(1, len(compliance_data)))
     }
+
+
+# =========================================================
+#  TRAINER NOTIFICATIONS
+# =========================================================
+
+@router.get("/notifications")
+def get_trainer_notifications(
+    unread_only: bool = Query(False, description="Filter to only unread notifications"),
+    current_user: User = Depends(require_trainer_or_admin),
+    db: Session = Depends(get_db)
+):
+    """Get notifications for the current trainer"""
+    try:
+        query = db.query(Notification).filter(Notification.user_id == current_user.id)
+        
+        if unread_only:
+            query = query.filter(Notification.is_read == False)
+        
+        notifications = query.order_by(Notification.created_at.desc()).limit(50).all()
+        
+        unread_count = db.query(Notification).filter(
+            Notification.user_id == current_user.id,
+            Notification.is_read == False
+        ).count()
+        
+        return {
+            "success": True,
+            "unread_count": unread_count,
+            "notifications": [
+                {
+                    "id": n.id,
+                    "title": n.title,
+                    "message": n.message,
+                    "notification_type": n.notification_type,
+                    "is_read": n.is_read,
+                    "created_at": n.created_at.isoformat() if n.created_at else None,
+                    "read_at": n.read_at.isoformat() if n.read_at else None
+                }
+                for n in notifications
+            ]
+        }
+    except Exception as e:
+        print(f"Error fetching trainer notifications: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch notifications")
+
+
+@router.post("/notifications/{notification_id}/read")
+def mark_trainer_notification_read(
+    notification_id: int,
+    current_user: User = Depends(require_trainer_or_admin),
+    db: Session = Depends(get_db)
+):
+    """Mark a notification as read for the current trainer"""
+    try:
+        notification = db.query(Notification).filter(
+            Notification.id == notification_id,
+            Notification.user_id == current_user.id
+        ).first()
+        
+        if not notification:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        
+        notification.is_read = True
+        notification.read_at = datetime.utcnow()
+        db.commit()
+        
+        return {"success": True, "message": "Notification marked as read"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"Error marking notification as read: {e}")
+        raise HTTPException(status_code=500, detail="Failed to mark notification as read")
+
+
+@router.put("/notifications/mark-all-read")
+def mark_all_trainer_notifications_read(
+    current_user: User = Depends(require_trainer_or_admin),
+    db: Session = Depends(get_db)
+):
+    """Mark all notifications as read for the current trainer"""
+    try:
+        unread_notifications = db.query(Notification).filter(
+            Notification.user_id == current_user.id,
+            Notification.is_read == False
+        ).all()
+        
+        for notification in unread_notifications:
+            notification.is_read = True
+            notification.read_at = datetime.utcnow()
+        
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": f"Marked {len(unread_notifications)} notifications as read",
+            "count": len(unread_notifications)
+        }
+    except Exception as e:
+        db.rollback()
+        print(f"Error marking all notifications as read: {e}")
+        raise HTTPException(status_code=500, detail="Failed to mark notifications as read")
+
+
+@router.delete("/notifications/{notification_id}")
+def delete_trainer_notification(
+    notification_id: int,
+    current_user: User = Depends(require_trainer_or_admin),
+    db: Session = Depends(get_db)
+):
+    """Delete a notification for the current trainer"""
+    try:
+        notification = db.query(Notification).filter(
+            Notification.id == notification_id,
+            Notification.user_id == current_user.id
+        ).first()
+        
+        if not notification:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        
+        db.delete(notification)
+        db.commit()
+        
+        return {"success": True, "message": "Notification deleted"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"Error deleting notification: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete notification")
+

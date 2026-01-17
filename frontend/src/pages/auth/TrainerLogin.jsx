@@ -34,12 +34,23 @@ const TrainerLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState("");
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
   const features = [
     { icon: <Users className="w-5 h-5" />, text: "Manage Your Trainees" },
     { icon: <Target className="w-5 h-5" />, text: "Track Progress & Goals" },
     { icon: <Award className="w-5 h-5" />, text: "AI-Powered Insights" },
   ];
+
+  // Load saved email on mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('fitmate_trainer_email');
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
   // Auto redirect if already logged in as trainer
   useEffect(() => {
@@ -63,11 +74,17 @@ const TrainerLogin = () => {
     e.preventDefault();
     if (loading) return;
 
+    // Save or remove email based on remember me
+    if (rememberMe && email) {
+      localStorage.setItem('fitmate_trainer_email', email);
+    } else {
+      localStorage.removeItem('fitmate_trainer_email');
+    }
+
     setLoading(true);
     setError("");
 
     try {
-      // Use the regular login endpoint (backend handles role check)
       const result = await login({
         email: email.trim(),
         password,
@@ -79,12 +96,23 @@ const TrainerLogin = () => {
 
       // Check if user is trainer
       if (result.user.role !== "TRAINER") {
-        throw new Error("This portal is for trainers only");
+        throw new Error("Access denied. This portal is exclusively for trainers.");
       }
 
-      navigate("/trainer");
+      // Show success feedback before redirect
+      setLoginSuccess(true);
+      setTimeout(() => navigate("/trainer"), 800);
     } catch (err) {
-      setError(err.message || "Invalid trainer credentials");
+      const errorMsg = err.message?.toLowerCase() || "";
+      if (errorMsg.includes("password") || errorMsg.includes("credential")) {
+        setError("Incorrect password. Please try again.");
+      } else if (errorMsg.includes("not found") || errorMsg.includes("email")) {
+        setError("No trainer account found with this email.");
+      } else if (errorMsg.includes("network")) {
+        setError("Network error. Please check your connection.");
+      } else {
+        setError(err.message || "Unable to sign in. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -242,10 +270,12 @@ const TrainerLogin = () => {
                     disabled={loading}
                     autoFocus
                     autoComplete="email"
+                    aria-label="Trainer email address"
+                    aria-describedby="email-hint"
                     className={`w-full bg-white/5 border rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-white/10 text-sm sm:text-base ${
                       focusedField === "email" ? "border-blue-500/50 shadow-lg shadow-blue-500/10" : "border-gray-600"
                     }`}
-                    placeholder="trainer@fitmate.com"
+                    placeholder="Enter your trainer email"
                     required
                   />
                 </div>
@@ -279,19 +309,45 @@ const TrainerLogin = () => {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-all duration-300 hover:scale-110"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
+                <p className="text-slate-500 text-xs mt-1">Minimum 8 characters required</p>
+              </div>
+
+              {/* REMEMBER ME */}
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-600 bg-white/5 text-blue-500 focus:ring-blue-500/50 focus:ring-offset-0 cursor-pointer"
+                    aria-label="Remember my email"
+                  />
+                  <span className="text-slate-400 text-sm group-hover:text-slate-300 transition-colors">Remember me</span>
+                </label>
               </div>
 
               {/* SUBMIT BUTTON */}
               <button
                 type="submit"
-                disabled={loading || !email || !password}
-                className="group w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 py-4 rounded-xl text-white font-bold text-lg shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+                disabled={loading || loginSuccess || !email || !password}
+                aria-label="Sign in to trainer portal"
+                className={`group w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                  loginSuccess
+                    ? "bg-gradient-to-r from-green-500 to-emerald-600 shadow-green-500/30"
+                    : "bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-blue-500/30 hover:shadow-blue-500/50 disabled:opacity-50 disabled:hover:scale-100 hover:scale-[1.02] active:scale-[0.98]"
+                }`}
               >
-                {loading ? (
+                {loginSuccess ? (
+                  <>
+                    <CheckCircle className="w-5 h-5 animate-bounce" />
+                    <span>Welcome Back!</span>
+                  </>
+                ) : loading ? (
                   <>
                     <Loader className="w-5 h-5 animate-spin" />
                     <span>Signing In...</span>
@@ -299,7 +355,7 @@ const TrainerLogin = () => {
                 ) : (
                   <>
                     <GraduationCap className="w-5 h-5" />
-                    <span>Access Trainer Panel</span>
+                    <span>Sign In</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </>
                 )}

@@ -8,7 +8,7 @@ from pydantic import BaseModel
 import random
 from app.schemas import PaymentCreate, WorkoutCreate, WorkoutUpdate, MeasurementCreate, WorkoutResponse, NutritionLogCreate, NutritionLogResponse, ProgressPhotoCreate, ProgressPhotoResponse, MessageCreate, MessageResponse
 from app.database import get_db
-from app.models import User, Workout, Measurement, NutritionLog, ProgressPhoto, Message, Trainee, MembershipPlan, Payment, Membership, Attendance
+from app.models import User, Workout, Measurement, NutritionLog, ProgressPhoto, Message, Trainee, MembershipPlan, Payment, Membership, Attendance, Notification, TrainerSchedule, Trainer
 from app.auth_util import get_current_user, require_role
 
 # ======================= ROUTER INIT =======================
@@ -851,3 +851,210 @@ async def get_attendance_history(
             for r in records[:50]  # Limit to 50 records
         ]
     }
+
+
+# ======================= TRAINEE NOTIFICATIONS =======================
+
+@router.get("/notifications")
+async def get_trainee_notifications(
+    unread_only: bool = False,
+    current_user: User = Depends(require_role(["trainee"])),
+    db: Session = Depends(get_db),
+):
+    """Get notifications for the current trainee"""
+    try:
+        query = db.query(Notification).filter(Notification.user_id == current_user.id)
+        
+        if unread_only:
+            query = query.filter(Notification.is_read == False)
+        
+        notifications = query.order_by(Notification.created_at.desc()).limit(50).all()
+        
+        unread_count = db.query(Notification).filter(
+            Notification.user_id == current_user.id,
+            Notification.is_read == False
+        ).count()
+        
+        return {
+            "success": True,
+            "unread_count": unread_count,
+            "notifications": [
+                {
+                    "id": n.id,
+                    "title": n.title,
+                    "message": n.message,
+                    "notification_type": n.notification_type,
+                    "is_read": n.is_read,
+                    "created_at": n.created_at.isoformat() if n.created_at else None,
+                    "read_at": n.read_at.isoformat() if n.read_at else None
+                }
+                for n in notifications
+            ]
+        }
+    except Exception as e:
+        print(f"Error fetching trainee notifications: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch notifications")
+
+
+@router.post("/notifications/{notification_id}/read")
+async def mark_trainee_notification_read(
+    notification_id: int,
+    current_user: User = Depends(require_role(["trainee"])),
+    db: Session = Depends(get_db),
+):
+    """Mark a notification as read for the current trainee"""
+    try:
+        notification = db.query(Notification).filter(
+            Notification.id == notification_id,
+            Notification.user_id == current_user.id
+        ).first()
+        
+        if not notification:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        
+        notification.is_read = True
+        notification.read_at = datetime.utcnow()
+        db.commit()
+        
+        return {"success": True, "message": "Notification marked as read"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"Error marking notification as read: {e}")
+        raise HTTPException(status_code=500, detail="Failed to mark notification as read")
+
+
+@router.put("/notifications/mark-all-read")
+async def mark_all_trainee_notifications_read(
+    current_user: User = Depends(require_role(["trainee"])),
+    db: Session = Depends(get_db),
+):
+    """Mark all notifications as read for the current trainee"""
+    try:
+        unread_notifications = db.query(Notification).filter(
+            Notification.user_id == current_user.id,
+            Notification.is_read == False
+        ).all()
+        
+        for notification in unread_notifications:
+            notification.is_read = True
+            notification.read_at = datetime.utcnow()
+        
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": f"Marked {len(unread_notifications)} notifications as read",
+            "count": len(unread_notifications)
+        }
+    except Exception as e:
+        db.rollback()
+        print(f"Error marking all notifications as read: {e}")
+        raise HTTPException(status_code=500, detail="Failed to mark notifications as read")
+
+
+@router.delete("/notifications/{notification_id}")
+async def delete_trainee_notification(
+    notification_id: int,
+    current_user: User = Depends(require_role(["trainee"])),
+    db: Session = Depends(get_db),
+):
+    """Delete a notification for the current trainee"""
+    try:
+        notification = db.query(Notification).filter(
+            Notification.id == notification_id,
+            Notification.user_id == current_user.id
+        ).first()
+        
+        if not notification:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        
+        db.delete(notification)
+        db.commit()
+        
+        return {"success": True, "message": "Notification deleted"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"Error deleting notification: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete notification")
+
+
+# ======================= TRAINEE SCHEDULE (Training Sessions with Trainer) =======================
+
+@router.get("/my-schedule")
+async def get_my_training_schedule(
+    current_user: User = Depends(require_role(["trainee"])),
+    db: Session = Depends(get_db),
+):
+    """Get trainee's scheduled training sessions with their trainer"""
+    try:
+        # Get trainee profile
+        trainee_profile = db.query(Trainee).filter(Trainee.user_id == current_user.id).first()
+        if not trainee_profile:
+            return {"schedule": [], "trainer": None}
+        
+        # Get all schedule slots where this trainee is assigned
+        schedules = db.query(TrainerSchedule).filter(
+            TrainerSchedule.trainee_id == trainee_profile.id
+        ).order_by(TrainerSchedule.day_of_week, TrainerSchedule.start_time).all()
+        
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        
+        # Get trainer info
+        trainer_info = None
+        if trainee_profile.trainer_id:
+            trainer = db.query(Trainer).filter(Trainer.id == trainee_profile.trainer_id).first()
+            if trainer:
+                trainer_info = {
+                    "id": str(trainer.id),
+                    "name": trainer.user.name,
+                    "email": trainer.user.email,
+                    "phone": trainer.user.phone,
+                    "specialization": trainer.specialization
+                }
+        
+        result = []
+        for s in schedules:
+            # Get trainer for this schedule
+            schedule_trainer = db.query(Trainer).filter(Trainer.id == s.trainer_id).first()
+            
+            result.append({
+                "id": s.id,
+                "day_of_week": s.day_of_week,
+                "day_name": days[s.day_of_week] if s.day_of_week < 7 else "Unknown",
+                "start_time": s.start_time.strftime("%H:%M") if s.start_time else None,
+                "end_time": s.end_time.strftime("%H:%M") if s.end_time else None,
+                "session_type": getattr(s, 'session_type', 'personal_training'),
+                "notes": getattr(s, 'notes', None),
+                "trainer": {
+                    "name": schedule_trainer.user.name if schedule_trainer else "Unknown",
+                    "specialization": schedule_trainer.specialization if schedule_trainer else None
+                } if schedule_trainer else None
+            })
+        
+        # Calculate today's sessions
+        today = datetime.now().weekday()  # 0=Monday, 6=Sunday
+        today_sessions = [s for s in result if s["day_of_week"] == today]
+        
+        # Calculate upcoming session (next one based on current day/time)
+        upcoming = None
+        current_time = datetime.now().strftime("%H:%M")
+        for s in result:
+            if s["day_of_week"] > today or (s["day_of_week"] == today and s["start_time"] > current_time):
+                upcoming = s
+                break
+        
+        return {
+            "schedule": result,
+            "trainer": trainer_info,
+            "today_sessions": today_sessions,
+            "upcoming_session": upcoming,
+            "total_weekly_sessions": len(result)
+        }
+    except Exception as e:
+        print(f"Error fetching trainee schedule: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch schedule")
+

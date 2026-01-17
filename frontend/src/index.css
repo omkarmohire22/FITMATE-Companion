@@ -99,15 +99,15 @@
   
   /* Base Dashboard Card */
   .dashboard-card {
-    @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-smooth hover:shadow-elevated;
+    @apply bg-white dark:bg-slate-800/80 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700/50 transition-smooth hover:shadow-elevated;
   }
 
   .dashboard-card:hover {
-    @apply border-gray-300 dark:border-gray-600;
+    @apply border-gray-300 dark:border-slate-600;
   }
 
   .dashboard-card-dark {
-    @apply bg-gray-800 dark:bg-gray-900 rounded-xl shadow-sm border border-gray-700 dark:border-gray-600 transition-smooth hover:shadow-elevated;
+    @apply bg-slate-800/80 rounded-xl shadow-sm border border-slate-700/50 transition-smooth hover:shadow-elevated;
   }
 
   /* Metric Card - For KPI displays */

@@ -607,8 +607,8 @@ const TraineeManagement = () => {
       {/* HEADER + ADD BUTTON */}
       <div className="flex flex-col lg:flex-row justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-extrabold text-white tracking-tight">Trainee Management</h2>
-          <p className="text-slate-300 text-base mt-2 font-medium">
+          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Trainee Management</h2>
+          <p className="text-gray-600 dark:text-gray-300 text-base mt-2 font-medium">
             Add, remove trainees, manage memberships and trainer assignments.
           </p>
         </div>
@@ -616,7 +616,7 @@ const TraineeManagement = () => {
         {/* Add Trainee Button */}
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold hover:from-orange-600 hover:to-red-600 transition-all shadow-lg"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-semibold hover:from-orange-600 hover:to-red-600 transition-all shadow-lg"
         >
           <UserPlus className="w-5 h-5" />
           Add New Trainee
@@ -626,9 +626,9 @@ const TraineeManagement = () => {
       {/* ADD TRAINEE MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-sky-500 to-blue-600 rounded-t-2xl">
+            <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-indigo-500 to-blue-600 rounded-t-2xl">
               <div>
                 <h3 className="text-xl font-bold text-white">
                   {isEditMode ? `Edit Trainee: ${selectedMember?.name}` : 'Add New Trainee'}
@@ -652,14 +652,14 @@ const TraineeManagement = () => {
             <form onSubmit={handleCreateMember} className="p-6 space-y-6">
               {/* Section: Basic Info */}
               <div>
-                <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                   <User className="w-4 h-4" /> Basic Information
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1 font-medium">Full Name *</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-200 mb-1 font-medium">Full Name *</label>
                     <input
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-sky-500 transition-all"
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       placeholder="e.g. John Doe"
@@ -669,10 +669,10 @@ const TraineeManagement = () => {
                     {form.name && form.name.length > 0 && <span className="text-xs text-green-600 mt-1">✓</span>}
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1 font-medium">Email Address *</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-200 mb-1 font-medium">Email Address *</label>
                     <input
                       type="email"
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-sky-500 transition-all"
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value.toLowerCase() })}
                       placeholder="e.g. john@example.com"
@@ -680,9 +680,9 @@ const TraineeManagement = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1 font-medium">Phone Number</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-200 mb-1 font-medium">Phone Number</label>
                     <input
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-sky-500 transition-all"
                       value={form.phone}
                       onChange={(e) => setForm({ ...form, phone: e.target.value })}
                       placeholder="e.g. +91 9876543210"
@@ -690,7 +690,7 @@ const TraineeManagement = () => {
                     />
                   </div>
                   <div>
-                    <label className="flex items-center gap-1 text-xs text-slate-600 mb-1 font-medium">
+                    <label className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-200 mb-1 font-medium">
                       <Lock className="w-3 h-3" />
                       Password
                     </label>
@@ -698,17 +698,17 @@ const TraineeManagement = () => {
                       <>
                         <input
                           type="password"
-                          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
+                          className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-sky-500 transition-all"
                           value={form.password}
                           onChange={(e) => setForm({ ...form, password: e.target.value })}
                           placeholder="Leave blank to auto-generate"
                           minLength="6"
                         />
-                        <p className="text-xs text-slate-500 mt-1">Leave blank for auto-generated password</p>
+                        <p className="text-xs text-gray-500 mt-1">Leave blank for auto-generated password</p>
                       </>
                     )}
                     {isEditMode && (
-                      <p className="text-xs text-slate-500 italic">Password cannot be changed in edit mode. Use admin password reset if needed.</p>
+                      <p className="text-xs text-gray-500 italic">Password cannot be changed in edit mode. Use admin password reset if needed.</p>
                     )}
                   </div>
                 </div>
@@ -716,23 +716,23 @@ const TraineeManagement = () => {
 
               {/* Section: Personal Details */}
               <div>
-                <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                   <Calendar className="w-4 h-4" /> Personal Details
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1 font-medium">Date of Birth</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-200 mb-1 font-medium">Date of Birth</label>
                     <input
                       type="date"
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-sky-500 transition-all"
                       value={form.date_of_birth}
                       onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1 font-medium">Gender</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-200 mb-1 font-medium">Gender</label>
                     <select
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-sky-500 transition-all"
                       value={form.gender}
                       onChange={(e) => setForm({ ...form, gender: e.target.value })}
                     >
@@ -743,9 +743,9 @@ const TraineeManagement = () => {
                     </select>
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block text-xs text-slate-600 mb-1 font-medium">Address</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-200 mb-1 font-medium">Address</label>
                     <input
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-sky-500 transition-all"
                       value={form.address}
                       onChange={(e) => setForm({ ...form, address: e.target.value })}
                       placeholder="e.g. City, State, Country"
@@ -756,14 +756,14 @@ const TraineeManagement = () => {
 
               {/* Section: Trainer & Plan */}
               <div>
-                <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                   <Users className="w-4 h-4" /> Assignment & Membership
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1">Assign Trainer</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-200 mb-1">Assign Trainer</label>
                     <select
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-sky-500"
                       value={form.trainer_id}
                       onChange={(e) => setForm({ ...form, trainer_id: e.target.value })}
                     >
@@ -776,9 +776,9 @@ const TraineeManagement = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1">Membership Plan</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-200 mb-1">Membership Plan</label>
                     <select
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-sky-500"
                       value={form.membership_plan_id}
                       onChange={(e) => setForm({ ...form, membership_plan_id: e.target.value })}
                     >
@@ -795,23 +795,23 @@ const TraineeManagement = () => {
 
               {/* Section: Emergency Contact */}
               <div>
-                <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                   <PhoneIcon className="w-4 h-4" /> Emergency Contact
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1">Contact Name</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-200 mb-1">Contact Name</label>
                     <input
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-sky-500"
                       value={form.emergency_contact_name}
                       onChange={(e) => setForm({ ...form, emergency_contact_name: e.target.value })}
                       placeholder="e.g. Parent/Spouse name"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1">Contact Phone</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-200 mb-1">Contact Phone</label>
                     <input
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-sky-500"
                       value={form.emergency_contact_phone}
                       onChange={(e) => setForm({ ...form, emergency_contact_phone: e.target.value })}
                       placeholder="e.g. +91 9876543210"
@@ -822,14 +822,14 @@ const TraineeManagement = () => {
 
               {/* Section: Health & Fitness */}
               <div>
-                <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                   <Heart className="w-4 h-4" /> Health & Fitness Goals
                 </h4>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1">Health Conditions / Allergies / Injuries</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-200 mb-1">Health Conditions / Allergies / Injuries</label>
                     <textarea
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-sky-500"
                       rows={2}
                       value={form.health_conditions}
                       onChange={(e) => setForm({ ...form, health_conditions: e.target.value })}
@@ -837,9 +837,9 @@ const TraineeManagement = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-600 mb-1">Fitness Goals</label>
+                    <label className="block text-xs text-gray-700 dark:text-gray-200 mb-1">Fitness Goals</label>
                     <textarea
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-sky-500"
                       rows={2}
                       value={form.fitness_goals}
                       onChange={(e) => setForm({ ...form, fitness_goals: e.target.value })}
@@ -857,13 +857,13 @@ const TraineeManagement = () => {
                     setShowModal(false);
                     resetForm();
                   }}
-                  className="px-5 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                  className="px-5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-sky-500 to-blue-600 text-white text-sm font-semibold hover:from-orange-600 hover:to-red-600 transition-all"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-indigo-500 to-blue-600 text-white text-sm font-semibold hover:from-orange-600 hover:to-red-600 transition-all"
                 >
                   {isEditMode ? (
                     <>
@@ -884,15 +884,15 @@ const TraineeManagement = () => {
       )}
 
       {/* TABLE TOOLBAR */}
-      <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg overflow-hidden border border-slate-200">
+      <div className="bg-gradient-to-br from-white to-gray-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
         {/* Top Toolbar */}
-        <div className="p-5 border-b border-slate-200 space-y-4">
+        <div className="p-5 border-b border-gray-200 dark:border-gray-700 space-y-4">
           {/* Search and Filter Row */}
           <div className="flex gap-3 flex-col lg:flex-row justify-between items-start lg:items-center">
             <div className="relative flex-1 min-w-64">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 text-sky-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 text-indigo-500 dark:text-indigo-400" />
               <input
-                className="w-full border-2 border-slate-200 rounded-xl pl-12 pr-4 py-3 text-sm bg-white focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all font-medium placeholder-gray-400"
+                className="w-full border-2 border-gray-200 dark:border-gray-600 rounded-xl pl-12 pr-4 py-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-sky-500 transition-all font-medium placeholder-gray-400 dark:placeholder-slate-500"
                 placeholder="Search by name or email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -900,10 +900,10 @@ const TraineeManagement = () => {
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-200 rounded-lg transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   title="Clear search"
                 >
-                  <X className="w-5 h-5 text-slate-500" />
+                  <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 </button>
               )}
             </div>
@@ -912,7 +912,7 @@ const TraineeManagement = () => {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-3 border-2 border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 font-bold bg-white cursor-pointer hover:border-slate-300 transition-colors"
+              className="px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-sky-500 font-bold bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer hover:border-gray-300 dark:hover:border-gray-500 transition-colors"
             >
               <option value="all">📋 All Trainees</option>
               <option value="active">✓ Active (Trainer + Membership)</option>
@@ -925,7 +925,7 @@ const TraineeManagement = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-3 border-2 border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 bg-white font-bold text-slate-700 cursor-pointer hover:border-slate-300 transition-colors"
+              className="px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-bold cursor-pointer hover:border-gray-300 dark:hover:border-gray-500 transition-colors"
             >
               <option value="name">🔤 Sort: Name</option>
               <option value="email">✉️ Sort: Email</option>
@@ -934,7 +934,7 @@ const TraineeManagement = () => {
 
             <button
               onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-              className="px-4 py-3 border-2 border-slate-200 rounded-xl text-sm bg-white hover:bg-gray-100 transition-colors font-bold text-slate-700 cursor-pointer"
+              className="px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl text-sm bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-bold text-gray-700 dark:text-gray-200 cursor-pointer"
               title={`Sort ${sortOrder === 'asc' ? 'descending' : 'ascending'}`}
             >
               {sortOrder === 'asc' ? '↑ ASC' : '↓ DESC'}
@@ -943,13 +943,13 @@ const TraineeManagement = () => {
 
           {/* Bulk Actions Row */}
           {selectedTrainees.size > 0 && (
-            <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl">
-              <span className="text-sm font-bold text-blue-900 bg-blue-100 px-3 py-1.5 rounded-lg">
+            <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-2 border-blue-200 dark:border-blue-700 rounded-xl">
+              <span className="text-sm font-bold text-blue-900 dark:text-blue-200 bg-blue-100 dark:bg-blue-900/50 px-3 py-1.5 rounded-lg">
                 {selectedTrainees.size} {selectedTrainees.size === 1 ? 'trainee' : 'trainees'} selected
               </span>
               <button
                 onClick={() => setSelectedTrainees(new Set())}
-                className="text-sm text-blue-700 hover:text-blue-900 font-bold hover:bg-blue-200 px-3 py-1 rounded transition-all"
+                className="text-sm text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100 font-bold hover:bg-blue-200 dark:hover:bg-blue-800 px-3 py-1 rounded transition-all"
               >
                 ✕ Clear
               </button>
@@ -964,9 +964,9 @@ const TraineeManagement = () => {
           )}
         </div>
 
-        <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg">
+        <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg">
           <table className="w-full text-sm">
-            <thead className="bg-gradient-to-r from-gray-900 to-gray-800 text-white sticky top-0">
+            <thead className="bg-gradient-to-r from-slate-800 to-slate-700 dark:from-slate-900 dark:to-slate-800 text-white sticky top-0">
               <tr>
                 <th className="py-4 px-4 text-left">
                   <input
@@ -976,23 +976,23 @@ const TraineeManagement = () => {
                     className="rounded border-gray-400 cursor-pointer w-5 h-5"
                   />
                 </th>
-                <th className="py-4 px-4 text-left font-bold text-white text-base uppercase tracking-wider">Trainee</th>
-                <th className="py-4 px-4 text-left font-bold text-white text-base uppercase tracking-wider">Contact</th>
-                <th className="py-4 px-4 text-left font-bold text-white text-base uppercase tracking-wider">Status</th>
-                <th className="py-4 px-4 text-left font-bold text-white text-base uppercase tracking-wider">Trainer</th>
-                <th className="py-4 px-4 text-left font-bold text-white text-base uppercase tracking-wider">Membership</th>
-                <th className="py-4 px-4 text-left font-bold text-white text-base uppercase tracking-wider">Joined</th>
-                <th className="py-4 px-4 text-center font-bold text-white text-base uppercase tracking-wider">Actions</th>
+                <th className="py-4 px-4 text-left font-bold text-white text-sm uppercase tracking-wider">Trainee</th>
+                <th className="py-4 px-4 text-left font-bold text-white text-sm uppercase tracking-wider">Contact</th>
+                <th className="py-4 px-4 text-left font-bold text-white text-sm uppercase tracking-wider">Status</th>
+                <th className="py-4 px-4 text-left font-bold text-white text-sm uppercase tracking-wider">Trainer</th>
+                <th className="py-4 px-4 text-left font-bold text-white text-sm uppercase tracking-wider">Membership</th>
+                <th className="py-4 px-4 text-left font-bold text-white text-sm uppercase tracking-wider">Joined</th>
+                <th className="py-4 px-4 text-center font-bold text-white text-sm uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-200 bg-white">
+            <tbody className="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-gray-800">
               {loading ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center">
                     <div className="flex items-center justify-center gap-3">
-                      <div className="w-5 h-5 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 animate-pulse"></div>
-                      <span className="text-slate-600 font-medium">Loading trainees...</span>
+                      <div className="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500 to-blue-600 animate-pulse"></div>
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">Loading trainees...</span>
                     </div>
                   </td>
                 </tr>
@@ -1000,9 +1000,9 @@ const TraineeManagement = () => {
                 <tr>
                   <td colSpan={8} className="py-12 text-center">
                     <div className="flex flex-col items-center justify-center">
-                      <Users className="w-16 h-16 text-slate-300 mb-3" />
-                      <p className="text-slate-700 font-semibold text-lg mb-1">No trainees found</p>
-                      <p className="text-slate-500 text-sm">Try adjusting your search or add a new trainee</p>
+                      <Users className="w-16 h-16 text-gray-300 dark:text-gray-600 mb-3" />
+                      <p className="text-gray-700 dark:text-gray-300 font-semibold text-lg mb-1">No trainees found</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">Try adjusting your search or add a new trainee</p>
                     </div>
                   </td>
                 </tr>
@@ -1010,41 +1010,41 @@ const TraineeManagement = () => {
                 filtered.map((m) => {
                   const isActive = m.membership_type && m.trainer_name;
                   return (
-                    <tr key={m.id} className="hover:bg-sky-50/50 transition-colors duration-200 border-b last:border-b-0">
+                    <tr key={m.id} className="hover:bg-indigo-50/50 dark:hover:bg-gray-700/50 transition-colors duration-200 border-b dark:border-gray-700 last:border-b-0">
                       <td className="py-4 px-4">
                         <input
                           type="checkbox"
                           checked={selectedTrainees.has(m.id)}
                           onChange={() => toggleTraineeSelection(m.id)}
-                          className="rounded border-slate-300 cursor-pointer w-5 h-5"
+                          className="rounded border-gray-300 dark:border-gray-600 cursor-pointer w-5 h-5"
                         />
                       </td>
                       <td className="py-4 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white flex items-center justify-center text-lg font-bold shadow-md flex-shrink-0">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white flex items-center justify-center text-lg font-bold shadow-md flex-shrink-0">
                             {(m.name || "T")[0].toUpperCase()}
                           </div>
                           <div className="min-w-0">
-                            <p className="font-bold text-slate-900 text-base">{m.name}</p>
-                            <p className="text-sm text-slate-600 truncate">{m.email}</p>
+                            <p className="font-bold text-gray-900 dark:text-white text-base">{m.name}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{m.email}</p>
                           </div>
                         </div>
                       </td>
 
                       <td className="py-4 px-4">
-                        <div className="flex items-center gap-2 text-slate-900 font-semibold text-sm">
-                          <PhoneIcon className="w-5 h-5 text-slate-500" />
-                          {m.phone || <span className="text-slate-400 italic font-normal">Not provided</span>}
+                        <div className="flex items-center gap-2 text-gray-900 dark:text-gray-200 font-medium text-sm">
+                          <PhoneIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          {m.phone || <span className="text-gray-400 dark:text-gray-500 italic font-normal">Not provided</span>}
                         </div>
                       </td>
 
                       <td className="py-4 px-4">
-                        <span className={`inline-flex items-center px-3 py-2 rounded-full text-sm font-bold border-2 transition-all ${
+                        <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
                           isActive
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-400 shadow-sm'
-                            : 'bg-amber-50 text-amber-700 border-amber-400 shadow-sm'
+                            ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
+                            : 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700'
                         }`}>
-                          <span className={`w-2.5 h-2.5 rounded-full mr-2 ${isActive ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+                          <span className={`w-2 h-2 rounded-full mr-2 ${isActive ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
                           {isActive ? 'Active' : 'Incomplete'}
                         </span>
                       </td>
@@ -1053,11 +1053,11 @@ const TraineeManagement = () => {
                         <div className="flex items-center gap-2">
                           {m.trainer_name ? (
                             <>
-                              <Users className="w-5 h-5 text-slate-500" />
-                              <span className="font-semibold text-slate-900 text-sm">{m.trainer_name}</span>
+                              <Users className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                              <span className="font-semibold text-gray-900 dark:text-gray-200 text-sm">{m.trainer_name}</span>
                             </>
                           ) : (
-                            <span className="text-slate-400 italic text-sm font-normal">Not assigned</span>
+                            <span className="text-gray-400 dark:text-gray-500 italic text-sm font-normal">Not assigned</span>
                           )}
                         </div>
                       </td>
@@ -1066,48 +1066,48 @@ const TraineeManagement = () => {
                         <div className="flex items-center gap-2">
                           {m.membership_type ? (
                             <>
-                              <Activity className="w-5 h-5 text-sky-500" />
-                              <span className="font-semibold text-orange-700 bg-sky-50 px-3 py-1.5 rounded-lg text-sm">{m.membership_type}</span>
+                              <Activity className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                              <span className="font-semibold text-sky-700 dark:text-sky-300 bg-sky-100 dark:bg-sky-900/50 px-2.5 py-1 rounded-lg text-sm">{m.membership_type}</span>
                             </>
                           ) : (
-                            <span className="text-slate-400 italic text-sm font-normal">No plan</span>
+                            <span className="text-gray-400 dark:text-gray-500 italic text-sm font-normal">No plan</span>
                           )}
                         </div>
                       </td>
 
                       <td className="py-4 px-4">
-                        <div className="flex items-center gap-2 text-slate-900 font-semibold text-sm">
-                          <Calendar className="w-5 h-5 text-slate-500" />
+                        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 font-medium text-sm">
+                          <Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                           {m.created_at ? new Date(m.created_at).toLocaleDateString() : '—'}
                         </div>
                       </td>
 
                       <td className="py-4 px-4">
-                        <div className="flex items-center justify-center gap-2">
+                        <div className="flex items-center justify-center gap-1.5">
                           <button
                             onClick={() => openDetails(m)}
-                            className="p-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors font-medium"
+                            className="p-2.5 rounded-lg text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors"
                             title="View Details"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleEditMember(m)}
-                            className="p-2 rounded-lg text-sky-600 bg-sky-50 hover:bg-sky-100 transition-colors font-medium"
+                            className="p-2.5 rounded-lg text-sky-600 dark:text-indigo-400 bg-sky-50 dark:bg-sky-900/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors"
                             title="Edit Trainee"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => openPasswordResetModal(m)}
-                            className="p-2 rounded-lg text-purple-600 bg-purple-50 hover:bg-purple-100 transition-colors font-medium"
+                            className="p-2.5 rounded-lg text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/40 hover:bg-purple-100 dark:hover:bg-purple-900/60 transition-colors"
                             title="Reset Password"
                           >
                             <Lock className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDeleteMember(m)}
-                            className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition-colors font-medium"
+                            className="p-2.5 rounded-lg text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/40 hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors"
                             title="Delete Trainee"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1124,23 +1124,26 @@ const TraineeManagement = () => {
 
         {/* Table Footer with Stats */}
         {filtered.length > 0 && (
-          <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 text-sm text-slate-700 flex justify-between items-center">
+          <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-700 dark:text-gray-300 flex flex-wrap gap-4 justify-between items-center">
             <div className="font-medium">
-              Showing <span className="font-bold text-slate-900">{filtered.length}</span> of <span className="font-bold text-slate-900">{members.length}</span> trainees
+              Showing <span className="font-bold text-gray-900 dark:text-white">{filtered.length}</span> of <span className="font-bold text-gray-900 dark:text-white">{members.length}</span> trainees
             </div>
-            <div className="flex gap-6 text-sm font-medium">
-              <span>
-                Active: <span className="font-bold text-emerald-600">
+            <div className="flex gap-4 sm:gap-6 text-sm font-medium flex-wrap">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Active: <span className="font-bold text-emerald-600 dark:text-emerald-400">
                   {members.filter(m => m.membership_type && m.trainer_name).length}
                 </span>
               </span>
-              <span>
-                No Trainer: <span className="font-bold text-yellow-600">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                No Trainer: <span className="font-bold text-amber-600 dark:text-amber-400">
                   {members.filter(m => !m.trainer_name).length}
                 </span>
               </span>
-              <span>
-                No Membership: <span className="font-bold text-yellow-600">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                No Membership: <span className="font-bold text-red-600 dark:text-red-400">
                   {members.filter(m => !m.membership_type).length}
                 </span>
               </span>
@@ -1211,23 +1214,23 @@ const TraineeDetailsDrawer = ({
     <div className="fixed inset-0 z-50 flex justify-end">
       {/* backdrop */}
       <div
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0 bg-black/60"
         onClick={onClose}
       />
 
       {/* drawer */}
-      <div className="relative w-full max-w-xl bg-white h-full shadow-2xl flex flex-col overflow-y-auto">
+      <div className="relative w-full max-w-xl bg-white dark:bg-gray-800 h-full shadow-2xl flex flex-col overflow-y-auto">
         {/* Header */}
-        <div className="px-6 py-4 border-b flex items-center justify-between bg-gradient-to-r from-sky-500 to-blue-600 text-white sticky top-0">
+        <div className="px-6 py-4 border-b border-transparent flex items-center justify-between bg-gradient-to-r from-indigo-500 to-blue-600 text-white sticky top-0 z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-sm font-semibold">
+            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-lg font-bold shadow-inner">
               {(memberInfo.name?.[0] || 'U').toUpperCase()}
             </div>
             <div>
-              <h3 className="font-semibold text-lg">
+              <h3 className="font-bold text-lg">
                 {memberInfo.name || 'Trainee'}
               </h3>
-              <p className="text-xs text-white/80">
+              <p className="text-sm text-white/80">
                 {memberInfo.email}
               </p>
             </div>
@@ -1236,12 +1239,12 @@ const TraineeDetailsDrawer = ({
             onClick={onClose}
             className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="px-4 border-b flex gap-2 overflow-x-auto sticky top-16 bg-white">
+        <div className="px-4 border-b border-gray-200 dark:border-gray-700 flex gap-1 overflow-x-auto sticky top-16 bg-white dark:bg-gray-800 z-10">
           {[
             { id: 'profile', label: 'Profile', icon: User },
             { id: 'health', label: 'Health Info', icon: Heart },
@@ -1254,13 +1257,13 @@ const TraineeDetailsDrawer = ({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-t-md border-b-2 whitespace-nowrap ${
+                className={`flex items-center gap-2 px-4 py-3 text-xs font-semibold rounded-t-lg border-b-2 whitespace-nowrap transition-all ${
                   activeTab === tab.id
-                    ? 'border-sky-500 text-sky-600 bg-sky-50'
-                    : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    ? 'border-sky-500 text-sky-600 dark:text-indigo-400 bg-sky-50 dark:bg-sky-900/30'
+                    : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50'
                 }`}
               >
-                <Icon className="w-3 h-3" />
+                <Icon className="w-4 h-4" />
                 {tab.label}
               </button>
             );
@@ -1268,15 +1271,15 @@ const TraineeDetailsDrawer = ({
         </div>
 
         {/* Content */}
-        <div className="flex-1 p-4 overflow-y-auto">
+        <div className="flex-1 p-5 overflow-y-auto">
           {loading && (
-            <p className="text-center text-slate-400 mt-10">Loading details...</p>
+            <p className="text-center text-gray-400 dark:text-gray-500 mt-10">Loading details...</p>
           )}
 
           {!loading && (
             <>
               {activeTab === 'profile' && (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {/* Basic Info */}
                   <div className="grid grid-cols-2 gap-3">
                     <InfoCard label="Name" value={memberInfo.name} />
@@ -1286,8 +1289,8 @@ const TraineeDetailsDrawer = ({
                   </div>
 
                   {/* Personal Info */}
-                  <div className="border-t pt-3 mt-3">
-                    <h4 className="text-xs font-semibold text-slate-700 mb-3">Personal Information</h4>
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Personal Information</h4>
                     <div className="grid grid-cols-2 gap-3">
                       <InfoCard label="Date of Birth" value={memberInfo.date_of_birth ? new Date(memberInfo.date_of_birth).toLocaleDateString() : '—'} />
                       <InfoCard label="Gender" value={memberInfo.gender || '—'} />
@@ -1298,10 +1301,10 @@ const TraineeDetailsDrawer = ({
                   </div>
 
                   {/* Trainer Assignment */}
-                  <div className="border-t pt-3 mt-3">
-                    <h4 className="text-xs font-semibold text-slate-700 mb-2">Assigned Trainer</h4>
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Assigned Trainer</h4>
                     <select
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500"
+                      className="w-full border-2 border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-sky-500 transition-all"
                       value={memberInfo.trainer_name ? trainers.find(t => t.user?.name === memberInfo.trainer_name)?.id || '' : ''}
                       onChange={(e) => onChangeTrainer(e.target.value)}
                     >
@@ -1317,34 +1320,34 @@ const TraineeDetailsDrawer = ({
               )}
 
               {activeTab === 'health' && (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <div>
-                    <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3 flex items-center gap-2">
                       <Heart className="w-4 h-4 text-red-500" />
                       Health Conditions & Allergies
                     </h4>
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                      <p className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">
+                    <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl p-4">
+                      <p className="text-sm text-gray-700 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
                         {memberInfo.health_conditions || 'No health conditions recorded'}
                       </p>
                     </div>
                   </div>
 
-                  <div className="border-t pt-3">
-                    <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3 flex items-center gap-2">
                       <Activity className="w-4 h-4 text-blue-500" />
                       Fitness Goals
                     </h4>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <p className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">
+                    <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                      <p className="text-sm text-gray-700 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
                         {memberInfo.fitness_goals || 'No fitness goals set'}
                       </p>
                     </div>
                   </div>
 
-                  <div className="border-t pt-3">
-                    <h4 className="text-xs font-semibold text-slate-700 mb-3">Emergency Contact</h4>
-                    <div className="grid grid-cols-1 gap-2">
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Emergency Contact</h4>
+                    <div className="grid grid-cols-1 gap-3">
                       <InfoCard label="Contact Name" value={memberInfo.emergency_contact_name || '—'} />
                       <InfoCard label="Contact Phone" value={memberInfo.emergency_contact_phone || '—'} />
                     </div>
@@ -1353,59 +1356,59 @@ const TraineeDetailsDrawer = ({
               )}
 
               {activeTab === 'membership' && (
-                <div className="space-y-4">
-                  <h4 className="text-sm font-semibold text-gray-800 mb-2">
+                <div className="space-y-5">
+                  <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                     Memberships
                   </h4>
                   {currentMembership ? (
-                    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-xs space-y-2">
-                      <p className="font-semibold text-emerald-800">
+                    <div className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 space-y-2">
+                      <p className="font-bold text-emerald-800 dark:text-emerald-300 text-base">
                         {currentMembership.membership_type || 'Active Plan'}
                       </p>
-                      <p className="text-emerald-700">
+                      <p className="text-emerald-700 dark:text-emerald-400 text-sm">
                         Status: <span className="font-semibold">{currentMembership.status || 'active'}</span>
                       </p>
                       {currentMembership.start_date && (
-                        <p>Start: {new Date(currentMembership.start_date).toLocaleDateString()}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">Start: {new Date(currentMembership.start_date).toLocaleDateString()}</p>
                       )}
                       {currentMembership.end_date && (
-                        <p>End: {new Date(currentMembership.end_date).toLocaleDateString()}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">End: {new Date(currentMembership.end_date).toLocaleDateString()}</p>
                       )}
                       {currentMembership.price && (
-                        <p>Price: ₹{currentMembership.price}</p>
+                        <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">Price: ₹{currentMembership.price}</p>
                       )}
                     </div>
                   ) : (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                      <p className="text-xs text-yellow-800">
+                    <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+                      <p className="text-sm text-amber-800 dark:text-amber-300">
                         ⚠️ No active membership. Assign a plan to activate.
                       </p>
                     </div>
                   )}
 
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-3 mt-4">
                     <button
                       onClick={onExtendMembership}
-                      className="flex-1 px-3 py-2 text-xs rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 font-medium transition-colors"
+                      className="flex-1 px-4 py-2.5 text-sm rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 font-semibold transition-colors"
                     >
                       ✓ Extend by 30 days
                     </button>
                     <button
                       onClick={onCancelMembership}
-                      className="flex-1 px-3 py-2 text-xs rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 font-medium transition-colors"
+                      className="flex-1 px-4 py-2.5 text-sm rounded-xl bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/60 font-semibold transition-colors"
                     >
                       ✕ Cancel
                     </button>
                   </div>
 
                   {memberships.length > 1 && (
-                    <div className="border-t pt-3">
-                      <h5 className="text-xs font-semibold text-slate-700 mb-2">Previous Memberships</h5>
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                      <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Previous Memberships</h5>
                       <div className="space-y-2 max-h-40 overflow-y-auto">
                         {memberships.slice(1).map((m, idx) => (
-                          <div key={idx} className="bg-slate-50 border border-slate-200 rounded p-2 text-xs">
-                            <p className="font-medium text-gray-800">{m.membership_type}</p>
-                            <p className="text-slate-600">{m.status}</p>
+                          <div key={idx} className="bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg p-3 text-sm">
+                            <p className="font-medium text-gray-800 dark:text-gray-200">{m.membership_type}</p>
+                            <p className="text-gray-600 dark:text-gray-400">{m.status}</p>
                           </div>
                         ))}
                       </div>
@@ -1415,18 +1418,24 @@ const TraineeDetailsDrawer = ({
               )}
 
               {activeTab === 'attendance' && (
-                <div className="space-y-3 text-xs">
-                  <p className="text-slate-500 text-center py-8">
-                    Attendance data will be displayed here when available
-                  </p>
+                <div className="space-y-3">
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <Users className="w-12 h-12 text-gray-300 dark:text-gray-600 mb-3" />
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      Attendance data will be displayed here when available
+                    </p>
+                  </div>
                 </div>
               )}
 
               {activeTab === 'billing' && (
-                <div className="space-y-3 text-xs">
-                  <p className="text-slate-500 text-center py-8">
-                    Billing information will be displayed here when available
-                  </p>
+                <div className="space-y-3">
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <DollarSign className="w-12 h-12 text-gray-300 dark:text-gray-600 mb-3" />
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      Billing information will be displayed here when available
+                    </p>
+                  </div>
                 </div>
               )}
             </>
@@ -1435,19 +1444,21 @@ const TraineeDetailsDrawer = ({
 
         {/* Password Reset Modal */}
         {showPasswordResetModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-md w-full p-6">
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
               <div className="flex items-center gap-3 mb-4">
-                <Lock className="w-6 h-6 text-purple-600" />
-                <h2 className="text-xl font-bold text-gray-800">Reset Password</h2>
+                <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+                  <Lock className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Reset Password</h2>
               </div>
-              <p className="text-sm text-slate-600 mb-4">
-                Set a new password for <span className="font-semibold">{passwordResetTarget?.name}</span> ({passwordResetTarget?.email})
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                Set a new password for <span className="font-semibold text-gray-900 dark:text-white">{passwordResetTarget?.name}</span> ({passwordResetTarget?.email})
               </p>
               
               <div className="space-y-4 mb-6">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                     New Password
                   </label>
                   <input
@@ -1455,7 +1466,7 @@ const TraineeDetailsDrawer = ({
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Enter new password (min 6 characters)"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
                   />
                 </div>
               </div>
@@ -1467,14 +1478,14 @@ const TraineeDetailsDrawer = ({
                     setPasswordResetTarget(null);
                     setNewPassword("");
                   }}
-                  className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                  className="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleResetPassword}
                   disabled={passwordLoading || !newPassword}
-                  className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {passwordLoading ? "Resetting..." : "Reset Password"}
                 </button>
@@ -1488,16 +1499,16 @@ const TraineeDetailsDrawer = ({
 };
 
 const InfoCard = ({ label, value }) => (
-  <div className="bg-slate-50 rounded-lg p-2">
-    <p className="text-[10px] uppercase text-slate-500">{label}</p>
-    <p className="text-xs font-semibold text-gray-800 mt-1">{value || '—'}</p>
+  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50">
+    <p className="text-[10px] uppercase text-gray-500 dark:text-gray-400 font-medium tracking-wide">{label}</p>
+    <p className="text-sm font-semibold text-gray-900 dark:text-white mt-1">{value || '—'}</p>
   </div>
 );
 
 const SummaryPill = ({ label, value }) => (
-  <div className="flex-1 bg-slate-50 rounded-lg px-3 py-2">
-    <p className="text-[10px] text-slate-500">{label}</p>
-    <p className="text-sm font-semibold text-gray-800 mt-1">{value}</p>
+  <div className="flex-1 bg-gray-50 dark:bg-gray-700/50 rounded-lg px-3 py-2 border border-gray-200/50 dark:border-gray-600/50">
+    <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">{label}</p>
+    <p className="text-sm font-semibold text-gray-900 dark:text-white mt-1">{value}</p>
   </div>
 );
 

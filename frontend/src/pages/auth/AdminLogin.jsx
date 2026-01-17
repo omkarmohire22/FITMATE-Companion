@@ -35,6 +35,7 @@ const AdminLogin = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [otpStep, setOtpStep] = useState(false);
   const [otp, setOtp] = useState("");
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
   const features = [
     { icon: <Users className="w-5 h-5" />, text: "Manage Trainers & Members" },
@@ -68,31 +69,32 @@ const AdminLogin = () => {
 
     if (!otpStep) {
       try {
-        // Call backend login
-        const res = await authApi.adminLogin({ email: email.trim(), password });
-        // If 2FA required
-        if (res.data && res.data.otp_required) {
+        // Step 1: Send OTP after password verification
+        const res = await authApi.adminSendOtp({ email: email.trim(), password });
+        if (res.data && res.data.message) {
+          // OTP sent successfully, move to OTP verification step
           setOtpStep(true);
-          setLoading(false);
-          return;
+          setPassword(""); // Clear password for security
+          setError("");
+        } else {
+          throw new Error(res.data?.message || "Failed to send OTP");
         }
-        // Normal login - store token and use adminLogin from context
-        if (res.data && res.data.access_token) {
-          localStorage.setItem("access_token", res.data.access_token);
-          if (res.data.refresh_token) {
-            localStorage.setItem("refresh_token", res.data.refresh_token);
-          }
-          window.location.href = "/admin";
-          return;
-        }
-        throw new Error(res.data?.message || "Admin login failed");
       } catch (err) {
-        setError(err.response?.data?.detail || err.message || "Invalid admin credentials");
+        const errorMsg = err.response?.data?.detail || err.message || "";
+        if (errorMsg.toLowerCase().includes("password")) {
+          setError("Incorrect password. Please try again.");
+        } else if (errorMsg.toLowerCase().includes("not found") || errorMsg.toLowerCase().includes("email")) {
+          setError("No admin account found with this email.");
+        } else if (errorMsg.toLowerCase().includes("network")) {
+          setError("Network error. Please check your connection.");
+        } else {
+          setError(errorMsg || "Invalid admin credentials. Please try again.");
+        }
       } finally {
         setLoading(false);
       }
     } else {
-      // OTP step
+      // Step 2: Verify OTP and complete login
       try {
         const res = await authApi.adminVerifyOtp({ email: email.trim(), otp });
         if (res.data && res.data.access_token) {
@@ -100,12 +102,23 @@ const AdminLogin = () => {
           if (res.data.refresh_token) {
             localStorage.setItem("refresh_token", res.data.refresh_token);
           }
-          window.location.href = "/admin";
+          // Show success feedback
+          setLoginSuccess(true);
+          setTimeout(() => {
+            window.location.href = "/admin";
+          }, 800);
           return;
         }
         throw new Error(res.data?.message || "Invalid OTP");
       } catch (err) {
-        setError(err.response?.data?.detail || err.message || "Invalid OTP");
+        const errorMsg = err.response?.data?.detail || err.message || "";
+        if (errorMsg.toLowerCase().includes("expired")) {
+          setError("OTP has expired. Please request a new one.");
+        } else if (errorMsg.toLowerCase().includes("invalid")) {
+          setError("Invalid OTP. Please check and try again.");
+        } else {
+          setError(errorMsg || "Verification failed. Please try again.");
+        }
       } finally {
         setLoading(false);
       }
@@ -264,10 +277,11 @@ const AdminLogin = () => {
                     disabled={loading || otpStep}
                     autoFocus
                     autoComplete="email"
+                    aria-label="Admin email address"
                     className={`w-full bg-white/5 border rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-white/10 text-sm sm:text-base ${
                       focusedField === "email" ? "border-red-500/50 shadow-lg shadow-red-500/10" : "border-gray-600"
                     }`}
-                    placeholder="admin@fitmate.com"
+                    placeholder="Enter your admin email"
                     required
                   />
                 </div>
@@ -301,11 +315,13 @@ const AdminLogin = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
                       className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-all duration-300 hover:scale-110"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
+                  <p className="text-slate-500 text-xs mt-1">Use your secure admin password</p>
                 </div>
               )}
 
@@ -316,6 +332,9 @@ const AdminLogin = () => {
                     <Shield className="w-3.5 h-3.5 text-orange-400" />
                     Enter OTP
                   </label>
+                  <p className="text-slate-400 text-xs sm:text-sm mb-3">
+                    A 6-digit code has been sent to <span className="text-white font-semibold">{email}</span>
+                  </p>
                   <input
                     type="text"
                     value={otp}
@@ -333,22 +352,49 @@ const AdminLogin = () => {
               {/* SUBMIT BUTTON */}
               <button
                 type="submit"
-                disabled={loading || !email || (!otpStep && !password) || (otpStep && !otp)}
-                className="group w-full bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 py-4 rounded-xl text-white font-bold text-lg shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+                disabled={loading || loginSuccess || !email || (!otpStep && !password) || (otpStep && !otp)}
+                aria-label={otpStep ? "Verify OTP" : "Send OTP to email"}
+                className={`group w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                  loginSuccess
+                    ? "bg-gradient-to-r from-green-500 to-emerald-600 shadow-green-500/30"
+                    : "bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 shadow-red-500/30 hover:shadow-red-500/50 disabled:opacity-50 disabled:hover:scale-100 hover:scale-[1.02] active:scale-[0.98]"
+                }`}
               >
-                {loading ? (
+                {loginSuccess ? (
+                  <>
+                    <CheckCircle className="w-5 h-5 animate-bounce" />
+                    <span>Access Granted!</span>
+                  </>
+                ) : loading ? (
                   <>
                     <Loader className="w-5 h-5 animate-spin" />
-                    <span>{otpStep ? "Verifying OTP..." : "Authenticating..."}</span>
+                    <span>{otpStep ? "Verifying..." : "Sending OTP..."}</span>
                   </>
                 ) : (
                   <>
                     <Shield className="w-5 h-5" />
-                    <span>{otpStep ? "Verify OTP" : "Access Admin Panel"}</span>
+                    <span>{otpStep ? "Verify & Sign In" : "Send OTP"}</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
               </button>
+
+              {/* BACK BUTTON (OTP STEP ONLY) */}
+              {otpStep && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtpStep(false);
+                    setOtp("");
+                    setError("");
+                  }}
+                  disabled={loading}
+                  className="w-full py-3 rounded-xl text-white font-semibold text-base bg-white/10 hover:bg-white/20 border border-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to Email & Password
+                </button>
+              )}
             </form>
 
             {/* FOOTER */}

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './contexts/AuthContext'
+import { ThemeProvider } from './contexts/ThemeContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import ErrorBoundary from './components/ErrorBoundary'
 import { useEffect } from 'react'
@@ -23,15 +24,16 @@ function App() {
   }, [])
   return (
     <ErrorBoundary>
-      <Router>
-        <AuthProvider>
-          <div className="min-h-screen">
+      <ThemeProvider>
+        <Router>
+          <AuthProvider>
+            <div className="min-h-screen">
 
-            <Routes>
+              <Routes>
 
-              {/* ================= PUBLIC ROUTES ================= */}
-              <Route path="/" element={<HeroPage />} />
-              <Route path="/login" element={<Login />} />
+                {/* ================= PUBLIC ROUTES ================= */}
+                <Route path="/" element={<HeroPage />} />
+                <Route path="/login" element={<Login />} />
               <Route path="/admin-login" element={<AdminLogin />} />
               <Route path="/trainer-login" element={<TrainerLogin />} />
               <Route path="/feedback" element={<FeedbackPage />} />
@@ -95,24 +97,25 @@ function App() {
                 }
               />
 
-            </Routes>
+              </Routes>
 
-            {/* ================= TOAST ================= */}
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#1f2937',
-                  color: '#fff',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                },
-              }}
-            />
+              {/* ================= TOAST ================= */}
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: '#1f2937',
+                    color: '#fff',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                  },
+                }}
+              />
 
-          </div>
-        </AuthProvider>
+            </div>
+          </AuthProvider>
         </Router>
+      </ThemeProvider>
     </ErrorBoundary>
   )
 }

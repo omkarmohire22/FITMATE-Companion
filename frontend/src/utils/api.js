@@ -211,6 +211,7 @@ export const authApi = {
   register: (data) => api.post("/api/auth/register", data),
   login: (data) => api.post("/api/auth/login", data),
   adminLogin: (data) => api.post("/api/auth/admin/login", data),
+  adminSendOtp: (data) => api.post("/api/auth/admin/login", data),
   adminVerifyOtp: (data) => api.post("/api/auth/admin/verify-otp", data),
   refresh: (refreshToken) =>
     api.post("/api/auth/refresh", { refresh_token: refreshToken }),
@@ -296,7 +297,9 @@ export const adminApi = {
   sendMessage: (data) => api.post("/api/admin/messages/send", data),
   getTopPlans: () => api.get("/api/admin/dashboard/top-plans"),
   getAISuggestions: () => api.get("/api/admin/dashboard/ai-suggestions"),
-  getNotifications: () => api.get("/api/admin/notifications"),
+  getNotifications: (unreadOnly = false) => api.get(`/api/admin/notifications${unreadOnly ? '?unread_only=true' : ''}`),
+  markNotificationRead: (notificationId) => api.put(`/api/admin/notifications/${notificationId}/read`),
+  markAllNotificationsRead: () => api.put("/api/admin/notifications/mark-all-read"),
   getSystemHealth: () => api.get("/api/admin/health"),
   getProgressAnalytics: () => api.get("/api/admin/dashboard/progress"),
 
@@ -409,8 +412,9 @@ export const trainerDashboardApi = {
   createPTPackage: (data) => api.post("/api/trainer/pt-packages/create", data),
 
   // Notifications
-  getNotifications: () => api.get("/api/trainer/notifications"),
+  getNotifications: (unreadOnly = false) => api.get(`/api/trainer/notifications${unreadOnly ? '?unread_only=true' : ''}`),
   markNotificationRead: (notificationId) => api.post(`/api/trainer/notifications/${notificationId}/read`),
+  markAllNotificationsRead: () => api.put("/api/trainer/notifications/mark-all-read"),
   deleteNotification: (notificationId) => api.delete(`/api/trainer/notifications/${notificationId}`),
 
   // Schedule Management
@@ -463,6 +467,14 @@ export const traineeApi = {
   checkOut: () => api.post("/api/trainee/attendance/check-out"),
   getTodayAttendance: () => api.get("/api/trainee/attendance/today"),
   getAttendanceHistory: (days = 30) => api.get(`/api/trainee/attendance/history?days=${days}`),
+  
+  // Training Schedule (sessions with trainer)
+  getMySchedule: () => api.get("/api/trainee/my-schedule"),
+  
+  // Notifications
+  getNotifications: (unreadOnly = false) => api.get(`/api/trainee/notifications${unreadOnly ? '?unread_only=true' : ''}`),
+  markNotificationRead: (notificationId) => api.post(`/api/trainee/notifications/${notificationId}/read`),
+  markAllNotificationsRead: () => api.put("/api/trainee/notifications/mark-all-read"),
 };
 
 
@@ -574,6 +586,9 @@ export const messagingApi = {
   
   // Get unread message count
   getUnreadCount: () => api.get("/api/chat/messages/unread/count"),
+  
+  // Mark messages as read
+  markMessagesRead: (userId) => api.put(`/api/chat/messages/${userId}/read`),
 };
 
 
