@@ -30,4 +30,9 @@ def get_db():
     try:
         yield db
     finally:
+        # Ensure any open/failed transaction is rolled back before closing
+        try:
+            db.rollback()
+        except Exception:
+            pass
         db.close()

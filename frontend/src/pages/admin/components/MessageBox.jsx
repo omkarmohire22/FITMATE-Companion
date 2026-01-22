@@ -150,6 +150,7 @@ const MessageBox = () => {
   const [filterRole, setFilterRole] = useState('all')
   
   // Ref to track which messages have been marked as read (to avoid duplicate API calls)
+  // This ref tracks message IDs currently being processed to prevent duplicate API calls
   const markedAsReadRef = useRef(new Set())
 
   // Stats computed from state
@@ -171,6 +172,11 @@ const MessageBox = () => {
       setInbox(inboxRes.data?.messages || [])
       const allUsers = usersRes.data?.users || []
       setUsers(allUsers.filter(u => isTrainer(u.role) || isTrainee(u.role)))
+      
+      // IMPORTANT: Clear the markedAsReadRef when data is reloaded from backend
+      // This ensures we trust the backend's read status instead of stale local state
+      markedAsReadRef.current.clear()
+      
       setLoaded(true)
     } catch (err) {
       console.error(err)
@@ -194,25 +200,41 @@ const MessageBox = () => {
     setReplyingTo(null)
   }
 
-  // Mark single message as read (with deduplication to prevent multiple API calls)
+  /**
+   * Mark a single message as read.
+   * 
+   * How it works:
+   * 1. Checks if message is already unread (if not, skip)
+   * 2. Adds to markedAsReadRef to prevent duplicate API calls
+   * 3. Makes API call to backend to mark as read (sets is_read=true and read_at timestamp)
+   * 4. Updates local state only AFTER successful API call
+   * 5. If API fails, removes from markedAsReadRef so it can be retried
+   * 
+   * @param {number} messageId - The ID of the message to mark as read
+   */
   const markMessageAsRead = useCallback(async (messageId) => {
     // Skip if already marked or being marked
     if (markedAsReadRef.current.has(messageId)) return
     
     // Find the message to check if it's unread
     const message = inbox.find(m => m.id === messageId)
-    if (!message || message.is_read) return
+    if (!message || message.is_read) return  // Already read, skip
     
-    // Add to set immediately to prevent duplicate calls
+    // Add to set immediately to prevent duplicate API calls
     markedAsReadRef.current.add(messageId)
     
     try {
+      // Make API call to backend - this persists to database
       await adminApi.markMessageRead(messageId)
+      
+      // Update local state ONLY after successful backend operation
       setInbox(prev => prev.map(msg => 
-        msg.id === messageId ? { ...msg, is_read: true } : msg
+        msg.id === messageId 
+          ? { ...msg, is_read: true, read_at: new Date().toISOString() } 
+          : msg
       ))
     } catch (err) {
-      // Remove from set on error so it can be retried
+      // Remove from set on error so it can be retried on next attempt
       markedAsReadRef.current.delete(messageId)
       console.error('Failed to mark message as read:', err)
     }
@@ -239,7 +261,7 @@ const MessageBox = () => {
       setText('')
       setSelectedUser(null)
       setReplyingTo(null)
-      loadData()
+      loadData(true)  // Force reload to get fresh data
     } catch (err) {
       console.error(err)
       toast.error('Failed to send message')
@@ -281,7 +303,7 @@ const MessageBox = () => {
       toast.success(`Broadcast sent to ${successCount} ${broadcastTarget === 'all' ? 'users' : broadcastTarget}`)
       setText('')
       setShowBroadcast(false)
-      loadData()
+      loadData(true)  // Force reload to get fresh data
     } catch (err) {
       console.error(err)
       toast.error('Broadcast failed')

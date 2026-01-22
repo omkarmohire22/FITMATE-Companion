@@ -185,6 +185,32 @@ async def send_message(
 
 
 # ====================== USER-TO-USER MESSAGING ======================
+# 
+# This section handles direct messaging between users (trainee ↔ trainer, anyone ↔ admin)
+# 
+# KEY FEATURES:
+# 1. **Message Persistence**: All messages are stored in the database with timestamps
+# 2. **Read Status Tracking**: Messages track both:
+#    - is_read (boolean): Whether the message has been seen
+#    - read_at (timestamp): When the message was marked as read
+# 3. **Notification System**: When a message is received, a notification is created
+# 4. **Conversation View**: Can fetch all messages between two users ordered by time
+#
+# FLOW DIAGRAM:
+# ┌─────────────────────────────────────────────────────────────────────┐
+# │ 1. Sender sends message via POST /messages/send                     │
+# │    ├─ Message created with is_read=False                           │
+# │    └─ Notification created for receiver                            │
+# │                                                                       │
+# │ 2. Receiver fetches messages via GET /messages/{user_id}            │
+# │    ├─ Returns all messages with sender/receiver and read status     │
+# │    └─ AUTO marks all unread messages from sender as is_read=True   │
+# │                                                                       │
+# │ 3. On refresh/reload:                                               │
+# │    ├─ Frontend calls GET /messages/{user_id} again                  │
+# │    ├─ Backend returns is_read=True for already-read messages       │
+# │    └─ Frontend displays correctly (not as "new")                    │
+# └─────────────────────────────────────────────────────────────────────┘
 
 class SendMessageRequest(BaseModel):
     receiver_id: int
@@ -201,7 +227,15 @@ async def send_user_message(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Send a message to another user (trainer, trainee, or admin)"""
+    """
+    Send a message to another user (trainer, trainee, or admin).
+    
+    Creates:
+    1. Message record with is_read=False
+    2. Notification for the receiver
+    
+    Response includes message_id and timestamp for frontend tracking.
+    """
     
     # Verify receiver exists
     receiver = db.query(User).filter(User.id == data.receiver_id).first()
@@ -243,7 +277,10 @@ async def mark_messages_as_read(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Mark all messages from a specific user as read"""
+    """
+    Mark all messages from a specific user as read.
+    Used for conversation view cleanup.
+    """
     # Mark messages as read
     updated = db.query(Message).filter(
         Message.sender_id == user_id,
@@ -412,7 +449,18 @@ async def get_messages_with_user(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Get all messages with a specific user"""
+    """
+    Get all messages between current user and a specific user.
+    
+    IMPORTANT: This endpoint AUTO-MARKS all unread messages from the other user as read.
+    This ensures when you open a conversation, all messages appear as read.
+    
+    On page refresh:
+    - Backend returns correct is_read status (True if previously marked)
+    - Frontend displays correctly (no "new" badge for already-read messages)
+    
+    Returns messages sorted by creation time (oldest first).
+    """
     
     messages = db.query(Message).filter(
         or_(
@@ -421,7 +469,8 @@ async def get_messages_with_user(
         )
     ).order_by(Message.created_at.asc()).all()
     
-    # Mark received messages as read
+    # Mark received messages as read (AUTO-MARK: The key to solving the refresh bug!)
+    # When user views the conversation, all messages should be marked as read
     db.query(Message).filter(
         Message.sender_id == user_id,
         Message.receiver_id == current_user.id,

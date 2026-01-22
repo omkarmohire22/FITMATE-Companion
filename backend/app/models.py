@@ -837,7 +837,8 @@ class Message(Base):
     sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     receiver_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     message = Column(Text, nullable=False)
-    is_read = Column(Boolean, default=False)
+    is_read = Column(Boolean, default=False, index=True)
+    read_at = Column(DateTime(timezone=True), nullable=True)  # Timestamp when message was marked as read
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     sender = relationship("User", foreign_keys=[sender_id], back_populates="sent_messages")

@@ -1,25 +1,5 @@
 
-# ====================== ADMIN MESSAGING ======================
-
-from typing import List
-from pydantic import BaseModel
-
-
-
-class SendMessageRequest(BaseModel):
-    receiver_id: int
-    message: str
-
-class DashboardResponse(BaseModel):
-    total_members: int
-    active_trainers: int
-    monthly_revenue: float
-    recent_workouts: int
-
-# Place all route definitions after router is defined
-# ...existing code...
-
-# (Move these route definitions below the router = APIRouter(...) line)
+# ====================== IMPORTS ======================
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from fastapi.responses import FileResponse, StreamingResponse
@@ -27,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, timedelta, date
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 import secrets
 import os
@@ -69,6 +49,18 @@ from app.models import (
     GymScheduleSlot,     # ✅ Import GymScheduleSlot for deletion
 )
 from app.auth_util import get_admin_user, get_password_hash
+
+# ====================== SCHEMAS ======================
+
+class SendMessageRequest(BaseModel):
+    receiver_id: int
+    message: str
+
+class DashboardResponse(BaseModel):
+    total_members: int
+    active_trainers: int
+    monthly_revenue: float
+    recent_workouts: int
 
 router = APIRouter(tags=["Admin"])
 
@@ -3349,23 +3341,29 @@ async def send_message_from_admin(
     """
     Admin sends a message to any user (trainer / trainee).
     """
+    try:
+        receiver = db.query(User).filter(User.id == data.receiver_id).first()
+        if not receiver:
+            raise HTTPException(status_code=404, detail="Receiver not found")
 
-    receiver = db.query(User).filter(User.id == data.receiver_id).first()
-    if not receiver:
-        raise HTTPException(status_code=404, detail="Receiver not found")
+        msg = Message(
+            sender_id=current_user.id,
+            receiver_id=receiver.id,
+            message=data.message.strip(),
+            is_read=False,
+        )
 
-    msg = Message(
-        sender_id=current_user.id,
-        receiver_id=receiver.id,
-        message=data.message.strip(),
-        is_read=False,
-    )
+        db.add(msg)
+        db.commit()
+        db.refresh(msg)
 
-    db.add(msg)
-    db.commit()
-    db.refresh(msg)
-
-    return {"message": "Message sent", "id": msg.id}
+        return {"message": "Message sent", "id": msg.id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"Error in send_message_from_admin: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error sending message: {str(e)}")
 
 
 @router.get("/messages/inbox")
@@ -3374,31 +3372,37 @@ async def get_admin_inbox(
     db: Session = Depends(get_db),
 ):
     """Messages received by admin"""
+    try:
+        from sqlalchemy.orm import joinedload
+        
+        msgs = (
+            db.query(Message)
+            .filter(Message.receiver_id == current_user.id)
+            .options(joinedload(Message.sender))
+            .order_by(Message.created_at.desc())
+            .all()
+        )
 
-    msgs = (
-        db.query(Message)
-        .filter(Message.receiver_id == current_user.id)
-        .order_by(Message.created_at.desc())
-        .all()
-    )
-
-    return {
-        "messages": [
-            {
-                "id": m.id,
-                "from_user": {
-                    "id": m.sender.id,
-                    "name": m.sender.name,
-                    "email": m.sender.email,
-                    "role": m.sender.role.value,
-                },
-                "message": m.message,
-                "is_read": m.is_read,
-                "created_at": m.created_at.isoformat() if m.created_at else None,
-            }
-            for m in msgs
-        ]
-    }
+        return {
+            "messages": [
+                {
+                    "id": m.id,
+                    "from_user": {
+                        "id": m.sender.id if m.sender else None,
+                        "name": m.sender.name if m.sender else "Unknown",
+                        "email": m.sender.email if m.sender else "unknown@email.com",
+                        "role": m.sender.role.value if m.sender and m.sender.role else "unknown",
+                    },
+                    "message": m.message,
+                    "is_read": m.is_read,
+                    "created_at": m.created_at.isoformat() if m.created_at else None,
+                }
+                for m in msgs
+            ]
+        }
+    except Exception as e:
+        print(f"Error in get_admin_inbox: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching messages: {str(e)}")
 
 
 @router.get("/messages/outbox")
@@ -3407,31 +3411,37 @@ async def get_admin_outbox(
     db: Session = Depends(get_db),
 ):
     """Messages sent by admin"""
+    try:
+        from sqlalchemy.orm import joinedload
+        
+        msgs = (
+            db.query(Message)
+            .filter(Message.sender_id == current_user.id)
+            .options(joinedload(Message.receiver))
+            .order_by(Message.created_at.desc())
+            .all()
+        )
 
-    msgs = (
-        db.query(Message)
-        .filter(Message.sender_id == current_user.id)
-        .order_by(Message.created_at.desc())
-        .all()
-    )
-
-    return {
-        "messages": [
-            {
-                "id": m.id,
-                "to_user": {
-                    "id": m.receiver.id,
-                    "name": m.receiver.name,
-                    "email": m.receiver.email,
-                    "role": m.receiver.role.value,
-                },
-                "message": m.message,
-                "is_read": m.is_read,
-                "created_at": m.created_at.isoformat() if m.created_at else None,
-            }
-            for m in msgs
-        ]
-    }
+        return {
+            "messages": [
+                {
+                    "id": m.id,
+                    "to_user": {
+                        "id": m.receiver.id if m.receiver else None,
+                        "name": m.receiver.name if m.receiver else "Unknown",
+                        "email": m.receiver.email if m.receiver else "unknown@email.com",
+                        "role": m.receiver.role.value if m.receiver and m.receiver.role else "unknown",
+                    },
+                    "message": m.message,
+                    "is_read": m.is_read,
+                    "created_at": m.created_at.isoformat() if m.created_at else None,
+                }
+                for m in msgs
+            ]
+        }
+    except Exception as e:
+        print(f"Error in get_admin_outbox: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching messages: {str(e)}")
 
 
 @router.put("/messages/{message_id}/read")
@@ -3440,23 +3450,42 @@ async def mark_message_read(
     current_user: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
-    """Mark a message as read in admin inbox"""
-
-    msg = (
-        db.query(Message)
-        .filter(
-            Message.id == message_id,
-            Message.receiver_id == current_user.id,
+    """
+    Mark a message as read in admin inbox.
+    Sets both is_read=True and read_at timestamp for proper persistence.
+    """
+    try:
+        msg = (
+            db.query(Message)
+            .filter(
+                Message.id == message_id,
+                Message.receiver_id == current_user.id,
+            )
+            .first()
         )
-        .first()
-    )
 
-    if not msg:
-        raise HTTPException(status_code=404, detail="Message not found")
+        if not msg:
+            raise HTTPException(status_code=404, detail="Message not found")
 
-    msg.is_read = True
-    db.commit()
-    return {"message": "Message marked as read"}
+        # Only update if not already read
+        if not msg.is_read:
+            msg.is_read = True
+            msg.read_at = datetime.utcnow()
+            db.commit()
+            
+        return {
+            "success": True,
+            "message": "Message marked as read",
+            "message_id": message_id,
+            "is_read": True,
+            "read_at": msg.read_at.isoformat() if msg.read_at else None
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"Error in mark_message_read: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error marking message as read: {str(e)}")
 
 
 @router.put("/messages/mark-all-read")
@@ -3464,15 +3493,20 @@ async def mark_all_messages_read(
     current_user: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
-    """Mark all unread messages as read in admin inbox"""
+    """
+    Mark all unread messages as read in admin inbox.
+    Sets both is_read=True and read_at timestamp for persistence.
+    """
     try:
         unread_messages = db.query(Message).filter(
             Message.receiver_id == current_user.id,
             Message.is_read == False
         ).all()
         
+        now = datetime.utcnow()
         for msg in unread_messages:
             msg.is_read = True
+            msg.read_at = now
         
         db.commit()
         
@@ -3483,7 +3517,8 @@ async def mark_all_messages_read(
         }
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error in mark_all_messages_read: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error marking messages as read: {str(e)}")
 
 @router.post("/billing/refund")
 async def refund_payment(data: RefundPaymentRequest, db: Session = Depends(get_db)):

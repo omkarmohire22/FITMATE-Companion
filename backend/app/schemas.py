@@ -485,35 +485,10 @@ class MessageResponse(BaseModel):
 
     class Config:
         from_attributes = True
-        
-class RefundPaymentRequest(BaseModel):
-    payment_id: int
-    refund_amount: float
-    refund_reason: str
-
 
 # ==============================
-# EXPENSE CREATE
-# ==============================
-class ExpenseCreate(BaseModel):
-    category: str
-    amount: float
-    date: str            # YYYY-MM-DD
-    paid_to: Optional[str] = None
-    mode: Optional[str] = None     # cash / upi / card / bank
-    notes: Optional[str] = None
-    bill_url: Optional[str] = None
-    
-class PaymentCreate(BaseModel):
-    trainee_id: int
-    membership_plan_id: int
-    payment_mode: str
-    amount: float
-    notes: Optional[str] = None
-
-# =============================
 # BILLING & FINANCE SCHEMAS
-# =============================
+# ==============================
 
 class RefundPaymentRequest(BaseModel):
     payment_id: int
@@ -526,4 +501,11 @@ class ExpenseCreate(BaseModel):
     category: str
     notes: str | None = None
     spent_on: date
+    
+class PaymentCreate(BaseModel):
+    trainee_id: int
+    membership_plan_id: int
+    payment_mode: str
+    amount: float
+    notes: Optional[str] = None
 
