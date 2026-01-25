@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Bell, BellRing, X, Inbox, MessageCircle, Calendar, 
+import {
+  Bell, BellRing, X, Inbox, MessageCircle, Calendar,
   CheckCircle, AlertCircle, Mail, ArrowRight, RefreshCw,
   User, Users, Clock
 } from 'lucide-react'
@@ -17,7 +17,7 @@ const formatDate = (dateString) => {
   const diffMins = Math.floor(diffMs / 60000)
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
-  
+
   if (diffMins < 1) return 'Just now'
   if (diffMins < 60) return `${diffMins}m ago`
   if (diffHours < 24) return `${diffHours}h ago`
@@ -25,8 +25,8 @@ const formatDate = (dateString) => {
   return date.toLocaleDateString()
 }
 
-const TrainerNotifications = ({ 
-  onViewAllMessages, 
+const TrainerNotifications = ({
+  onViewAllMessages,
   onSelectConversation,
   trainees = []
 }) => {
@@ -48,10 +48,10 @@ const TrainerNotifications = ({
         messagingApi.getUnreadCount(),
         trainerDashboardApi.getNotifications(false).catch(() => ({ data: { notifications: [] } }))
       ])
-      
+
       const convs = convRes.data?.conversations || []
       const notifs = notifRes.data?.notifications || []
-      
+
       // Combine conversations with unread messages into notifications
       const messageNotifs = convs
         .filter(c => c.unread_count > 0)
@@ -67,7 +67,7 @@ const TrainerNotifications = ({
           created_at: c.last_message_time,
           importance: 'normal'
         }))
-      
+
       // Combine all notifications
       const allNotifications = [
         ...messageNotifs,
@@ -76,7 +76,7 @@ const TrainerNotifications = ({
           type: n.type || 'system'
         }))
       ].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
-      
+
       setNotifications(allNotifications)
       setConversations(convs)
       setUnreadCount(unreadRes.data?.unread_count || 0)
@@ -111,14 +111,14 @@ const TrainerNotifications = ({
       if (notification.id && typeof notification.id === 'number' && !notification.is_read) {
         await trainerDashboardApi.markNotificationRead(notification.id);
         // Update local state
-        setNotifications(prev => 
+        setNotifications(prev =>
           prev.map(n => n.id === notification.id ? { ...n, is_read: true } : n)
         );
       }
-      
+
       // If it's a message notification, mark messages as read and navigate
       if (notification.type === 'message' && notification.user_id) {
-        await messagingApi.markMessagesRead(notification.user_id).catch(() => {});
+        await messagingApi.markMessagesRead(notification.user_id).catch(() => { });
         if (onSelectConversation) {
           onSelectConversation({
             user_id: notification.user_id,
@@ -157,7 +157,7 @@ const TrainerNotifications = ({
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'message': return MessageCircle
-      case 'schedule': 
+      case 'schedule':
       case 'session': return Calendar
       case 'trainee': return Users
       default: return AlertCircle
@@ -187,9 +187,8 @@ const TrainerNotifications = ({
           setIsOpen(!isOpen)
           if (!isOpen) loadNotifications()
         }}
-        className={`p-2 rounded-lg transition-colors relative ${
-          isDark ? 'hover:bg-slate-800' : 'hover:bg-gray-100'
-        }`}
+        className={`p-2 rounded-lg transition-colors relative ${isDark ? 'hover:bg-slate-800' : 'hover:bg-gray-100'
+          }`}
       >
         <Bell className={`w-5 h-5 ${isDark ? 'text-slate-400' : 'text-gray-600'}`} />
         {totalUnread > 0 && (
@@ -207,16 +206,14 @@ const TrainerNotifications = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className={`absolute right-0 top-12 w-96 max-w-[calc(100vw-2rem)] rounded-2xl shadow-2xl border overflow-hidden z-50 ${
-              isDark 
-                ? 'bg-slate-900 border-slate-700' 
-                : 'bg-white border-gray-200'
-            }`}
+            className={`absolute right-0 top-12 w-96 max-w-[calc(100vw-2rem)] rounded-2xl shadow-2xl border overflow-hidden z-50 transition-colors ${isDark
+                ? 'bg-slate-900 border-slate-700 shadow-black/50'
+                : 'bg-white border-slate-200 shadow-slate-200/50'
+              }`}
           >
             {/* Header */}
-            <div className={`px-4 py-3 border-b flex items-center justify-between ${
-              isDark ? 'border-slate-700 bg-slate-800' : 'border-gray-200 bg-gray-50'
-            }`}>
+            <div className={`px-4 py-3 border-b flex items-center justify-between ${isDark ? 'border-slate-700 bg-slate-800' : 'border-gray-200 bg-gray-50'
+              }`}>
               <h3 className={`font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 <BellRing className="w-5 h-5 text-indigo-500" />
                 Notifications
@@ -230,17 +227,15 @@ const TrainerNotifications = ({
                 <button
                   onClick={loadNotifications}
                   disabled={loading}
-                  className={`p-1.5 rounded-lg transition-colors ${
-                    isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-gray-200 text-gray-500'
-                  }`}
+                  className={`p-1.5 rounded-lg transition-colors ${isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-gray-200 text-gray-500'
+                    }`}
                 >
                   <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className={`p-1.5 rounded-lg transition-colors ${
-                    isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-gray-200 text-gray-500'
-                  }`}
+                  className={`p-1.5 rounded-lg transition-colors ${isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-gray-200 text-gray-500'
+                    }`}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -248,9 +243,8 @@ const TrainerNotifications = ({
             </div>
 
             {/* Filter Tabs */}
-            <div className={`px-3 py-2 border-b flex gap-1 overflow-x-auto ${
-              isDark ? 'border-slate-700 bg-slate-800/50' : 'border-gray-200 bg-gray-50'
-            }`}>
+            <div className={`px-3 py-2 border-b flex gap-1 overflow-x-auto ${isDark ? 'border-slate-700 bg-slate-800/50' : 'border-gray-200 bg-gray-50'
+              }`}>
               {[
                 { id: 'all', label: 'All' },
                 { id: 'messages', label: 'Messages', count: unreadCount },
@@ -260,21 +254,19 @@ const TrainerNotifications = ({
                 <button
                   key={filter.id}
                   onClick={() => setActiveFilter(filter.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1 ${
-                    activeFilter === filter.id
-                      ? 'bg-indigo-500 text-white'
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 ${activeFilter === filter.id
+                      ? 'bg-indigo-500 text-white shadow-md'
                       : isDark
-                        ? 'text-slate-400 hover:text-white hover:bg-slate-700'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
-                  }`}
+                        ? 'text-slate-400 hover:text-white hover:bg-slate-700 bg-slate-800'
+                        : 'text-slate-500 hover:text-slate-700 hover:bg-white bg-slate-100'
+                    }`}
                 >
                   {filter.label}
                   {filter.count > 0 && (
-                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
-                      activeFilter === filter.id
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeFilter === filter.id
                         ? 'bg-white/20'
                         : 'bg-red-500 text-white'
-                    }`}>
+                      }`}>
                       {filter.count}
                     </span>
                   )}
@@ -302,7 +294,7 @@ const TrainerNotifications = ({
                   {filteredNotifications.slice(0, 10).map((notification, idx) => {
                     const Icon = getNotificationIcon(notification.type)
                     const colorClass = getNotificationColor(notification.type, notification.importance)
-                    
+
                     return (
                       <motion.div
                         key={notification.id || idx}
@@ -310,16 +302,17 @@ const TrainerNotifications = ({
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: idx * 0.03 }}
                         onClick={() => handleNotificationClick(notification)}
-                        className={`px-4 py-3 cursor-pointer transition-colors ${
-                          isDark ? 'hover:bg-slate-800' : 'hover:bg-gray-50'
-                        } ${notification.type === 'message' && notification.unread_count > 0 
-                          ? isDark ? 'bg-indigo-900/20' : 'bg-indigo-50/50' 
-                          : ''
-                        }`}
+                        className={`px-4 py-3 cursor-pointer transition-colors border-b last:border-0 ${isDark
+                            ? 'hover:bg-slate-800 border-slate-800'
+                            : 'hover:bg-slate-50 border-slate-100'
+                          } ${notification.type === 'message' && notification.unread_count > 0
+                            ? isDark ? 'bg-indigo-900/20' : 'bg-indigo-50/60'
+                            : ''
+                          }`}
                       >
                         <div className="flex items-start gap-3">
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shrink-0 bg-gradient-to-br ${colorClass}`}>
-                            {notification.type === 'message' 
+                            {notification.type === 'message'
                               ? notification.user_name?.charAt(0) || <Icon className="w-5 h-5" />
                               : <Icon className="w-5 h-5" />
                             }
@@ -327,8 +320,8 @@ const TrainerNotifications = ({
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2">
                               <span className={`font-medium text-sm truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                {notification.type === 'message' 
-                                  ? notification.user_name 
+                                {notification.type === 'message'
+                                  ? notification.user_name
                                   : notification.title || 'Notification'
                                 }
                               </span>
@@ -341,11 +334,10 @@ const TrainerNotifications = ({
                             </p>
                             <div className="flex items-center gap-2 mt-1">
                               {notification.type === 'message' && (
-                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${
-                                  notification.user_role === 'ADMIN'
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${notification.user_role === 'ADMIN'
                                     ? 'bg-red-500/20 text-red-400 border border-red-500/30'
                                     : 'bg-green-500/20 text-green-400 border border-green-500/30'
-                                }`}>
+                                  }`}>
                                   {notification.user_role}
                                 </span>
                               )}
@@ -366,17 +358,15 @@ const TrainerNotifications = ({
             </div>
 
             {/* Footer */}
-            <div className={`px-4 py-3 border-t space-y-2 ${
-              isDark ? 'border-slate-700 bg-slate-800/50' : 'border-gray-200 bg-gray-50'
-            }`}>
+            <div className={`px-4 py-3 border-t space-y-2 ${isDark ? 'border-slate-700 bg-slate-800/50' : 'border-slate-100 bg-slate-50/50'
+              }`}>
               {totalUnread > 0 && (
                 <button
                   onClick={handleMarkAllRead}
-                  className={`w-full flex items-center justify-center gap-2 py-2 text-xs font-medium rounded-lg transition-colors border ${
-                    isDark 
-                      ? 'text-emerald-400 hover:bg-emerald-500/10 border-emerald-500/30' 
+                  className={`w-full flex items-center justify-center gap-2 py-2 text-xs font-medium rounded-lg transition-colors border ${isDark
+                      ? 'text-emerald-400 hover:bg-emerald-500/10 border-emerald-500/30'
                       : 'text-emerald-600 hover:bg-emerald-50 border-emerald-200'
-                  }`}
+                    }`}
                 >
                   <CheckCircle className="w-3.5 h-3.5" />
                   Mark all as read

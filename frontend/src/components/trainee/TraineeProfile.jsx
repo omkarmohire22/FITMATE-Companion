@@ -9,9 +9,11 @@ import {
   Sparkles, UserCircle, BadgeCheck, Briefcase, Info
 } from 'lucide-react'
 import { traineeApi } from '../../utils/api'
+import { useTheme } from '../../contexts/ThemeContext'
 import toast from 'react-hot-toast'
 
 const TraineeProfile = () => {
+  const { isDark } = useTheme()
   const [userData, setUserData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -167,18 +169,18 @@ const TraineeProfile = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[500px]">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="text-center bg-slate-900 rounded-2xl p-10 border border-slate-800"
+          className={`text-center rounded-2xl p-10 border ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200 shadow-lg'}`}
         >
-          <motion.div 
+          <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            className="w-16 h-16 border-4 border-slate-700 border-t-sky-500 rounded-full mx-auto mb-4"
+            className={`w-16 h-16 border-4 border-t-sky-500 rounded-full mx-auto mb-4 ${isDark ? 'border-gray-700' : 'border-gray-200'}`}
           />
-          <p className="text-white font-semibold mb-1">Loading Profile</p>
-          <p className="text-slate-400 text-sm">Please wait...</p>
+          <p className={`font-semibold mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>Loading Profile</p>
+          <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Please wait...</p>
         </motion.div>
       </div>
     )
@@ -190,7 +192,7 @@ const TraineeProfile = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-6 lg:p-8 text-white shadow-2xl border border-slate-700/50 relative overflow-hidden"
+        className={`rounded-3xl p-6 lg:p-8 shadow-2xl border relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white border-gray-700/50' : 'bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white border-indigo-700/50'}`}
       >
         {/* Background Pattern */}
         <div className="absolute inset-0 overflow-hidden">
@@ -207,7 +209,7 @@ const TraineeProfile = () => {
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               {/* Enhanced Avatar */}
               <div className="relative group">
-                <motion.div 
+                <motion.div
                   whileHover={{ scale: 1.02 }}
                   className="relative"
                 >
@@ -222,7 +224,7 @@ const TraineeProfile = () => {
                       {userData?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U'}
                     </div>
                   )}
-                  
+
                   {/* Camera Button */}
                   <motion.button
                     whileHover={{ scale: 1.1 }}
@@ -234,7 +236,7 @@ const TraineeProfile = () => {
                   </motion.button>
                 </motion.div>
                 <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-                
+
                 {/* Online Status */}
                 <div className="absolute top-2 right-2 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-900 animate-pulse" />
               </div>
@@ -252,20 +254,20 @@ const TraineeProfile = () => {
                     </span>
                   )}
                 </div>
-                
+
                 <div className="space-y-1.5">
-                  <p className="text-slate-400 flex items-center justify-center sm:justify-start gap-2 text-sm">
-                    <Mail className="w-4 h-4 text-slate-500" />
+                  <p className={`flex items-center justify-center sm:justify-start gap-2 text-sm transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-indigo-100'}`}>
+                    <Mail className={`w-4 h-4 transition-colors duration-300 ${isDark ? 'text-slate-500' : 'text-indigo-200'}`} />
                     {userData?.email}
                   </p>
                   {userData?.phone && (
-                    <p className="text-slate-400 flex items-center justify-center sm:justify-start gap-2 text-sm">
-                      <Phone className="w-4 h-4 text-slate-500" />
+                    <p className={`flex items-center justify-center sm:justify-start gap-2 text-sm transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-indigo-100'}`}>
+                      <Phone className={`w-4 h-4 transition-colors duration-300 ${isDark ? 'text-slate-500' : 'text-indigo-200'}`} />
                       {userData.phone}
                     </p>
                   )}
                 </div>
-                
+
                 {/* Badges */}
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-4">
                   <span className="px-3 py-1.5 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-300 rounded-lg text-sm font-medium border border-indigo-500/30 flex items-center gap-1.5">
@@ -348,7 +350,8 @@ const TraineeProfile = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
                 whileHover={{ y: -4, scale: 1.02 }}
-                className={`${stat.bg} ${stat.border} border backdrop-blur-sm rounded-xl p-4 cursor-pointer transition-all hover:shadow-lg`}
+                className={`border backdrop-blur-sm rounded-xl p-4 cursor-pointer transition-all hover:shadow-lg ${isDark ? `${stat.bg} ${stat.border}` : 'bg-white/20 border-white/30 hover:bg-white/30'
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg`}>
@@ -356,7 +359,7 @@ const TraineeProfile = () => {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-white">{stat.value}</p>
-                    <p className="text-xs text-slate-400">{stat.label}</p>
+                    <p className={`text-xs transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-indigo-100'}`}>{stat.label}</p>
                   </div>
                 </div>
               </motion.div>
@@ -376,20 +379,18 @@ const TraineeProfile = () => {
             whileHover={{ y: -2 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setActiveSection(tab.id)}
-            className={`flex items-center gap-3 px-5 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${
-              activeSection === tab.id
-                ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/25'
-                : 'bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-700'
-            }`}
+            className={`flex items-center gap-3 px-5 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${activeSection === tab.id
+              ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/25'
+              : isDark ? 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 border border-gray-700' : 'bg-white text-gray-500 hover:text-gray-900 hover:bg-gray-50 border border-gray-200 shadow-sm'
+              }`}
           >
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-              activeSection === tab.id ? 'bg-white/20' : 'bg-slate-800'
-            }`}>
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${activeSection === tab.id ? 'bg-white/20' : isDark ? 'bg-gray-700' : 'bg-gray-100'
+              }`}>
               <tab.icon className="w-4 h-4" />
             </div>
             <div className="text-left">
               <p className="font-semibold text-sm">{tab.label}</p>
-              <p className={`text-xs ${activeSection === tab.id ? 'text-sky-100' : 'text-slate-500'}`}>{tab.description}</p>
+              <p className={`text-xs ${activeSection === tab.id ? 'text-sky-100' : isDark ? 'text-gray-500' : 'text-gray-400'}`}>{tab.description}</p>
             </div>
           </motion.button>
         ))}
@@ -400,7 +401,7 @@ const TraineeProfile = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-slate-900 rounded-2xl p-6 lg:p-8 border border-slate-700 shadow-xl"
+          className={`rounded-2xl p-6 lg:p-8 border shadow-xl ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}
         >
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
@@ -408,12 +409,12 @@ const TraineeProfile = () => {
                 <User className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white">Personal Information</h3>
-                <p className="text-sm text-slate-400">Manage your personal details</p>
+                <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Personal Information</h3>
+                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Manage your personal details</p>
               </div>
             </div>
             {editMode && (
-              <span className="px-3 py-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-xs font-medium border border-amber-500/30 flex items-center gap-1.5">
+              <span className={`px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 ${isDark ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
                 <Edit className="w-3.5 h-3.5" />
                 Editing
               </span>
@@ -423,8 +424,8 @@ const TraineeProfile = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Full Name */}
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                <User className="w-4 h-4 text-slate-500" />
+              <label className={`flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <User className={`w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                 Full Name
               </label>
               <div className="relative group">
@@ -432,11 +433,10 @@ const TraineeProfile = () => {
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className={`w-full px-4 py-3.5 rounded-xl transition-all text-white placeholder-slate-500 ${
-                    editMode 
-                      ? 'bg-slate-800 border-2 border-slate-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20' 
-                      : 'bg-slate-800/50 border border-slate-700 cursor-default'
-                  }`}
+                  className={`w-full px-4 py-3.5 rounded-xl transition-all ${editMode
+                    ? isDark ? 'bg-gray-700 border-2 border-gray-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-white placeholder-gray-500' : 'bg-white border-2 border-gray-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-gray-900 placeholder-gray-400'
+                    : isDark ? 'bg-gray-700/50 border border-gray-600 text-gray-400 cursor-default' : 'bg-gray-50 border border-gray-200 text-gray-500 cursor-default'
+                    }`}
                   placeholder="Enter your name"
                   disabled={!editMode}
                 />
@@ -445,10 +445,10 @@ const TraineeProfile = () => {
 
             {/* Email (Read-only) */}
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                <Mail className="w-4 h-4 text-slate-500" />
+              <label className={`flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <Mail className={`w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                 Email Address
-                <span className="ml-auto text-xs text-slate-500 flex items-center gap-1">
+                <span className={`ml-auto text-xs flex items-center gap-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                   <Lock className="w-3 h-3" /> Locked
                 </span>
               </label>
@@ -457,15 +457,15 @@ const TraineeProfile = () => {
                   type="email"
                   value={formData.email}
                   disabled
-                  className="w-full px-4 py-3.5 bg-slate-800/30 border border-slate-700 text-slate-400 rounded-xl cursor-not-allowed"
+                  className={`w-full px-4 py-3.5 rounded-xl cursor-not-allowed ${isDark ? 'bg-gray-700/30 border border-gray-600 text-gray-400' : 'bg-gray-100 border border-gray-200 text-gray-500'}`}
                 />
               </div>
             </div>
 
             {/* Phone */}
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                <Phone className="w-4 h-4 text-slate-500" />
+              <label className={`flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <Phone className={`w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                 Phone Number
               </label>
               <div className="relative">
@@ -473,11 +473,10 @@ const TraineeProfile = () => {
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className={`w-full px-4 py-3.5 rounded-xl transition-all text-white placeholder-slate-500 ${
-                    editMode 
-                      ? 'bg-slate-800 border-2 border-slate-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20' 
-                      : 'bg-slate-800/50 border border-slate-700 cursor-default'
-                  }`}
+                  className={`w-full px-4 py-3.5 rounded-xl transition-all ${editMode
+                    ? isDark ? 'bg-gray-700 border-2 border-gray-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-white placeholder-gray-500' : 'bg-white border-2 border-gray-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-gray-900 placeholder-gray-400'
+                    : isDark ? 'bg-gray-700/50 border border-gray-600 text-gray-400 cursor-default' : 'bg-gray-50 border border-gray-200 text-gray-500 cursor-default'
+                    }`}
                   placeholder="+91 98765 43210"
                   disabled={!editMode}
                 />
@@ -486,8 +485,8 @@ const TraineeProfile = () => {
 
             {/* Date of Birth */}
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                <Calendar className="w-4 h-4 text-slate-500" />
+              <label className={`flex items-center gap-2 text-sm font-medium transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                <Calendar className={`w-4 h-4 transition-colors duration-300 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
                 Date of Birth
               </label>
               <div className="relative">
@@ -496,30 +495,28 @@ const TraineeProfile = () => {
                   value={formData.date_of_birth}
                   onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
                   disabled={!editMode}
-                  className={`w-full px-4 py-3.5 rounded-xl transition-all text-white ${
-                    editMode 
-                      ? 'bg-slate-800 border-2 border-slate-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20' 
-                      : 'bg-slate-800/50 border border-slate-700 cursor-default text-slate-400'
-                  }`}
+                  className={`w-full px-4 py-3.5 rounded-xl transition-all outline-none ${editMode
+                    ? isDark ? 'bg-gray-700 border-2 border-gray-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-white' : 'bg-white border-2 border-gray-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-gray-900'
+                    : isDark ? 'bg-gray-700/50 border border-gray-600 text-gray-500 cursor-default' : 'bg-gray-50 border border-gray-200 text-gray-400 cursor-default'
+                    }`}
                 />
               </div>
             </div>
 
             {/* Gender */}
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                <UserCircle className="w-4 h-4 text-slate-500" />
+              <label className={`flex items-center gap-2 text-sm font-medium transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                <UserCircle className={`w-4 h-4 transition-colors duration-300 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
                 Gender
               </label>
               <select
                 value={formData.gender}
                 onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                 disabled={!editMode}
-                className={`w-full px-4 py-3.5 rounded-xl transition-all ${
-                  editMode 
-                    ? 'bg-slate-800 border-2 border-slate-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-white' 
-                    : 'bg-slate-800/50 border border-slate-700 cursor-default text-slate-400'
-                }`}
+                className={`w-full px-4 py-3.5 rounded-xl transition-all outline-none ${editMode
+                  ? isDark ? 'bg-gray-700 border-2 border-gray-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-white' : 'bg-white border-2 border-gray-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-gray-900'
+                  : isDark ? 'bg-gray-700/50 border border-gray-600 text-gray-500 cursor-default' : 'bg-gray-50 border border-gray-200 text-gray-400 cursor-default'
+                  }`}
               >
                 <option value="">Select Gender</option>
                 {genderOptions.map(opt => (
@@ -530,8 +527,8 @@ const TraineeProfile = () => {
 
             {/* Address */}
             <div className="md:col-span-2 space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                <MapPin className="w-4 h-4 text-slate-500" />
+              <label className={`flex items-center gap-2 text-sm font-medium transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                <MapPin className={`w-4 h-4 transition-colors duration-300 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
                 Address
               </label>
               <div className="relative">
@@ -540,11 +537,10 @@ const TraineeProfile = () => {
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   disabled={!editMode}
                   rows={2}
-                  className={`w-full px-4 py-3.5 rounded-xl transition-all resize-none text-white placeholder-slate-500 ${
-                    editMode 
-                      ? 'bg-slate-800 border-2 border-slate-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20' 
-                      : 'bg-slate-800/50 border border-slate-700 cursor-default'
-                  }`}
+                  className={`w-full px-4 py-3.5 rounded-xl transition-all resize-none outline-none ${editMode
+                    ? isDark ? 'bg-gray-700 border-2 border-gray-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-white' : 'bg-white border-2 border-gray-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-gray-900'
+                    : isDark ? 'bg-gray-700/50 border border-gray-600 text-gray-500 cursor-default' : 'bg-gray-50 border border-gray-200 text-gray-400 cursor-default'
+                    }`}
                   placeholder="Enter your address"
                 />
               </div>
@@ -561,19 +557,19 @@ const TraineeProfile = () => {
           className="space-y-6"
         >
           {/* Body Metrics */}
-          <div className="bg-slate-900 rounded-2xl p-6 lg:p-8 border border-slate-700 shadow-xl">
+          <div className={`rounded-2xl p-6 lg:p-8 border shadow-xl ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
                   <Scale className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">Body Metrics</h3>
-                  <p className="text-sm text-slate-400">Track your physical measurements</p>
+                  <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Body Metrics</h3>
+                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Track your physical measurements</p>
                 </div>
               </div>
               {editMode && (
-                <span className="px-3 py-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-xs font-medium border border-amber-500/30 flex items-center gap-1.5">
+                <span className={`px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 ${isDark ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
                   <Edit className="w-3.5 h-3.5" />
                   Editing
                 </span>
@@ -583,8 +579,8 @@ const TraineeProfile = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Weight */}
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                  <Scale className="w-4 h-4 text-slate-500" />
+                <label className={`flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <Scale className={`w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                   Current Weight (kg)
                 </label>
                 <input
@@ -593,19 +589,18 @@ const TraineeProfile = () => {
                   value={formData.weight}
                   onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
                   disabled={!editMode}
-                  className={`w-full px-4 py-3.5 rounded-xl transition-all ${
-                    editMode 
-                      ? 'bg-slate-800 border-2 border-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white' 
-                      : 'bg-slate-800/50 border border-slate-700 text-slate-400 cursor-default'
-                  }`}
+                  className={`w-full px-4 py-3.5 rounded-xl transition-all ${editMode
+                    ? isDark ? 'bg-gray-700 border-2 border-gray-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white' : 'bg-white border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-gray-900'
+                    : isDark ? 'bg-gray-700/50 border border-gray-600 text-gray-400 cursor-default' : 'bg-gray-50 border border-gray-200 text-gray-500 cursor-default'
+                    }`}
                   placeholder="70"
                 />
               </div>
 
               {/* Height */}
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                  <Ruler className="w-4 h-4 text-slate-500" />
+                <label className={`flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <Ruler className={`w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                   Height (cm)
                 </label>
                 <input
@@ -614,19 +609,18 @@ const TraineeProfile = () => {
                   value={formData.height}
                   onChange={(e) => setFormData({ ...formData, height: e.target.value })}
                   disabled={!editMode}
-                  className={`w-full px-4 py-3.5 rounded-xl transition-all ${
-                    editMode 
-                      ? 'bg-slate-800 border-2 border-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white' 
-                      : 'bg-slate-800/50 border border-slate-700 text-slate-400 cursor-default'
-                  }`}
+                  className={`w-full px-4 py-3.5 rounded-xl transition-all ${editMode
+                    ? isDark ? 'bg-gray-700 border-2 border-gray-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white' : 'bg-white border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-gray-900'
+                    : isDark ? 'bg-gray-700/50 border border-gray-600 text-gray-400 cursor-default' : 'bg-gray-50 border border-gray-100 text-gray-500 cursor-default'
+                    }`}
                   placeholder="175"
                 />
               </div>
 
               {/* Target Weight */}
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                  <Target className="w-4 h-4 text-slate-500" />
+                <label className={`flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <Target className={`w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                   Target Weight (kg)
                 </label>
                 <input
@@ -635,43 +629,41 @@ const TraineeProfile = () => {
                   value={formData.target_weight}
                   onChange={(e) => setFormData({ ...formData, target_weight: e.target.value })}
                   disabled={!editMode}
-                  className={`w-full px-4 py-3.5 rounded-xl transition-all ${
-                    editMode 
-                      ? 'bg-slate-800 border-2 border-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white' 
-                      : 'bg-slate-800/50 border border-slate-700 text-slate-400 cursor-default'
-                  }`}
+                  className={`w-full px-4 py-3.5 rounded-xl transition-all ${editMode
+                    ? isDark ? 'bg-gray-700 border-2 border-gray-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white' : 'bg-white border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-gray-900'
+                    : isDark ? 'bg-gray-700/50 border border-gray-600 text-gray-400 cursor-default' : 'bg-gray-50 border border-gray-100 text-gray-500 cursor-default'
+                    }`}
                   placeholder="65"
                 />
               </div>
             </div>
 
             {/* Enhanced BMI Display */}
-            <div className="mt-8 p-6 bg-gradient-to-br from-slate-800 to-slate-800/50 rounded-2xl border border-slate-700">
+            <div className={`mt-8 p-6 rounded-2xl border ${isDark ? 'bg-gradient-to-br from-gray-700 to-gray-800/50 border-gray-600' : 'bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-100'}`}>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center border border-emerald-500/30">
                     <span className="text-2xl font-bold text-emerald-400">{bmi || '--'}</span>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-400">Body Mass Index</p>
-                    <p className="text-lg font-semibold text-white">BMI Calculator</p>
+                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-emerald-700'}`}>Body Mass Index</p>
+                    <p className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-emerald-900'}`}>BMI Calculator</p>
                   </div>
                 </div>
-                <div className={`px-5 py-2.5 rounded-xl text-sm font-semibold ${
-                  bmiCategory.label === 'Normal' 
-                    ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                    : bmiCategory.label === 'Underweight'
+                <div className={`px-5 py-2.5 rounded-xl text-sm font-semibold ${bmiCategory.label === 'Normal'
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                  : bmiCategory.label === 'Underweight'
                     ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                     : bmiCategory.label === 'Overweight'
-                    ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                    : bmiCategory.label === 'Obese'
-                    ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                    : 'bg-slate-700 text-slate-400'
-                }`}>
+                      ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                      : bmiCategory.label === 'Obese'
+                        ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                        : 'bg-slate-700 text-slate-400'
+                  }`}>
                   {bmiCategory.label}
                 </div>
               </div>
-              
+
               {/* BMI Scale */}
               <div className="relative h-4 rounded-full overflow-hidden bg-slate-700">
                 <div className="absolute inset-0 flex">
@@ -701,22 +693,22 @@ const TraineeProfile = () => {
           </div>
 
           {/* Fitness Level & Goal */}
-          <div className="bg-slate-900 rounded-2xl p-6 lg:p-8 border border-slate-700 shadow-xl">
+          <div className={`rounded-2xl p-6 lg:p-8 border shadow-xl ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
             <div className="flex items-center gap-3 mb-8">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg">
                 <Activity className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white">Fitness Level & Goals</h3>
-                <p className="text-sm text-slate-400">Set your fitness targets</p>
+                <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Fitness Level & Goals</h3>
+                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Set your fitness targets</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Fitness Level */}
               <div className="space-y-3">
-                <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                  <Dumbbell className="w-4 h-4 text-slate-500" />
+                <label className={`flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <Dumbbell className={`w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                   Fitness Level
                 </label>
                 <div className="grid grid-cols-2 gap-3">
@@ -727,13 +719,12 @@ const TraineeProfile = () => {
                       whileTap={editMode ? { scale: 0.98 } : {}}
                       onClick={() => editMode && setFormData({ ...formData, fitness_level: level })}
                       disabled={!editMode}
-                      className={`px-4 py-3.5 rounded-xl border-2 font-medium transition-all text-sm ${
-                        formData.fitness_level === level
-                          ? 'border-purple-500 bg-purple-500/20 text-purple-300 shadow-lg shadow-purple-500/10'
-                          : editMode
-                          ? 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600 hover:text-slate-300'
-                          : 'border-slate-700/50 bg-slate-800/50 text-slate-500 cursor-default'
-                      }`}
+                      className={`px-4 py-3.5 rounded-xl border-2 font-medium transition-all text-sm ${formData.fitness_level === level
+                        ? 'border-purple-500 bg-purple-500/20 text-purple-600 shadow-lg shadow-purple-500/10'
+                        : editMode
+                          ? isDark ? 'border-gray-600 bg-gray-700 text-gray-300 hover:border-gray-500 hover:text-gray-200' : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:text-gray-800'
+                          : isDark ? 'border-gray-700/50 bg-gray-700/50 text-gray-500 cursor-default' : 'border-gray-100 bg-gray-50 text-gray-400 cursor-default'
+                        }`}
                     >
                       {level}
                     </motion.button>
@@ -743,19 +734,18 @@ const TraineeProfile = () => {
 
               {/* Primary Goal */}
               <div className="space-y-3">
-                <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                  <Target className="w-4 h-4 text-slate-500" />
+                <label className={`flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <Target className={`w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                   Primary Goal
                 </label>
                 <select
                   value={formData.goal}
                   onChange={(e) => setFormData({ ...formData, goal: e.target.value })}
                   disabled={!editMode}
-                  className={`w-full px-4 py-3.5 rounded-xl transition-all ${
-                    editMode 
-                      ? 'bg-slate-800 border-2 border-slate-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-white' 
-                      : 'bg-slate-800/50 border border-slate-700 text-slate-400 cursor-default'
-                  }`}
+                  className={`w-full px-4 py-3.5 rounded-xl transition-all ${editMode
+                    ? isDark ? 'bg-gray-700 border-2 border-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-white' : 'bg-white border-2 border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-gray-900'
+                    : isDark ? 'bg-gray-700/50 border border-gray-600 text-gray-400 cursor-default' : 'bg-gray-50 border border-gray-200 text-gray-500 cursor-default'
+                    }`}
                 >
                   <option value="">Select Goal</option>
                   {goalOptions.map(opt => (
@@ -766,8 +756,8 @@ const TraineeProfile = () => {
 
               {/* Fitness Goals (Detailed) */}
               <div className="md:col-span-2 space-y-3">
-                <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                  <Sparkles className="w-4 h-4 text-slate-500" />
+                <label className={`flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <Sparkles className={`w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                   Detailed Fitness Goals
                 </label>
                 <textarea
@@ -775,11 +765,10 @@ const TraineeProfile = () => {
                   onChange={(e) => setFormData({ ...formData, fitness_goals: e.target.value })}
                   disabled={!editMode}
                   rows={3}
-                  className={`w-full px-4 py-3.5 rounded-xl transition-all resize-none ${
-                    editMode 
-                      ? 'bg-slate-800 border-2 border-slate-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-white placeholder-slate-500' 
-                      : 'bg-slate-800/50 border border-slate-700 text-slate-400 cursor-default'
-                  }`}
+                  className={`w-full px-4 py-3.5 rounded-xl transition-all resize-none ${editMode
+                    ? isDark ? 'bg-gray-700 border-2 border-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-white placeholder-gray-500' : 'bg-white border-2 border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-gray-900 placeholder-gray-400'
+                    : isDark ? 'bg-gray-700/50 border border-gray-600 text-gray-400 cursor-default' : 'bg-gray-50 border border-gray-200 text-gray-500 cursor-default'
+                    }`}
                   placeholder="Describe your fitness goals in detail..."
                 />
               </div>
@@ -787,21 +776,21 @@ const TraineeProfile = () => {
           </div>
 
           {/* Emergency Contact & Health */}
-          <div className="bg-slate-900 rounded-2xl p-6 lg:p-8 border border-slate-700 shadow-xl">
+          <div className={`rounded-2xl p-6 lg:p-8 border shadow-xl ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
             <div className="flex items-center gap-3 mb-8">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center shadow-lg">
                 <Heart className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white">Health & Emergency Contact</h3>
-                <p className="text-sm text-slate-400">Important medical information</p>
+                <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Health & Emergency Contact</h3>
+                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Important medical information</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                  <User className="w-4 h-4 text-slate-500" />
+                <label className={`flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <User className={`w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                   Emergency Contact Name
                 </label>
                 <input
@@ -809,17 +798,16 @@ const TraineeProfile = () => {
                   value={formData.emergency_contact_name}
                   onChange={(e) => setFormData({ ...formData, emergency_contact_name: e.target.value })}
                   disabled={!editMode}
-                  className={`w-full px-4 py-3.5 rounded-xl transition-all ${
-                    editMode 
-                      ? 'bg-slate-800 border-2 border-slate-600 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 text-white' 
-                      : 'bg-slate-800/50 border border-slate-700 text-slate-400 cursor-default'
-                  }`}
+                  className={`w-full px-4 py-3.5 rounded-xl transition-all ${editMode
+                    ? isDark ? 'bg-gray-700 border-2 border-gray-600 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 text-white' : 'bg-white border-2 border-gray-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 text-gray-900'
+                    : isDark ? 'bg-gray-700/50 border border-gray-600 text-gray-400 cursor-default' : 'bg-gray-50 border border-gray-200 text-gray-500 cursor-default'
+                    }`}
                   placeholder="Emergency contact name"
                 />
               </div>
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                  <Phone className="w-4 h-4 text-slate-500" />
+                <label className={`flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <Phone className={`w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                   Emergency Contact Phone
                 </label>
                 <input
@@ -827,19 +815,18 @@ const TraineeProfile = () => {
                   value={formData.emergency_contact_phone}
                   onChange={(e) => setFormData({ ...formData, emergency_contact_phone: e.target.value })}
                   disabled={!editMode}
-                  className={`w-full px-4 py-3.5 rounded-xl transition-all ${
-                    editMode 
-                      ? 'bg-slate-800 border-2 border-slate-600 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 text-white' 
-                      : 'bg-slate-800/50 border border-slate-700 text-slate-400 cursor-default'
-                  }`}
+                  className={`w-full px-4 py-3.5 rounded-xl transition-all ${editMode
+                    ? isDark ? 'bg-gray-700 border-2 border-gray-600 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 text-white' : 'bg-white border-2 border-gray-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 text-gray-900'
+                    : isDark ? 'bg-gray-700/50 border border-gray-600 text-gray-400 cursor-default' : 'bg-gray-50 border border-gray-200 text-gray-500 cursor-default'
+                    }`}
                   placeholder="+91 98765 43210"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                <AlertCircle className="w-4 h-4 text-slate-500" />
+              <label className={`flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <AlertCircle className={`w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                 Health Conditions / Medical Notes
               </label>
               <textarea
@@ -847,21 +834,20 @@ const TraineeProfile = () => {
                 onChange={(e) => setFormData({ ...formData, health_conditions: e.target.value })}
                 disabled={!editMode}
                 rows={3}
-                className={`w-full px-4 py-3.5 rounded-xl transition-all resize-none ${
-                  editMode 
-                    ? 'bg-slate-800 border-2 border-slate-600 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 text-white placeholder-slate-500' 
-                    : 'bg-slate-800/50 border border-slate-700 text-slate-400 cursor-default'
-                }`}
+                className={`w-full px-4 py-3.5 rounded-xl transition-all resize-none ${editMode
+                  ? isDark ? 'bg-gray-700 border-2 border-gray-600 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 text-white placeholder-gray-500' : 'bg-white border-2 border-gray-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 text-gray-900 placeholder-gray-400'
+                  : isDark ? 'bg-gray-700/50 border border-gray-600 text-gray-400 cursor-default' : 'bg-gray-50 border border-gray-200 text-gray-500 cursor-default'
+                  }`}
                 placeholder="List any health conditions, allergies, or medical notes..."
               />
             </div>
 
             {/* Health Info Note */}
-            <div className="mt-6 p-4 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-start gap-3">
-              <Info className="w-5 h-5 text-sky-400 flex-shrink-0 mt-0.5" />
+            <div className={`mt-6 p-4 rounded-xl border flex items-start gap-3 ${isDark ? 'bg-gray-700/50 border-gray-600/50' : 'bg-blue-50 border-blue-100'}`}>
+              <Info className="w-5 h-5 text-sky-500 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm text-slate-300 font-medium">Why is this important?</p>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Why is this important?</p>
+                <p className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
                   Your health information helps trainers customize safe workout plans. Emergency contact details ensure we can reach your loved ones if needed.
                 </p>
               </div>

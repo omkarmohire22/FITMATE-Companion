@@ -25,7 +25,7 @@ import FeedbackButton from '../../components/ui/FeedbackButton'
 
 const TraineeDashboard = () => {
   const { logout } = useAuth()
-  const { isDark } = useTheme()
+  const { isDark, toggleTheme } = useTheme()
   const [activeTab, setActiveTab] = useState('dashboard')
   const [sidebarOpen, setSidebarOpen] = useState(false) // Closed by default on mobile
   const [workoutActive, setWorkoutActive] = useState(false)
@@ -42,14 +42,14 @@ const TraineeDashboard = () => {
 
   // Stats Data (from backend)
   const [stats, setStats] = useState(null)
-  
+
   // Attendance State
   const [attendanceStatus, setAttendanceStatus] = useState(null) // 'not_checked_in', 'checked_in', 'checked_out'
   const [attendanceData, setAttendanceData] = useState(null)
   const [attendanceHistory, setAttendanceHistory] = useState([])
   const [attendanceStats, setAttendanceStats] = useState(null)
   const [attendanceLoading, setAttendanceLoading] = useState(false)
-  
+
   // Training Schedule State (sessions with trainer)
   const [mySchedule, setMySchedule] = useState({ schedule: [], trainer: null, today_sessions: [], upcoming_session: null })
   const [scheduleLoading, setScheduleLoading] = useState(false)
@@ -64,7 +64,7 @@ const TraineeDashboard = () => {
           traineeApi.getDashboard(),
           traineeApi.getProfile()
         ])
-        
+
         // Accept both .data and direct object
         const s = statsRes.data || statsRes
         // Normalize and robustly map all expected fields
@@ -82,7 +82,7 @@ const TraineeDashboard = () => {
           bestStreak: s.bestStreak ?? s.best_streak ?? 0,
           currentWeight: s.currentWeight ?? s.current_weight ?? '--'
         })
-        
+
         // Normalize profile fields for UI
         const p = profileRes.data || profileRes
         setUserData({
@@ -131,7 +131,7 @@ const TraineeDashboard = () => {
         traineeApi.getDashboard(),
         traineeApi.getProfile()
       ])
-      
+
       const s = statsRes.data || statsRes
       setStats({
         weeklyWorkouts: s.weeklyWorkouts ?? s.weekly_workouts ?? 0,
@@ -147,7 +147,7 @@ const TraineeDashboard = () => {
         bestStreak: s.bestStreak ?? s.best_streak ?? 0,
         currentWeight: s.currentWeight ?? s.current_weight ?? '--'
       })
-      
+
       const p = profileRes.data || profileRes
       setUserData({
         name: p.name || '',
@@ -171,7 +171,7 @@ const TraineeDashboard = () => {
         emergencyContactPhone: p.emergency_contact_phone || '',
         healthConditions: p.health_conditions || '',
       })
-      
+
       setLastUpdated(new Date())
       toast.success('Dashboard refreshed!', { duration: 2000 })
     } catch (err) {
@@ -291,7 +291,7 @@ const TraineeDashboard = () => {
     try {
       setPaymentLoading(true);
       setSelectedPlan(plan.id);
-      
+
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
         alert('Failed to load payment gateway');
@@ -325,9 +325,9 @@ const TraineeDashboard = () => {
               razorpay_signature: response.razorpay_signature,
               plan_id: plan.id
             });
-            
+
             alert('Payment successful! Membership activated.');
-            
+
             const membershipRes = await paymentsApi.getMyMembership();
             setCurrentMembership(membershipRes.data?.membership || null);
           } catch (err) {
@@ -439,15 +439,15 @@ const TraineeDashboard = () => {
       if (notif.notifId && !notif.is_read) {
         await traineeApi.markNotificationRead(notif.notifId);
         // Update local state
-        setNotifications(prev => 
+        setNotifications(prev =>
           prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n)
         );
       }
-      
+
       // Handle navigation based on notification type
       if (notif.type === 'message' && notif.userId) {
         // Mark messages as read and navigate to messages
-        await messagingApi.markMessagesRead(notif.userId).catch(() => {});
+        await messagingApi.markMessagesRead(notif.userId).catch(() => { });
         setActiveTab('messages');
         setShowNotifications(false);
       } else if (notif.type === 'schedule') {
@@ -500,7 +500,7 @@ const TraineeDashboard = () => {
   // Send message
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedConversation) return;
-    
+
     try {
       await messagingApi.sendMessage({
         receiver_id: selectedConversation.id,
@@ -532,7 +532,7 @@ const TraineeDashboard = () => {
         traineeApi.getTodayAttendance(),
         traineeApi.getAttendanceHistory(30)
       ]);
-      
+
       setAttendanceStatus(todayRes.data?.status || 'not_checked_in');
       setAttendanceData(todayRes.data?.attendance || null);
       setAttendanceHistory(historyRes.data?.records || []);
@@ -601,7 +601,7 @@ const TraineeDashboard = () => {
   const startWorkout = async () => {
     setWorkoutActive(true)
     setWorkoutCount(0)
-    
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true })
       if (videoRef.current) {
@@ -646,7 +646,7 @@ const TraineeDashboard = () => {
         duration: w.duration_minutes ? `${w.duration_minutes} min` : w.duration || '',
       }))
       setWorkoutHistory(workouts)
-    } catch {}
+    } catch { }
   }
 
   // Log Water
@@ -660,7 +660,7 @@ const TraineeDashboard = () => {
   // Add Meal
   const addMeal = () => {
     if (!newMeal.name || !newMeal.calories) return
-    
+
     const meal = {
       id: Date.now(),
       time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
@@ -670,7 +670,7 @@ const TraineeDashboard = () => {
       carbs: parseInt(newMeal.carbs) || 0,
       fats: parseInt(newMeal.fats) || 0
     }
-    
+
     setMeals([...meals, meal])
     setStats(prev => ({
       ...prev,
@@ -700,7 +700,7 @@ const TraineeDashboard = () => {
           animate={{ opacity: 1, scale: 1 }}
           className="max-w-md w-full mx-4 bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center border border-gray-200"
         >
-          <motion.div 
+          <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
             className="w-16 h-16 border-4 border-gray-200 border-t-primary-600 rounded-full mb-6"
@@ -727,19 +727,19 @@ const TraineeDashboard = () => {
             {loadError || "We couldn't load your dashboard data. Please check your login or try again later."}
           </p>
           <div className="flex gap-3 flex-wrap justify-center">
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => window.location.reload()}
-              className="px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all text-sm" 
+              className="px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all text-sm"
             >
               Retry
             </motion.button>
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={logout}
-              className="px-6 py-3 bg-gray-100 text-slate-700 rounded-xl font-semibold hover:bg-gray-200 transition-all text-sm border border-gray-200" 
+              className="px-6 py-3 bg-gray-100 text-slate-700 rounded-xl font-semibold hover:bg-gray-200 transition-all text-sm border border-gray-200"
             >
               Logout
             </motion.button>
@@ -750,9 +750,10 @@ const TraineeDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 font-sans">
+    <div className={`min-h-screen font-sans transition-colors duration-300 ${isDark ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
       {/* Top Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-700/50 shadow-md h-16">
+      <nav className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b shadow-md h-16 transition-colors duration-300 ${isDark ? 'bg-slate-900/95 border-slate-700/50' : 'bg-white/95 border-slate-200'
+        }`}>
         <div className="px-3 sm:px-6 h-full flex items-center">
           <div className="flex justify-between items-center gap-2 sm:gap-4 w-full">
             {/* Left Section */}
@@ -795,7 +796,7 @@ const TraineeDashboard = () => {
               </button>
 
               {/* Notifications Bell */}
-              <button 
+              <button
                 onClick={() => setShowNotifications(!showNotifications)}
                 className="relative p-2 hover:bg-slate-700/50 rounded-lg transition-colors group"
               >
@@ -884,11 +885,10 @@ const TraineeDashboard = () => {
                     {[{ id: 'all', label: 'All', count: notifications.length }, { id: 'message', label: 'Messages', icon: MessageCircle }, { id: 'workout', label: 'Workouts', icon: Dumbbell }].map(cat => (
                       <button
                         key={cat.id}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
-                          cat.id === 'all'
-                            ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
-                            : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
-                        }`}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${cat.id === 'all'
+                          ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
+                          : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                          }`}
                       >
                         {cat.icon && <cat.icon className="w-3.5 h-3.5" />}
                         {cat.label}
@@ -933,7 +933,7 @@ const TraineeDashboard = () => {
                         const config = notifConfig[notif.type] || notifConfig.default;
                         const NotifIcon = config.icon;
                         const isUnread = !notif.is_read;
-                        
+
                         return (
                           <motion.div
                             key={notif.id || idx}
@@ -948,13 +948,13 @@ const TraineeDashboard = () => {
                             {isUnread && (
                               <div className="absolute left-1 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
                             )}
-                            
+
                             <div className="flex items-start gap-3">
                               {/* Icon */}
                               <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${config.bg} flex items-center justify-center flex-shrink-0 shadow-lg`}>
                                 <NotifIcon className="w-5 h-5 text-white" />
                               </div>
-                              
+
                               {/* Content */}
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-start justify-between gap-2">
@@ -977,10 +977,10 @@ const TraineeDashboard = () => {
                                   </span>
                                 </div>
                                 <p className="text-slate-400 text-xs mt-1 line-clamp-2">{notif.message}</p>
-                                
+
                                 {/* Action Button */}
                                 {notif.type === 'message' && (
-                                  <button 
+                                  <button
                                     onClick={() => { setActiveTab('messages'); setShowNotifications(false); }}
                                     className="mt-2 text-xs font-medium text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors"
                                   >
@@ -1032,11 +1032,10 @@ const TraineeDashboard = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center justify-center px-2 py-2 rounded-lg transition-all duration-200 whitespace-nowrap text-xs ${
-                isActive 
-                  ? 'text-indigo-400 bg-indigo-500/10 border border-indigo-500/30' 
-                  : 'text-slate-500 hover:text-indigo-400'
-              }`}
+              className={`flex flex-col items-center justify-center px-2 py-2 rounded-lg transition-all duration-200 whitespace-nowrap text-xs ${isActive
+                ? 'text-indigo-400 bg-indigo-500/10 border border-indigo-500/30'
+                : 'text-slate-500 hover:text-indigo-400'
+                }`}
             >
               <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''}`} />
               <span className="mt-0.5 font-medium">{tab.label}</span>
@@ -1062,320 +1061,319 @@ const TraineeDashboard = () => {
       <div className="flex">
         {/* Enhanced Sidebar */}
         <aside className={`
-          fixed left-0 top-16 h-[calc(100vh-64px)] w-64 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-slate-800/80
-          z-40 transition-transform duration-300 ease-in-out lg:translate-x-0 overflow-hidden
-          ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'}
+          fixed left-0 top-16 h-[calc(100vh-64px)] w-64 border-r transition-all duration-300 ease-in-out lg:translate-x-0 overflow-hidden
+          z-40 ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'}
+          ${isDark
+            ? 'bg-slate-900 border-slate-800'
+            : 'bg-white border-slate-200'
+          }
         `}>
           <div className="h-full flex flex-col overflow-hidden">
             {/* User Profile Section */}
-            <div className="p-5 border-b border-slate-800/80">
-              <motion.div 
+            <div className={`p-5 border-b transition-colors duration-300 ${isDark ? 'border-slate-800 bg-slate-900/50' : 'border-slate-100 bg-slate-50/50'}`}>
+              <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="flex items-center gap-4"
               >
-                <div className="relative">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                <div className="relative group cursor-pointer">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-105 transition-transform duration-300">
                     {userData?.name?.split(' ').map(n => n[0]).join('').substring(0, 2) || 'U'}
                   </div>
-                  {/* Online Status */}
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-900" />
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 dark:border-slate-900 border-white shadow-sm"></div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-white truncate">{userData?.name || 'User'}</h3>
-                  <p className="text-xs text-slate-400 truncate">{userData?.email || ''}</p>
-                  <div className="flex items-center gap-1.5 mt-1">
-                    <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 rounded text-[10px] font-semibold border border-indigo-500/30">
-                      {userData?.plan || 'Member'}
-                    </span>
-                  </div>
+                  <h3 className={`font-bold truncate transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    {userData?.name || 'User'}
+                  </h3>
+                  <p className={`text-[10px] uppercase tracking-wider font-bold transition-colors duration-300 ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>
+                    {userData?.plan || 'Member'}
+                  </p>
                 </div>
               </motion.div>
             </div>
 
             {/* Scrollable Navigation */}
-            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent px-4 py-5">
+            <div className={`flex-1 overflow-y-auto px-3 py-5 space-y-6 scrollbar-none transition-colors duration-300 ${isDark ? 'scrollbar-thumb-slate-700' : 'scrollbar-thumb-slate-200'}`}>
               {/* Main Navigation */}
-              <div className="mb-6">
-                <h2 className="px-3 mb-3 text-[11px] font-bold text-slate-500 tracking-widest uppercase flex items-center gap-2">
-                  <span className="w-6 h-px bg-slate-700"></span>
+              <div>
+                <h2 className={`px-4 mb-3 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
                   Main Menu
                 </h2>
-                <nav className="space-y-1.5">
+                <nav className="space-y-1">
                   {[
-                    { id: 'dashboard', label: 'Dashboard', icon: Home, gradient: 'from-blue-500 to-cyan-500' },
+                    { id: 'dashboard', label: 'Dashboard', icon: Home, gradient: 'from-blue-500 to-indigo-500' },
                     { id: 'attendance', label: 'Attendance', icon: CalendarCheck, gradient: 'from-emerald-500 to-teal-500' },
-                    { id: 'nutrition', label: 'Nutrition', icon: Utensils, gradient: 'from-green-500 to-lime-500' },
-                    { id: 'progress', label: 'Progress', icon: BarChart, gradient: 'from-sky-500 to-blue-500' },
+                    { id: 'nutrition', label: 'Nutrition Tracker', icon: Utensils, gradient: 'from-green-500 to-emerald-500' },
+                    { id: 'progress', label: 'My Progress', icon: BarChart, gradient: 'from-sky-500 to-blue-500' },
                   ].map((tab, idx) => {
                     const Icon = tab.icon
                     const isActive = activeTab === tab.id
                     return (
-                      <motion.button
+                      <button
                         key={tab.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        whileHover={{ x: 4 }}
                         onClick={() => {
                           setActiveTab(tab.id)
                           if (window.innerWidth < 1024) setSidebarOpen(false)
                         }}
                         className={`
-                          w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
-                          ${isActive 
-                            ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/10 text-white font-semibold border border-indigo-500/30 shadow-lg shadow-indigo-500/5' 
-                            : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                          w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative
+                          ${isActive
+                            ? isDark
+                              ? 'bg-indigo-500/10 text-white border border-indigo-500/20 shadow-lg shadow-indigo-500/5'
+                              : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
+                            : isDark
+                              ? 'text-slate-400 hover:text-white hover:bg-slate-800/80'
+                              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                           }
                         `}
                       >
-                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
-                          isActive 
-                            ? `bg-gradient-to-br ${tab.gradient} shadow-lg` 
-                            : 'bg-slate-800 group-hover:bg-slate-700'
-                        }`}>
-                          <Icon className={`w-4.5 h-4.5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 shadow-sm ${isActive
+                          ? `bg-gradient-to-br ${tab.gradient} text-white`
+                          : isDark ? 'bg-slate-800 text-slate-400 group-hover:bg-slate-700' : 'bg-slate-50 text-slate-400 group-hover:bg-white'
+                          }`}>
+                          <Icon className="w-4.5 h-4.5" />
                         </div>
-                        <span className="flex-1 text-left text-sm">{tab.label}</span>
+                        <span className="flex-1 text-left text-sm font-medium">{tab.label}</span>
                         {isActive && (
                           <motion.div
                             layoutId="activeIndicator"
-                            className="w-1.5 h-1.5 rounded-full bg-indigo-400"
+                            className="w-1.5 h-6 rounded-full bg-indigo-500 absolute right-0"
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
                           />
                         )}
-                      </motion.button>
+                      </button>
                     )
                   })}
                 </nav>
               </div>
 
               {/* Communication Section */}
-              <div className="mb-6">
-                <h2 className="px-3 mb-3 text-[11px] font-bold text-slate-500 tracking-widest uppercase flex items-center gap-2">
-                  <span className="w-6 h-px bg-slate-700"></span>
+              <div>
+                <h2 className={`px-4 mb-3 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
                   Communication
                 </h2>
-                <nav className="space-y-1.5">
+                <nav className="space-y-1">
                   {[
-                    { id: 'coach', label: 'AI Coach', icon: MessageCircle, gradient: 'from-pink-500 to-rose-500', badge: 'AI' },
-                    { id: 'messages', label: 'Messages', icon: Mail, gradient: 'from-teal-500 to-cyan-500', badge: unreadCount > 0 ? unreadCount : null },
+                    { id: 'coach', label: 'AI Fitness Coach', icon: MessageCircle, gradient: 'from-pink-500 to-rose-500', badge: 'AI' },
+                    { id: 'messages', label: 'Trainer Chat', icon: Mail, gradient: 'from-teal-500 to-cyan-500', badge: unreadCount > 0 ? unreadCount : null },
                   ].map((tab, idx) => {
                     const Icon = tab.icon
                     const isActive = activeTab === tab.id
                     return (
-                      <motion.button
+                      <button
                         key={tab.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 + idx * 0.05 }}
-                        whileHover={{ x: 4 }}
                         onClick={() => {
                           setActiveTab(tab.id)
                           if (window.innerWidth < 1024) setSidebarOpen(false)
                         }}
                         className={`
-                          w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
-                          ${isActive 
-                            ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/10 text-white font-semibold border border-indigo-500/30 shadow-lg shadow-indigo-500/5' 
-                            : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                          w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative
+                          ${isActive
+                            ? isDark
+                              ? 'bg-indigo-500/10 text-white border border-indigo-500/20'
+                              : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
+                            : isDark
+                              ? 'text-slate-400 hover:text-white hover:bg-slate-800/80'
+                              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                           }
                         `}
                       >
-                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
-                          isActive 
-                            ? `bg-gradient-to-br ${tab.gradient} shadow-lg` 
-                            : 'bg-slate-800 group-hover:bg-slate-700'
-                        }`}>
-                          <Icon className={`w-4.5 h-4.5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
-                        </div>
-                        <span className="flex-1 text-left text-sm">{tab.label}</span>
-                        {tab.badge && (
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            tab.badge === 'AI' 
-                              ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 text-pink-400 border border-pink-500/30'
-                              : 'bg-red-500 text-white min-w-[20px] text-center'
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 shadow-sm ${isActive
+                          ? `bg-gradient-to-br ${tab.gradient} text-white`
+                          : isDark ? 'bg-slate-800 text-slate-400 group-hover:bg-slate-700' : 'bg-slate-50 text-slate-400 group-hover:bg-white'
                           }`}>
+                          <Icon className="w-4.5 h-4.5" />
+                        </div>
+                        <span className="flex-1 text-left text-sm font-medium">{tab.label}</span>
+                        {tab.badge && (
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shadow-sm ${tab.badge === 'AI'
+                            ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white'
+                            : 'bg-red-500 text-white min-w-[20px] text-center'
+                            }`}>
                             {tab.badge}
                           </span>
                         )}
                         {isActive && !tab.badge && (
                           <motion.div
                             layoutId="activeIndicator"
-                            className="w-1.5 h-1.5 rounded-full bg-indigo-400"
+                            className="w-1.5 h-6 rounded-full bg-indigo-500 absolute right-0"
                           />
                         )}
-                      </motion.button>
+                      </button>
                     )
                   })}
                 </nav>
               </div>
 
               {/* Account Section */}
-              <div className="mb-6">
-                <h2 className="px-3 mb-3 text-[11px] font-bold text-slate-500 tracking-widest uppercase flex items-center gap-2">
-                  <span className="w-6 h-px bg-slate-700"></span>
-                  Account
+              <div>
+                <h2 className={`px-4 mb-3 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                  Account Settings
                 </h2>
-                <nav className="space-y-1.5">
+                <nav className="space-y-1">
                   {[
-                    { id: 'payment', label: 'Plans & Billing', icon: CreditCard, gradient: 'from-indigo-500 to-purple-500' },
-                    { id: 'profile', label: 'My Profile', icon: User, gradient: 'from-slate-500 to-slate-600' },
+                    { id: 'payment', label: 'Membership Plans', icon: CreditCard, gradient: 'from-orange-500 to-amber-500' },
+                    { id: 'profile', label: 'Account Profile', icon: User, gradient: 'from-slate-600 to-slate-700' },
                   ].map((tab, idx) => {
                     const Icon = tab.icon
                     const isActive = activeTab === tab.id
                     return (
-                      <motion.button
+                      <button
                         key={tab.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 + idx * 0.05 }}
-                        whileHover={{ x: 4 }}
                         onClick={() => {
                           setActiveTab(tab.id)
                           if (window.innerWidth < 1024) setSidebarOpen(false)
                         }}
                         className={`
-                          w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
-                          ${isActive 
-                            ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/10 text-white font-semibold border border-indigo-500/30 shadow-lg shadow-indigo-500/5' 
-                            : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                          w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative
+                          ${isActive
+                            ? isDark
+                              ? 'bg-indigo-500/10 text-white border border-indigo-500/20'
+                              : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
+                            : isDark
+                              ? 'text-slate-400 hover:text-white hover:bg-slate-800/80'
+                              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                           }
                         `}
                       >
-                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
-                          isActive 
-                            ? `bg-gradient-to-br ${tab.gradient} shadow-lg` 
-                            : 'bg-slate-800 group-hover:bg-slate-700'
-                        }`}>
-                          <Icon className={`w-4.5 h-4.5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 shadow-sm ${isActive
+                          ? `bg-gradient-to-br ${tab.gradient} text-white`
+                          : isDark ? 'bg-slate-800 text-slate-400 group-hover:bg-slate-700' : 'bg-slate-50 text-slate-400 group-hover:bg-white'
+                          }`}>
+                          <Icon className="w-4.5 h-4.5" />
                         </div>
-                        <span className="flex-1 text-left text-sm">{tab.label}</span>
+                        <span className="flex-1 text-left text-sm font-medium">{tab.label}</span>
                         {isActive && (
                           <motion.div
                             layoutId="activeIndicator"
-                            className="w-1.5 h-1.5 rounded-full bg-indigo-400"
+                            className="w-1.5 h-6 rounded-full bg-indigo-500 absolute right-0"
                           />
                         )}
-                      </motion.button>
+                      </button>
                     )
                   })}
                 </nav>
               </div>
 
               {/* Today's Summary Card */}
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="bg-gradient-to-br from-slate-800/80 to-slate-900 rounded-2xl p-4 border border-slate-700/50 shadow-xl"
-              >
+              <div className={`mt-2 p-4 rounded-2xl border transition-all duration-300 shadow-lg ${isDark ? 'bg-slate-800/50 border-slate-700/50' : 'bg-white border-slate-100 shadow-slate-100/50'
+                }`}>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                      <Activity className="w-3.5 h-3.5 text-white" />
-                    </div>
-                    Today's Stats
+                  <h3 className={`font-bold text-xs uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                    <Activity className={`w-4 h-4 ${isDark ? 'text-indigo-400' : 'text-indigo-500'}`} />
+                    Daily Goal
                   </h3>
-                  <span className="text-[10px] text-slate-500">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded transition-colors ${isDark ? 'bg-slate-700 text-slate-400' : 'bg-slate-100 text-slate-500'
+                    }`}>
+                    {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </span>
                 </div>
                 {stats ? (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {/* Calories */}
-                    <div className="group">
+                    <div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-xs text-slate-400 flex items-center gap-1.5">
-                          <Flame className="w-3.5 h-3.5 text-orange-400" />
-                          Calories Left
+                        <span className="text-[10px] font-semibold text-slate-500 flex items-center gap-1">
+                          <Flame className="w-3 h-3 text-orange-500" />
+                          CALORIES
                         </span>
-                        <span className="font-bold text-sm text-white">
-                          {typeof stats.caloriesBudget === 'number' && typeof stats.calories === 'number' 
-                            ? (stats.caloriesBudget - stats.calories + (stats.caloriesBurned || 0)) 
-                            : '--'}
+                        <span className={`font-bold text-[11px] ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          {stats.calories} / {stats.caloriesBudget}
                         </span>
                       </div>
-                      <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                        <motion.div 
+                      <div className={`h-1 rounded-full overflow-hidden ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
+                        <motion.div
                           initial={{ width: 0 }}
-                          animate={{ width: `${stats.calories ? Math.min((stats.calories / stats.caloriesBudget) * 100, 100) : 0}%` }}
-                          className="h-full bg-gradient-to-r from-orange-500 to-amber-400 rounded-full"
+                          animate={{ width: `${Math.min((stats.calories / stats.caloriesBudget) * 100, 100)}%` }}
+                          className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,0.4)]"
                         />
                       </div>
                     </div>
-                    
+
                     {/* Water */}
-                    <div className="group">
+                    <div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-xs text-slate-400 flex items-center gap-1.5">
-                          <Droplet className="w-3.5 h-3.5 text-cyan-400" />
-                          Water Intake
+                        <span className="text-[10px] font-semibold text-slate-500 flex items-center gap-1">
+                          <Droplet className="w-3 h-3 text-sky-500" />
+                          HYDRATION
                         </span>
-                        <span className="font-bold text-sm text-white">
-                          {typeof stats.waterIntake === 'number' ? stats.waterIntake : '--'}/{typeof stats.waterGoal === 'number' ? stats.waterGoal : '--'}
+                        <span className={`font-bold text-[11px] ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          {stats.waterIntake} / {stats.waterGoal} L
                         </span>
                       </div>
-                      <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                        <motion.div 
+                      <div className={`h-1 rounded-full overflow-hidden ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
+                        <motion.div
                           initial={{ width: 0 }}
-                          animate={{ width: `${stats.waterIntake ? Math.min((stats.waterIntake / stats.waterGoal) * 100, 100) : 0}%` }}
-                          className="h-full bg-gradient-to-r from-cyan-500 to-blue-400 rounded-full"
+                          animate={{ width: `${Math.min((stats.waterIntake / stats.waterGoal) * 100, 100)}%` }}
+                          className="h-full bg-gradient-to-r from-sky-500 to-blue-500 rounded-full shadow-[0_0_8px_rgba(14,165,233,0.4)]"
                         />
                       </div>
-                    </div>
-                    
-                    {/* Streak */}
-                    <div className="flex items-center justify-between p-2.5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-lg border border-amber-500/20">
-                      <span className="text-xs text-slate-300 flex items-center gap-1.5">
-                        <div className="w-6 h-6 rounded bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                          <Trophy className="w-3 h-3 text-white" />
-                        </div>
-                        Day Streak
-                      </span>
-                      <span className="font-bold text-lg text-amber-400">
-                        {typeof stats.streak === 'number' ? stats.streak : '--'}
-                        <span className="text-xs ml-0.5">🔥</span>
-                      </span>
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-3 animate-pulse">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="h-10 bg-slate-700/50 rounded-lg" />
-                    ))}
+                    <div className="h-6 bg-slate-700/20 rounded-lg w-full" />
+                    <div className="h-6 bg-slate-700/20 rounded-lg w-3/4" />
                   </div>
                 )}
-              </motion.div>
+              </div>
             </div>
 
-            {/* Bottom Section - Logout */}
-            <div className="p-4 border-t border-slate-800/80">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={logout}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-xl transition-all duration-200 border border-red-500/20 hover:border-red-500/40 font-semibold text-sm"
+            {/* Theme Toggle Section */}
+            <div className={`p-4 border-t transition-colors duration-300 ${isDark ? 'border-slate-800' : 'border-slate-100'}`}>
+              <button
+                onClick={toggleTheme}
+                className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-300 ${isDark
+                    ? 'bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700'
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-sm'
+                  }`}
               >
-                <LogOut className="w-4 h-4" />
-                Logout
-              </motion.button>
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isDark ? 'bg-indigo-500/20 text-indigo-400' : 'bg-white text-amber-500 border border-slate-100 shadow-sm'
+                    }`}>
+                    {isDark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                  </div>
+                  <span className="text-sm font-semibold">{isDark ? 'Dark Mode' : 'Light Mode'}</span>
+                </div>
+                <div className={`w-10 h-5 rounded-full relative transition-colors ${isDark ? 'bg-indigo-500' : 'bg-slate-300'}`}>
+                  <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-lg transition-transform duration-300 ${isDark ? 'left-5.5' : 'left-0.5'}`}></div>
+                </div>
+              </button>
+
+              <button
+                onClick={logout}
+                className={`mt-3 w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group border ${isDark
+                    ? 'bg-red-500/5 border-red-500/10 text-red-400 hover:bg-red-500/10 hover:border-red-500/20'
+                    : 'bg-red-50 border-red-100 text-red-600 hover:bg-red-100 hover:border-red-200 shadow-sm'
+                  }`}
+              >
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isDark ? 'bg-red-500/10' : 'bg-white border border-red-100 shadow-sm'
+                  }`}>
+                  <LogOut className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-bold">Logout</span>
+              </button>
             </div>
           </div>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 lg:ml-64 min-h-screen bg-slate-950 pt-16 pb-20 lg:pb-0">
+        <main className={`flex-1 lg:ml-64 min-h-screen pt-16 pb-20 lg:pb-0 transition-colors duration-300 ${isDark ? 'bg-slate-950' : 'bg-slate-50'
+          }`}>
           <div className="p-3 sm:p-6 max-w-7xl mx-auto">
             {/* Dashboard Tab */}
             {activeTab === 'dashboard' && (
               <div className="space-y-5 sm:space-y-6">
                 {/* Welcome Card with Check-in */}
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden"
                 >
                   <div className="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
                   <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
-                  
+
                   <div className="relative z-10">
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 sm:gap-6">
                       <div className="flex-1">
@@ -1393,7 +1391,7 @@ const TraineeDashboard = () => {
                           </div>
                         </div>
                         {stats?.streak > 0 && (
-                          <motion.div 
+                          <motion.div
                             initial={{ scale: 0.9 }}
                             animate={{ scale: 1 }}
                             className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 hover:bg-white/30 transition-all"
@@ -1405,7 +1403,7 @@ const TraineeDashboard = () => {
                       </div>
 
                       {/* Quick Check-in Card */}
-                      <motion.div 
+                      <motion.div
                         whileHover={{ y: -4 }}
                         className="bg-white/15 backdrop-blur-md rounded-xl p-5 border border-white/30 shadow-xl w-full sm:w-auto sm:min-w-[240px]"
                       >
@@ -1461,7 +1459,7 @@ const TraineeDashboard = () => {
                 </motion.div>
 
                 {/* Stats Grid */}
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ staggerChildren: 0.1 }}
@@ -1481,19 +1479,23 @@ const TraineeDashboard = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}
                         whileHover={{ y: -6, scale: 1.02 }}
-                        className="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-lg hover:shadow-xl hover:border-slate-700 transition-all cursor-pointer group"
+                        className={`rounded-2xl p-5 border shadow-lg transition-all duration-300 cursor-pointer group ${isDark
+                          ? 'bg-slate-900 border-slate-800 hover:border-slate-700 hover:shadow-indigo-500/10'
+                          : 'bg-white border-slate-200 hover:border-indigo-200 hover:shadow-indigo-500/5'
+                          }`}
                       >
                         <div className={`w-12 h-12 rounded-xl ${stat.iconBg} flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform`}>
                           <Icon className={`w-6 h-6 ${stat.iconColor}`} />
                         </div>
-                        <div className={`text-3xl font-extrabold ${stat.textColor} mb-1`}>{stat.value}</div>
-                        <div className="text-sm text-slate-400 font-medium">{stat.label}</div>
-                        <div className="text-xs text-slate-500 mt-1">{stat.desc}</div>
+                        <div className={`text-3xl font-extrabold ${stat.textColor} mb-1 transition-colors duration-300`}>{stat.value}</div>
+                        <div className={`text-sm font-medium transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{stat.label}</div>
+                        <div className={`text-xs mt-1 transition-colors duration-300 ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>{stat.desc}</div>
                       </motion.div>
                     )
                   }) : (
                     [...Array(4)].map((_, i) => (
-                      <div key={i} className="h-40 bg-slate-900/50 rounded-2xl animate-pulse border border-slate-800" />
+                      <div key={i} className={`h-40 rounded-2xl animate-pulse border transition-colors duration-300 ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-slate-200'
+                        }`} />
                     ))
                   )}
                 </motion.div>
@@ -1503,9 +1505,13 @@ const TraineeDashboard = () => {
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-gradient-to-br from-indigo-900/50 to-purple-900/50 rounded-2xl p-6 border border-indigo-800/50 shadow-lg"
+                    className={`rounded-2xl p-6 border shadow-lg transition-all duration-300 ${isDark
+                      ? 'bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border-indigo-800/50'
+                      : 'bg-white border-indigo-100'
+                      }`}
                   >
-                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'
+                      }`}>
                       <Sparkles className="w-5 h-5 text-yellow-400" />
                       Today's Insights
                     </h3>
@@ -1515,9 +1521,9 @@ const TraineeDashboard = () => {
                           <TrendingUp className="w-5 h-5 text-green-400" />
                         </div>
                         <div>
-                          <p className="text-sm text-slate-300">Best Streak</p>
-                          <p className="text-xl font-bold text-white">{stats.bestStreak || stats.streak} Days</p>
-                          <p className="text-xs text-slate-400 mt-1">Keep it up!</p>
+                          <p className={`text-sm transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Best Streak</p>
+                          <p className={`text-xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>{stats.bestStreak || stats.streak} Days</p>
+                          <p className={`text-xs mt-1 transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Keep it up!</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
@@ -1525,9 +1531,9 @@ const TraineeDashboard = () => {
                           <Scale className="w-5 h-5 text-blue-400" />
                         </div>
                         <div>
-                          <p className="text-sm text-slate-300">Current Weight</p>
-                          <p className="text-xl font-bold text-white">{stats.currentWeight || '--'} kg</p>
-                          <p className="text-xs text-slate-400 mt-1">Track progress</p>
+                          <p className={`text-sm transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Current Weight</p>
+                          <p className={`text-xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>{stats.currentWeight || '--'} kg</p>
+                          <p className={`text-xs mt-1 transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Track progress</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
@@ -1535,9 +1541,9 @@ const TraineeDashboard = () => {
                           <Award className="w-5 h-5 text-purple-400" />
                         </div>
                         <div>
-                          <p className="text-sm text-slate-300">Avg Form Score</p>
-                          <p className="text-xl font-bold text-white">{stats.avgFormScore || 0}%</p>
-                          <p className="text-xs text-slate-400 mt-1">Technique matters</p>
+                          <p className={`text-sm transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Avg Form Score</p>
+                          <p className={`text-xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>{stats.avgFormScore || 0}%</p>
+                          <p className={`text-xs mt-1 transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Technique matters</p>
                         </div>
                       </div>
                     </div>
@@ -1549,10 +1555,13 @@ const TraineeDashboard = () => {
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 rounded-2xl p-6 border border-purple-800/50 shadow-lg"
+                    className={`rounded-2xl p-6 border shadow-lg transition-all duration-300 ${isDark
+                      ? 'bg-gradient-to-br from-purple-900/40 to-indigo-900/40 border-purple-800/50'
+                      : 'bg-white border-purple-100'
+                      }`}
                   >
                     <div className="flex items-center justify-between mb-5">
-                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                      <h3 className={`text-lg font-bold flex items-center gap-2 transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                         <Calendar className="w-5 h-5 text-purple-400" />
                         My Training Sessions
                       </h3>
@@ -1574,8 +1583,8 @@ const TraineeDashboard = () => {
                         {mySchedule.today_sessions.map((session, idx) => (
                           <div key={idx} className="flex items-center justify-between">
                             <div>
-                              <p className="text-white font-bold">{session.start_time} - {session.end_time}</p>
-                              <p className="text-sm text-slate-400 capitalize">{session.session_type?.replace('_', ' ')}</p>
+                              <p className={`font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>{session.start_time} - {session.end_time}</p>
+                              <p className={`text-sm capitalize transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{session.session_type?.replace('_', ' ')}</p>
                             </div>
                             <div className="text-right">
                               <p className="text-sm text-green-400">With {session.trainer?.name || mySchedule.trainer?.name}</p>
@@ -1595,8 +1604,8 @@ const TraineeDashboard = () => {
                         </div>
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-white font-bold">{mySchedule.upcoming_session.day_name}</p>
-                            <p className="text-sm text-slate-400">{mySchedule.upcoming_session.start_time} - {mySchedule.upcoming_session.end_time}</p>
+                            <p className={`font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>{mySchedule.upcoming_session.day_name}</p>
+                            <p className={`text-sm transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{mySchedule.upcoming_session.start_time} - {mySchedule.upcoming_session.end_time}</p>
                           </div>
                           <span className="text-sm text-blue-400 capitalize">{mySchedule.upcoming_session.session_type?.replace('_', ' ')}</span>
                         </div>
@@ -1609,11 +1618,17 @@ const TraineeDashboard = () => {
                         const daySessions = mySchedule.schedule.filter(s => s.day_of_week === idx)
                         const isToday = new Date().getDay() === (idx === 6 ? 0 : idx + 1)
                         return (
-                          <div 
-                            key={day} 
-                            className={`text-center p-2 rounded-lg ${isToday ? 'bg-purple-500/30 ring-2 ring-purple-500' : 'bg-slate-800/50'}`}
+                          <div
+                            key={day}
+                            className={`text-center p-2 rounded-lg transition-all duration-300 ${isToday
+                              ? 'bg-purple-500/30 ring-2 ring-purple-500'
+                              : isDark ? 'bg-slate-800/50' : 'bg-slate-50 border border-slate-100'
+                              }`}
                           >
-                            <p className={`text-xs font-bold mb-1 ${isToday ? 'text-purple-300' : 'text-slate-500'}`}>{day}</p>
+                            <p className={`text-xs font-bold mb-1 transition-colors duration-300 ${isToday
+                              ? (isDark ? 'text-purple-300' : 'text-purple-600')
+                              : (isDark ? 'text-slate-400' : 'text-slate-500')
+                              }`}>{day}</p>
                             {daySessions.length > 0 ? (
                               <div className="space-y-1">
                                 {daySessions.map((s, i) => (
@@ -1639,14 +1654,15 @@ const TraineeDashboard = () => {
                 )}
 
                 {/* Calories & Water Section */}
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6"
                 >
                   {/* Calories Card */}
-                  <div className="bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-800 shadow-lg">
-                    <h3 className="text-base sm:text-lg font-bold text-white mb-5 flex items-center gap-2">
+                  <div className={`rounded-2xl p-5 sm:p-6 border transition-all duration-300 shadow-lg ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                    }`}>
+                    <h3 className={`text-base sm:text-lg font-bold mb-5 flex items-center gap-2 transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                       <Utensils className="w-5 h-5 text-green-400" />
                       Calorie Tracker
                     </h3>
@@ -1659,18 +1675,18 @@ const TraineeDashboard = () => {
                               <div className="w-9 h-9 rounded-lg bg-green-500/20 flex items-center justify-center">
                                 <Utensils className="w-4 h-4 text-green-400" />
                               </div>
-                              <span className="text-xs sm:text-sm text-slate-300 font-medium">Consumed</span>
+                              <span className={`text-xs sm:text-sm font-medium transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Consumed</span>
                             </div>
                             <span className="text-lg sm:text-xl font-bold text-green-400">{stats.calories}</span>
                           </div>
-                          <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                            <motion.div 
+                          <div className={`w-full h-2 rounded-full overflow-hidden transition-colors duration-300 ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
+                            <motion.div
                               initial={{ width: 0 }}
                               animate={{ width: `${Math.min((stats.calories / stats.caloriesBudget) * 100, 100)}%` }}
                               className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full"
                             />
                           </div>
-                          <p className="text-xs text-slate-400 mt-2">of {stats.caloriesBudget} cal budget</p>
+                          <p className={`text-xs mt-2 transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>of {stats.caloriesBudget} cal budget</p>
                         </motion.div>
 
                         {/* Burned */}
@@ -1680,11 +1696,11 @@ const TraineeDashboard = () => {
                               <div className="w-9 h-9 rounded-lg bg-orange-500/20 flex items-center justify-center">
                                 <Flame className="w-4 h-4 text-orange-400" />
                               </div>
-                              <span className="text-xs sm:text-sm text-slate-300 font-medium">Burned</span>
+                              <span className={`text-xs sm:text-sm font-medium transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Burned</span>
                             </div>
                             <span className="text-lg sm:text-xl font-bold text-orange-400">{stats.caloriesBurned}</span>
                           </div>
-                          <p className="text-xs text-slate-400 mt-2">from workouts</p>
+                          <p className={`text-xs mt-2 transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>from workouts</p>
                         </motion.div>
 
                         {/* Remaining */}
@@ -1694,7 +1710,7 @@ const TraineeDashboard = () => {
                               <div className="w-9 h-9 rounded-lg bg-blue-500/20 flex items-center justify-center">
                                 <Target className="w-4 h-4 text-blue-400" />
                               </div>
-                              <span className="text-xs sm:text-sm text-slate-300 font-medium">Remaining</span>
+                              <span className={`text-xs sm:text-sm font-medium transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Remaining</span>
                             </div>
                             <span className="text-lg sm:text-xl font-bold text-blue-400">
                               {stats.caloriesBudget - stats.calories + stats.caloriesBurned}
@@ -1704,19 +1720,20 @@ const TraineeDashboard = () => {
                       </div>
                     ) : (
                       <div className="space-y-3 animate-pulse">
-                        {[1, 2, 3].map(i => <div key={i} className="h-16 bg-slate-800 rounded-xl" />)}
+                        {[1, 2, 3].map(i => <div key={i} className={`h-16 rounded-xl transition-colors duration-300 ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`} />)}
                       </div>
                     )}
                   </div>
 
                   {/* Water Card */}
-                  <div className="bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-800 shadow-lg">
+                  <div className={`rounded-2xl p-5 sm:p-6 border transition-all duration-300 shadow-lg ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                    }`}>
                     <div className="flex items-center justify-between mb-5">
                       <h3 className="text-base sm:text-lg font-bold text-cyan-400 flex items-center gap-2">
                         <Droplet className="w-5 h-5" />
                         Water Intake
                       </h3>
-                      <motion.button 
+                      <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={logWater}
@@ -1733,7 +1750,7 @@ const TraineeDashboard = () => {
                           <div className="relative">
                             <svg className="w-32 h-32 sm:w-40 sm:h-40 transform -rotate-90" viewBox="0 0 120 120">
                               {/* Background Circle */}
-                              <circle cx="60" cy="60" r="54" fill="none" stroke="#1e293b" strokeWidth="8" />
+                              <circle cx="60" cy="60" r="54" fill="none" stroke={isDark ? '#1e293b' : '#f1f5f9'} strokeWidth="8" />
                               {/* Progress Circle */}
                               <motion.circle
                                 cx="60"
@@ -1743,7 +1760,7 @@ const TraineeDashboard = () => {
                                 stroke="url(#waterGradient)"
                                 strokeWidth="8"
                                 initial={{ strokeDashoffset: 339.29 }}
-                                animate={{ 
+                                animate={{
                                   strokeDashoffset: 339.29 * (1 - (stats.waterIntake / stats.waterGoal))
                                 }}
                                 transition={{ duration: 0.8 }}
@@ -1761,33 +1778,34 @@ const TraineeDashboard = () => {
                               <span className="text-2xl sm:text-3xl font-extrabold text-cyan-400">
                                 {typeof stats.waterIntake === 'number' ? stats.waterIntake : '--'}
                               </span>
-                              <span className="text-xs sm:text-sm text-slate-400">/{typeof stats.waterGoal === 'number' ? stats.waterGoal : '--'} glasses</span>
+                              <span className={`text-xs sm:text-sm transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>/{typeof stats.waterGoal === 'number' ? stats.waterGoal : '--'} glasses</span>
                             </div>
                           </div>
                         </div>
                         <div className="text-center">
-                          <p className="text-xs sm:text-sm text-slate-400">
-                            {stats.waterIntake >= stats.waterGoal 
-                              ? '🎉 Goal Reached! Great hydration.' 
+                          <p className={`text-xs sm:text-sm transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                            {stats.waterIntake >= stats.waterGoal
+                              ? '🎉 Goal Reached! Great hydration.'
                               : `${stats.waterGoal - stats.waterIntake} more glasses to go`
                             }
                           </p>
                         </div>
                       </div>
                     ) : (
-                      <div className="h-40 bg-slate-800 rounded-xl animate-pulse" />
+                      <div className={`h-40 rounded-xl animate-pulse transition-colors duration-300 ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`} />
                     )}
                   </div>
                 </motion.div>
 
                 {/* Recent Workouts */}
-                <div className="bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-800 shadow-lg">
+                <div className={`rounded-2xl p-5 sm:p-6 border transition-all duration-300 shadow-lg ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                  }`}>
                   <div className="flex items-center justify-between mb-5">
-                    <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                    <h3 className={`text-base sm:text-lg font-bold flex items-center gap-2 transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                       <Dumbbell className="w-5 h-5 text-purple-400" />
                       Recent Workouts
                     </h3>
-                    <button 
+                    <button
                       onClick={() => setActiveTab('progress')}
                       className="text-xs sm:text-sm font-medium text-purple-400 hover:text-purple-300 flex items-center gap-1 transition-colors"
                     >
@@ -1798,26 +1816,27 @@ const TraineeDashboard = () => {
                   {workoutHistory && workoutHistory.length > 0 ? (
                     <div className="space-y-2">
                       {workoutHistory.slice(0, 5).map((workout, index) => (
-                        <motion.div 
-                          key={workout.id} 
+                        <motion.div
+                          key={workout.id}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.05 }}
-                          whileHover={{ x: 4 }}
-                          className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-purple-500/50 transition-all group"
+                          className={`flex items-center justify-between p-4 rounded-xl border transition-all group duration-300 ${isDark
+                            ? 'bg-slate-800/50 border-slate-700 hover:border-purple-500/50'
+                            : 'bg-slate-50 border-slate-100 hover:border-purple-200 shadow-sm'
+                            }`}
                         >
                           <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                              index === 0 ? 'bg-blue-500/20 text-blue-400' :
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${index === 0 ? 'bg-blue-500/20 text-blue-400' :
                               index === 1 ? 'bg-green-500/20 text-green-400' :
-                              index === 2 ? 'bg-purple-500/20 text-purple-400' :
-                              'bg-pink-500/20 text-pink-400'
-                            }`}>
+                                index === 2 ? 'bg-purple-500/20 text-purple-400' :
+                                  'bg-pink-500/20 text-pink-400'
+                              }`}>
                               <Dumbbell className="w-5 h-5" />
                             </div>
                             <div className="min-w-0">
-                              <p className="font-semibold text-white text-sm sm:text-base">{workout.type}</p>
-                              <p className="text-xs sm:text-sm text-slate-400">{workout.date}</p>
+                              <p className={`font-semibold text-sm sm:text-base transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>{workout.type}</p>
+                              <p className={`text-xs sm:text-sm transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{workout.date}</p>
                             </div>
                           </div>
                           <div className="text-right flex-shrink-0 ml-2">
@@ -1828,26 +1847,29 @@ const TraineeDashboard = () => {
                               {workout.formScore && (
                                 <>
                                   <span className="text-green-400 font-medium">{workout.formScore}%</span>
-                                  <span className="text-slate-600">•</span>
+                                  <span className={isDark ? 'text-slate-600' : 'text-slate-300'}>•</span>
                                 </>
                               )}
-                              <span className="text-slate-400">{workout.calories} cal</span>
+                              <span className={`transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{workout.calories} cal</span>
                             </div>
                           </div>
                         </motion.div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8">
-                      <Dumbbell className="w-12 h-12 mx-auto text-slate-600 mb-3" />
-                      <p className="text-slate-400 text-sm mb-2">No workouts yet</p>
-                      <p className="text-slate-500 text-xs">Start tracking your fitness journey!</p>
+                    <div className="text-center py-12">
+                      <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-colors duration-300 ${isDark ? 'bg-slate-800' : 'bg-slate-100'
+                        }`}>
+                        <Dumbbell className={`w-8 h-8 transition-colors duration-300 ${isDark ? 'text-slate-600' : 'text-slate-400'}`} />
+                      </div>
+                      <p className={`text-sm mb-1 transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>No workouts yet</p>
+                      <p className={`text-xs transition-colors duration-300 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Start tracking your fitness journey!</p>
                     </div>
                   )}
                 </div>
               </div>
             )}
-            
+
             {/* Attendance Tab */}
             {activeTab === 'attendance' && (
               <motion.div
@@ -1863,7 +1885,7 @@ const TraineeDashboard = () => {
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-[0.03]">
                     <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '30px 30px' }} />
                   </div>
-                  
+
                   <div className="relative z-10">
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                       <div>
@@ -1878,9 +1900,9 @@ const TraineeDashboard = () => {
                         </div>
                         <p className="text-emerald-100/80 text-sm max-w-md">Track your gym visits and build consistency. Your streak keeps you motivated!</p>
                       </div>
-                      
+
                       {/* Enhanced Check In/Out Card */}
-                      <motion.div 
+                      <motion.div
                         whileHover={{ y: -4 }}
                         className="bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/30 shadow-2xl min-w-[280px]"
                       >
@@ -1922,7 +1944,7 @@ const TraineeDashboard = () => {
                               </motion.button>
                             </motion.div>
                           )}
-                          
+
                           {attendanceStatus === 'checked_in' && (
                             <motion.div
                               key="checked-in"
@@ -1939,14 +1961,14 @@ const TraineeDashboard = () => {
                                 />
                                 <span className="text-green-300 font-semibold text-sm">Session Active</span>
                               </div>
-                              
+
                               <div className="mb-4 p-3 bg-white/10 rounded-xl">
                                 <p className="text-white/70 text-xs mb-1">Checked in at</p>
                                 <p className="text-white font-bold text-lg">
                                   {attendanceData?.check_in_time && new Date(attendanceData.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </p>
                               </div>
-                              
+
                               <motion.button
                                 whileHover={{ scale: 1.03 }}
                                 whileTap={{ scale: 0.97 }}
@@ -1972,7 +1994,7 @@ const TraineeDashboard = () => {
                               </motion.button>
                             </motion.div>
                           )}
-                          
+
                           {attendanceStatus === 'checked_out' && (
                             <motion.div
                               key="checked-out"
@@ -1981,7 +2003,7 @@ const TraineeDashboard = () => {
                               exit={{ opacity: 0, scale: 0.9 }}
                               className="text-center"
                             >
-                              <motion.div 
+                              <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
                                 transition={{ type: "spring", duration: 0.5 }}
@@ -1989,10 +2011,10 @@ const TraineeDashboard = () => {
                               >
                                 <CheckCircle className="w-8 h-8 text-green-300" />
                               </motion.div>
-                              
+
                               <p className="text-white font-bold text-lg mb-1">Workout Complete! 🎉</p>
                               <p className="text-white/70 text-sm mb-4">Great job today!</p>
-                              
+
                               {attendanceData?.duration_minutes && (
                                 <div className="p-4 bg-white/10 rounded-xl">
                                   <p className="text-white/70 text-xs mb-1">Session Duration</p>
@@ -2014,30 +2036,29 @@ const TraineeDashboard = () => {
                 {/* Today's Status Card */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Current Status */}
-                  <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
-                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <div className={`rounded-2xl p-6 border shadow-xl transition-all duration-300 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                    }`}>
+                    <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                       <Clock className="w-5 h-5 text-emerald-500" />
                       Today's Status
                     </h3>
                     <div className="space-y-4">
-                      <div className={`p-4 rounded-xl transition-all ${
-                        attendanceStatus === 'checked_in' 
-                          ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/10 border border-green-500/30' 
-                          : attendanceStatus === 'checked_out'
+                      <div className={`p-4 rounded-xl transition-all ${attendanceStatus === 'checked_in'
+                        ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/10 border border-green-500/30'
+                        : attendanceStatus === 'checked_out'
                           ? 'bg-gradient-to-br from-blue-500/20 to-cyan-500/10 border border-blue-500/30'
-                          : 'bg-slate-800/50 border border-slate-700'
-                      }`}>
+                          : isDark ? 'bg-slate-800/50 border border-slate-700' : 'bg-slate-50 border border-slate-200'
+                        }`}>
                         <div className="flex items-center gap-4">
-                          <motion.div 
+                          <motion.div
                             animate={attendanceStatus === 'checked_in' ? { scale: [1, 1.1, 1] } : {}}
                             transition={{ duration: 2, repeat: Infinity }}
-                            className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-lg ${
-                              attendanceStatus === 'checked_in' 
-                                ? 'bg-gradient-to-br from-green-500 to-emerald-500' 
-                                : attendanceStatus === 'checked_out'
+                            className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-lg ${attendanceStatus === 'checked_in'
+                              ? 'bg-gradient-to-br from-green-500 to-emerald-500'
+                              : attendanceStatus === 'checked_out'
                                 ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                                : 'bg-slate-700'
-                            }`}
+                                : isDark ? 'bg-slate-700' : 'bg-slate-200'
+                              }`}
                           >
                             {attendanceStatus === 'checked_in' ? (
                               <UserCheck className="w-7 h-7 text-white" />
@@ -2048,13 +2069,13 @@ const TraineeDashboard = () => {
                             )}
                           </motion.div>
                           <div>
-                            <p className="font-bold text-white text-lg">
+                            <p className={`font-bold text-lg transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                               {attendanceStatus === 'checked_in' ? 'At the Gym' :
-                               attendanceStatus === 'checked_out' ? 'Session Done' :
-                               'Not Checked In'}
+                                attendanceStatus === 'checked_out' ? 'Session Done' :
+                                  'Not Checked In'}
                             </p>
                             {attendanceData?.check_in_time && (
-                              <p className="text-sm text-slate-400 flex items-center gap-1">
+                              <p className={`text-sm flex items-center gap-1 transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                                 <LogIn className="w-3.5 h-3.5 text-green-400" />
                                 {new Date(attendanceData.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 {attendanceData?.check_out_time && (
@@ -2074,7 +2095,7 @@ const TraineeDashboard = () => {
 
                   {/* Stats Cards */}
                   <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <motion.div 
+                    <motion.div
                       whileHover={{ y: -4, scale: 1.02 }}
                       className="bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl p-5 text-white shadow-lg cursor-pointer"
                     >
@@ -2087,8 +2108,8 @@ const TraineeDashboard = () => {
                       <p className="text-3xl font-bold">{attendanceStats?.current_streak || 0}</p>
                       <p className="text-emerald-100 text-sm">Day Streak</p>
                     </motion.div>
-                    
-                    <motion.div 
+
+                    <motion.div
                       whileHover={{ y: -4, scale: 1.02 }}
                       className="bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl p-5 text-white shadow-lg cursor-pointer"
                     >
@@ -2098,8 +2119,8 @@ const TraineeDashboard = () => {
                       <p className="text-3xl font-bold">{attendanceStats?.this_month_visits || 0}</p>
                       <p className="text-blue-100 text-sm">This Month</p>
                     </motion.div>
-                    
-                    <motion.div 
+
+                    <motion.div
                       whileHover={{ y: -4, scale: 1.02 }}
                       className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl p-5 text-white shadow-lg cursor-pointer"
                     >
@@ -2109,8 +2130,8 @@ const TraineeDashboard = () => {
                       <p className="text-3xl font-bold">{attendanceStats?.total_visits || 0}</p>
                       <p className="text-purple-100 text-sm">Total Visits</p>
                     </motion.div>
-                    
-                    <motion.div 
+
+                    <motion.div
                       whileHover={{ y: -4, scale: 1.02 }}
                       className="bg-gradient-to-br from-amber-600 to-orange-600 rounded-2xl p-5 text-white shadow-lg cursor-pointer"
                     >
@@ -2124,26 +2145,30 @@ const TraineeDashboard = () => {
                 </div>
 
                 {/* Attendance History */}
-                <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
-                  <div className="p-5 border-b border-slate-800 bg-gradient-to-r from-slate-800 to-slate-900">
+                <div className={`rounded-2xl border shadow-xl overflow-hidden transition-all duration-300 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                  }`}>
+                  <div className={`p-5 border-b transition-colors duration-300 ${isDark ? 'border-slate-800 bg-gradient-to-r from-slate-800 to-slate-900' : 'border-slate-100 bg-slate-50'
+                    }`}>
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                      <h3 className={`text-lg font-bold flex items-center gap-2 transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                         <History className="w-5 h-5 text-slate-400" />
                         Recent Visits
                       </h3>
-                      <span className="text-xs text-slate-400 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+                      <span className={`text-xs px-3 py-1.5 rounded-lg border transition-colors duration-300 ${isDark ? 'text-slate-400 bg-slate-800 border-slate-700' : 'text-slate-600 bg-white border-slate-200'
+                        }`}>
                         Last 30 days
                       </span>
                     </div>
                   </div>
-                  
+
                   {attendanceHistory.length === 0 ? (
                     <div className="p-12 text-center">
-                      <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-slate-800 flex items-center justify-center">
-                        <CalendarCheck className="w-10 h-10 text-slate-600" />
+                      <div className={`w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-colors duration-300 ${isDark ? 'bg-slate-800' : 'bg-slate-100'
+                        }`}>
+                        <CalendarCheck className={`w-10 h-10 transition-colors duration-300 ${isDark ? 'text-slate-600' : 'text-slate-400'}`} />
                       </div>
-                      <h3 className="text-xl font-semibold text-white mb-2">No attendance records yet</h3>
-                      <p className="text-slate-400 text-sm max-w-xs mx-auto">Start tracking your gym visits by checking in when you arrive!</p>
+                      <h3 className={`text-xl font-semibold mb-2 transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>No attendance records yet</h3>
+                      <p className={`text-sm max-w-xs mx-auto transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Start tracking your gym visits by checking in when you arrive!</p>
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
@@ -2156,42 +2181,41 @@ const TraineeDashboard = () => {
                       </motion.button>
                     </div>
                   ) : (
-                    <div className="divide-y divide-slate-800">
+                    <div className={`divide-y transition-colors duration-300 ${isDark ? 'divide-slate-800' : 'divide-slate-100'}`}>
                       {attendanceHistory.slice(0, 10).map((record, idx) => {
                         const checkInDate = new Date(record.check_in_time || record.date);
                         const isToday = checkInDate.toDateString() === new Date().toDateString();
-                        
+
                         return (
                           <motion.div
                             key={record.id}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: idx * 0.05 }}
-                            whileHover={{ backgroundColor: 'rgba(51, 65, 85, 0.3)' }}
-                            className="p-4 transition-colors"
+                            whileHover={{ backgroundColor: isDark ? 'rgba(51, 65, 85, 0.3)' : 'rgba(241, 245, 249, 1)' }}
+                            className="p-4 transition-all duration-200"
                           >
                             <div className="flex items-center justify-between gap-4">
                               <div className="flex items-center gap-4">
                                 {/* Date Icon */}
-                                <div className={`w-14 h-14 rounded-xl flex flex-col items-center justify-center shadow-lg ${
-                                  isToday 
-                                    ? 'bg-gradient-to-br from-emerald-500 to-teal-500' 
-                                    : idx === 0 
+                                <div className={`w-14 h-14 rounded-xl flex flex-col items-center justify-center shadow-lg ${isToday
+                                  ? 'bg-gradient-to-br from-emerald-500 to-teal-500'
+                                  : idx === 0
                                     ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                                    : 'bg-slate-800 border border-slate-700'
-                                }`}>
-                                  <span className={`text-lg font-bold ${isToday || idx === 0 ? 'text-white' : 'text-slate-300'}`}>
+                                    : isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'
+                                  }`}>
+                                  <span className={`text-lg font-bold transition-colors duration-300 ${isToday || idx === 0 ? 'text-white' : (isDark ? 'text-slate-300' : 'text-slate-700')}`}>
                                     {checkInDate.getDate()}
                                   </span>
-                                  <span className={`text-[10px] uppercase ${isToday || idx === 0 ? 'text-white/80' : 'text-slate-500'}`}>
+                                  <span className={`text-[10px] uppercase transition-colors duration-300 ${isToday || idx === 0 ? 'text-white/80' : (isDark ? 'text-slate-500' : 'text-slate-400')}`}>
                                     {checkInDate.toLocaleDateString('en-US', { month: 'short' })}
                                   </span>
                                 </div>
-                                
+
                                 {/* Details */}
                                 <div>
                                   <div className="flex items-center gap-2">
-                                    <p className="font-semibold text-white">
+                                    <p className={`font-semibold transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                                       {checkInDate.toLocaleDateString('en-US', { weekday: 'long' })}
                                     </p>
                                     {isToday && (
@@ -2217,14 +2241,15 @@ const TraineeDashboard = () => {
                                   </div>
                                 </div>
                               </div>
-                              
+
                               {/* Duration Badge */}
                               <div className="text-right">
                                 {record.duration_minutes ? (
-                                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-xl border border-slate-700">
+                                  <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-colors duration-300 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'
+                                    }`}>
                                     <Timer className="w-4 h-4 text-cyan-400" />
-                                    <span className="font-bold text-white">{record.duration_minutes}</span>
-                                    <span className="text-slate-400 text-sm">min</span>
+                                    <span className={`font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>{record.duration_minutes}</span>
+                                    <span className={`text-sm transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>min</span>
                                   </div>
                                 ) : (
                                   <span className="px-4 py-2 bg-amber-500/20 text-amber-400 rounded-xl text-sm font-medium border border-amber-500/30 flex items-center gap-2">
@@ -2239,7 +2264,7 @@ const TraineeDashboard = () => {
                       })}
                     </div>
                   )}
-                  
+
                   {/* View More */}
                   {attendanceHistory.length > 10 && (
                     <div className="p-4 border-t border-slate-800 bg-slate-800/30">
@@ -2255,7 +2280,7 @@ const TraineeDashboard = () => {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-slate-900 rounded-2xl p-6 shadow-xl border border-slate-800"
+                  className={`rounded-2xl p-6 shadow-xl border transition-all duration-300 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}
                 >
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-bold text-white flex items-center gap-2">
@@ -2270,7 +2295,7 @@ const TraineeDashboard = () => {
                   </div>
 
                   {/* Calendar Grid */}
-                  <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800">
+                  <div className={`rounded-xl p-4 border transition-all duration-300 ${isDark ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
                     {/* Days Header */}
                     <div className="grid grid-cols-7 gap-2 mb-4">
                       {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
@@ -2291,7 +2316,7 @@ const TraineeDashboard = () => {
                         const daysInMonth = lastDay.getDate();
                         const startingDayOfWeek = firstDay.getDay();
                         const today = now.getDate();
-                        
+
                         // Create a set of attended dates from real attendance history
                         const attendedDates = new Set();
                         attendanceHistory.forEach(record => {
@@ -2306,40 +2331,39 @@ const TraineeDashboard = () => {
                             }
                           }
                         });
-                        
+
                         const days = [];
-                        
+
                         // Empty cells for days before month starts
                         for (let i = 0; i < startingDayOfWeek; i++) {
                           days.push(<div key={`empty-${i}`} className="h-10" />);
                         }
-                        
+
                         // Days of month
                         for (let day = 1; day <= daysInMonth; day++) {
                           const isToday = day === today;
                           const isCheckedIn = attendedDates.has(day);
                           const isFutureDay = day > today;
-                          
+
                           days.push(
                             <motion.div
                               key={day}
                               whileHover={{ scale: !isFutureDay ? 1.1 : 1 }}
-                              className={`h-10 rounded-lg flex items-center justify-center text-sm font-bold transition-all ${
-                                isCheckedIn
-                                  ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/20'
-                                  : isToday
+                              className={`h-10 rounded-lg flex items-center justify-center text-sm font-bold transition-all duration-300 ${isCheckedIn
+                                ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/20'
+                                : isToday
                                   ? 'bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-lg shadow-indigo-500/20 ring-2 ring-indigo-400/50'
                                   : isFutureDay
-                                  ? 'bg-slate-800/30 text-slate-600 cursor-default'
-                                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-                              }`}
+                                    ? (isDark ? 'bg-slate-800/30 text-slate-600' : 'bg-slate-100/50 text-slate-300') + ' cursor-default'
+                                    : isDark ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-100'
+                                }`}
                               title={isCheckedIn ? 'Attended' : isToday ? 'Today' : isFutureDay ? 'Upcoming' : 'Missed'}
                             >
                               {day}
                             </motion.div>
                           );
                         }
-                        
+
                         return days;
                       })()}
                     </div>
@@ -2349,23 +2373,24 @@ const TraineeDashboard = () => {
                   <div className="mt-6 flex flex-wrap items-center justify-center gap-6">
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-gradient-to-br from-green-500 to-emerald-500 shadow" />
-                      <span className="text-xs text-slate-400">Checked In</span>
+                      <span className={`text-xs transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Checked In</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-gradient-to-br from-indigo-500 to-blue-600 ring-2 ring-indigo-400/50" />
-                      <span className="text-xs text-slate-400">Today</span>
+                      <span className={`text-xs transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Today</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded bg-slate-800" />
-                      <span className="text-xs text-slate-400">Not Checked</span>
+                      <div className={`w-4 h-4 rounded shadow-inner transition-colors duration-300 ${isDark ? 'bg-slate-800' : 'bg-white border border-slate-200'}`} />
+                      <span className={`text-xs transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Not Checked</span>
                     </div>
                   </div>
 
                   {/* Monthly Stats */}
                   <div className="mt-6 grid grid-cols-3 gap-3">
-                    <motion.div 
+                    <motion.div
                       whileHover={{ y: -2, scale: 1.02 }}
-                      className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl p-4 border border-green-500/20 text-center cursor-pointer"
+                      className={`rounded-xl p-4 border text-center cursor-pointer transition-all duration-300 shadow-sm ${isDark ? 'bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/20' : 'bg-green-50 border-green-100'
+                        }`}
                     >
                       <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-green-500/20 flex items-center justify-center">
                         <Flame className="w-5 h-5 text-green-400" />
@@ -2373,11 +2398,12 @@ const TraineeDashboard = () => {
                       <p className="text-2xl font-bold text-green-400">
                         {attendanceStats?.current_streak || 0}
                       </p>
-                      <p className="text-xs text-slate-400 mt-1">Current Streak</p>
+                      <p className={`text-xs mt-1 transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Current Streak</p>
                     </motion.div>
-                    <motion.div 
+                    <motion.div
                       whileHover={{ y: -2, scale: 1.02 }}
-                      className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-xl p-4 border border-indigo-500/20 text-center cursor-pointer"
+                      className={`rounded-xl p-4 border text-center cursor-pointer transition-all duration-300 shadow-sm ${isDark ? 'bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border-indigo-500/20' : 'bg-indigo-50 border-indigo-100'
+                        }`}
                     >
                       <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-indigo-500/20 flex items-center justify-center">
                         <Calendar className="w-5 h-5 text-indigo-400" />
@@ -2389,11 +2415,12 @@ const TraineeDashboard = () => {
                           return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
                         }).length || 0}
                       </p>
-                      <p className="text-xs text-slate-400 mt-1">This Month</p>
+                      <p className={`text-xs mt-1 transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>This Month</p>
                     </motion.div>
-                    <motion.div 
+                    <motion.div
                       whileHover={{ y: -2, scale: 1.02 }}
-                      className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 rounded-xl p-4 border border-cyan-500/20 text-center cursor-pointer"
+                      className={`rounded-xl p-4 border text-center cursor-pointer transition-all duration-300 shadow-sm ${isDark ? 'bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border-cyan-500/20' : 'bg-cyan-50 border-cyan-100'
+                        }`}
                     >
                       <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-cyan-500/20 flex items-center justify-center">
                         <Trophy className="w-5 h-5 text-cyan-400" />
@@ -2401,7 +2428,7 @@ const TraineeDashboard = () => {
                       <p className="text-2xl font-bold text-cyan-400">
                         {attendanceStats?.best_streak || attendanceStats?.current_streak || 0}
                       </p>
-                      <p className="text-xs text-slate-400 mt-1">Best Streak</p>
+                      <p className={`text-xs mt-1 transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Best Streak</p>
                     </motion.div>
                   </div>
                 </motion.div>
@@ -2416,11 +2443,11 @@ const TraineeDashboard = () => {
                     <div>
                       <h3 className="text-xl font-bold mb-1">Keep the Momentum! 💪</h3>
                       <p className="text-white/80">
-                        {attendanceStats?.current_streak >= 7 
+                        {attendanceStats?.current_streak >= 7
                           ? "Amazing! You've been consistent for a week. Keep pushing!"
                           : attendanceStats?.current_streak >= 3
-                          ? "Great progress! A few more days to build a solid streak."
-                          : "Every visit counts. Start your streak today!"}
+                            ? "Great progress! A few more days to build a solid streak."
+                            : "Every visit counts. Start your streak today!"}
                       </p>
                     </div>
                   </div>
@@ -2459,17 +2486,18 @@ const TraineeDashboard = () => {
 
                 {/* Current Membership Status */}
                 {currentMembership && (
-                  <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-2xl p-5">
+                  <div className={`rounded-2xl p-5 border transition-all duration-300 ${isDark ? 'bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/30' : 'bg-green-50 border-green-100 shadow-sm'
+                    }`}>
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center shadow-lg">
                         <CheckCircle className="w-6 h-6 text-white" />
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-green-400">Active Membership</h3>
-                        <p className="text-slate-300">
+                        <p className={`transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                           {currentMembership.membership_type} • {currentMembership.days_remaining} days remaining
                         </p>
-                        <p className="text-xs text-slate-400">
+                        <p className={`text-xs transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                           Expires: {new Date(currentMembership.end_date).toLocaleDateString()}
                         </p>
                       </div>
@@ -2480,10 +2508,11 @@ const TraineeDashboard = () => {
                 {/* Plans Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {plans.length === 0 ? (
-                    <div className="col-span-full text-center py-12 bg-slate-900 rounded-2xl border border-slate-800">
-                      <CreditCard className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-slate-300 mb-2">No Plans Available</h3>
-                      <p className="text-slate-500">Contact admin to add membership plans</p>
+                    <div className={`col-span-full text-center py-12 rounded-2xl border transition-all duration-300 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+                      }`}>
+                      <CreditCard className={`w-16 h-16 mx-auto mb-4 transition-colors duration-300 ${isDark ? 'text-slate-600' : 'text-slate-300'}`} />
+                      <h3 className={`text-xl font-semibold mb-2 transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-900'}`}>No Plans Available</h3>
+                      <p className={`transition-colors duration-300 ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>Contact admin to add membership plans</p>
                     </div>
                   ) : (
                     plans.map((plan, index) => (
@@ -2493,11 +2522,10 @@ const TraineeDashboard = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
                         whileHover={{ y: -4, scale: 1.02 }}
-                        className={`bg-slate-900 rounded-2xl p-6 border-2 transition-all duration-300 hover:shadow-xl ${
-                          selectedPlan === plan.id
-                            ? 'border-purple-500 shadow-lg shadow-purple-500/20'
-                            : 'border-slate-800 hover:border-purple-500/50'
-                        }`}
+                        className={`rounded-2xl p-6 border-2 transition-all duration-300 hover:shadow-xl ${selectedPlan === plan.id
+                          ? 'border-purple-500 shadow-lg shadow-purple-500/20'
+                          : isDark ? 'border-slate-800 hover:border-purple-500/50 bg-slate-900' : 'border-slate-100 hover:border-purple-500/30 bg-white shadow-sm'
+                          }`}
                       >
                         {/* Popular Badge */}
                         {index === 1 && (
@@ -2505,14 +2533,14 @@ const TraineeDashboard = () => {
                             Most Popular
                           </div>
                         )}
-                        
+
                         <div className="text-center mb-6">
-                          <div className="inline-block px-4 py-1.5 bg-slate-700 rounded-full text-sm font-medium text-slate-300 mb-4">
+                          <div className={`inline-block px-4 py-1.5 rounded-full text-sm font-medium mb-4 transition-colors duration-300 ${isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-600'}`}>
                             {plan.name}
                           </div>
                           <div className="flex items-baseline justify-center gap-1">
-                            <span className="text-4xl font-bold text-white">₹{plan.price?.toLocaleString()}</span>
-                            <span className="text-slate-400">/{plan.duration_months} mo</span>
+                            <span className={`text-4xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>₹{plan.price?.toLocaleString()}</span>
+                            <span className={`transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>/{plan.duration_months} mo</span>
                           </div>
                         </div>
 
@@ -2522,7 +2550,7 @@ const TraineeDashboard = () => {
                               <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                                 <Check className="w-3 h-3 text-green-400" />
                               </div>
-                              <span className="text-slate-300">{feature}</span>
+                              <span className={`transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{feature}</span>
                             </li>
                           ))}
                           {(!plan.features || plan.features.length === 0) && (
@@ -2531,13 +2559,13 @@ const TraineeDashboard = () => {
                                 <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                                   <Check className="w-3 h-3 text-green-400" />
                                 </div>
-                                <span className="text-slate-300">Full gym access</span>
+                                <span className={`transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Full gym access</span>
                               </li>
                               <li className="flex items-start gap-3">
                                 <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                                   <Check className="w-3 h-3 text-green-400" />
                                 </div>
-                                <span className="text-slate-300">AI workout tracking</span>
+                                <span className={`transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>AI workout tracking</span>
                               </li>
                             </>
                           )}
@@ -2546,11 +2574,10 @@ const TraineeDashboard = () => {
                         <button
                           onClick={() => handlePurchasePlan(plan)}
                           disabled={paymentLoading && selectedPlan === plan.id}
-                          className={`w-full py-3.5 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
-                            paymentLoading && selectedPlan === plan.id
-                              ? 'bg-gray-600 text-slate-400 cursor-not-allowed'
-                              : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-500/30'
-                          }`}
+                          className={`w-full py-3.5 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${paymentLoading && selectedPlan === plan.id
+                            ? 'bg-gray-600 text-slate-400 cursor-not-allowed'
+                            : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-500/30'
+                            }`}
                         >
                           {paymentLoading && selectedPlan === plan.id ? (
                             <>
@@ -2570,8 +2597,8 @@ const TraineeDashboard = () => {
                 </div>
 
                 {/* Payment Security Note */}
-                <div className="bg-slate-800/50 rounded-xl p-4 text-center border border-slate-800">
-                  <p className="text-slate-400 text-sm flex items-center justify-center gap-2">
+                <div className={`rounded-xl p-4 text-center border transition-all duration-300 ${isDark ? 'bg-slate-800/50 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
+                  <p className={`text-sm flex items-center justify-center gap-2 transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                     <Shield className="w-4 h-4" />
                     Secure payments powered by Razorpay. Your payment information is encrypted.
                   </p>
@@ -2605,9 +2632,11 @@ const TraineeDashboard = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                   {/* Contacts / Conversations List */}
-                  <div className="bg-slate-900 rounded-xl sm:rounded-2xl shadow-lg overflow-hidden border border-slate-800">
-                    <div className="p-3 sm:p-4 border-b border-slate-800 bg-slate-800/50 sticky top-0 z-10">
-                      <h3 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2">
+                  <div className={`rounded-xl sm:rounded-2xl shadow-lg overflow-hidden border transition-all duration-300 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                    }`}>
+                    <div className={`p-3 sm:p-4 border-b sticky top-0 z-10 transition-colors duration-300 ${isDark ? 'border-slate-800 bg-slate-800/50' : 'border-slate-100 bg-slate-50'
+                      }`}>
+                      <h3 className={`text-sm sm:text-base font-semibold flex items-center gap-2 transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                         <div className="w-8 h-8 rounded-lg bg-teal-500/20 flex items-center justify-center">
                           <Users className="w-4 h-4 text-teal-400" />
                         </div>
@@ -2623,9 +2652,10 @@ const TraineeDashboard = () => {
                         <button
                           key={conv.user_id}
                           onClick={() => selectConversation({ id: conv.user_id, name: conv.user_name, role: conv.user_role })}
-                          className={`w-full p-3 sm:p-4 flex items-center gap-3 hover:bg-slate-800/50 active:bg-slate-800 transition-all border-b border-slate-800 last:border-0 ${
-                            selectedConversation?.id === conv.user_id ? 'bg-teal-900/30 border-l-4 border-l-teal-500' : ''
-                          }`}
+                          className={`w-full p-3 sm:p-4 flex items-center gap-3 transition-all border-b last:border-0 ${selectedConversation?.id === conv.user_id
+                            ? (isDark ? 'bg-teal-900/30 border-l-4 border-l-teal-500' : 'bg-teal-50 border-l-4 border-l-teal-500')
+                            : (isDark ? 'hover:bg-slate-800/50 border-slate-800' : 'hover:bg-slate-50 border-slate-100')
+                            }`}
                         >
                           <div className="relative flex-shrink-0">
                             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-md">
@@ -2639,36 +2669,37 @@ const TraineeDashboard = () => {
                           </div>
                           <div className="flex-1 min-w-0 text-left">
                             <div className="flex items-center justify-between gap-2 mb-0.5">
-                              <p className="font-semibold text-sm sm:text-base text-white truncate">{conv.user_name}</p>
+                              <p className={`font-semibold text-sm sm:text-base truncate transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>{conv.user_name}</p>
                               <span className="text-[10px] text-teal-400 bg-teal-500/20 px-2 py-0.5 rounded-full flex-shrink-0">{conv.user_role}</span>
                             </div>
-                            <p className="text-xs text-slate-400 truncate">{conv.last_message || 'No messages yet'}</p>
+                            <p className={`text-xs truncate transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{conv.last_message || 'No messages yet'}</p>
                           </div>
                         </button>
                       ))}
-                      
+
                       {/* New Contacts */}
                       {contacts.filter(c => !conversations.find(conv => conv.user_id === c.id)).length > 0 && (
-                        <div className="p-3 bg-slate-800/50">
-                          <p className="text-xs text-slate-400 mb-2 font-medium">Start a new conversation</p>
+                        <div className={`p-3 transition-colors duration-300 ${isDark ? 'bg-slate-800/50' : 'bg-slate-50/50'}`}>
+                          <p className={`text-xs mb-2 font-medium transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Start a new conversation</p>
                           {contacts.filter(c => !conversations.find(conv => conv.user_id === c.id)).map((contact) => (
                             <button
                               key={contact.id}
                               onClick={() => selectConversation(contact)}
-                              className="w-full p-3 flex items-center gap-3 hover:bg-slate-700 rounded-lg transition-colors mb-1"
+                              className={`w-full p-3 flex items-center gap-3 rounded-lg transition-colors mb-1 ${isDark ? 'hover:bg-slate-700' : 'hover:bg-slate-100 border border-transparent hover:border-slate-200'
+                                }`}
                             >
                               <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold text-xs">
                                 {contact.name?.charAt(0) || '?'}
                               </div>
                               <div className="flex-1 text-left">
-                                <p className="font-medium text-gray-200 text-sm">{contact.name}</p>
-                                <span className="text-[10px] text-slate-400">{contact.label}</span>
+                                <p className={`font-medium text-sm transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>{contact.name}</p>
+                                <span className={`text-[10px] transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{contact.label}</span>
                               </div>
                             </button>
                           ))}
                         </div>
                       )}
-                      
+
                       {conversations.length === 0 && contacts.length === 0 && (
                         <div className="p-6 text-center text-slate-500">
                           <Mail className="w-12 h-12 mx-auto mb-2 opacity-50" />
@@ -2679,11 +2710,13 @@ const TraineeDashboard = () => {
                   </div>
 
                   {/* Chat Area */}
-                  <div className="lg:col-span-2 bg-slate-900 rounded-xl sm:rounded-2xl shadow-lg overflow-hidden flex flex-col h-[500px] sm:h-[600px] border border-slate-800">
+                  <div className={`lg:col-span-2 rounded-xl sm:rounded-2xl shadow-lg overflow-hidden flex flex-col h-[500px] sm:h-[600px] border transition-all duration-300 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                    }`}>
                     {selectedConversation ? (
                       <>
                         {/* Chat Header */}
-                        <div className="p-3 sm:p-4 border-b border-slate-800 bg-gradient-to-r from-teal-500 to-cyan-500 text-white sticky top-0 z-10">
+                        <div className={`p-3 sm:p-4 border-b transition-colors duration-300 bg-gradient-to-r from-teal-500 to-cyan-500 text-white sticky top-0 z-10 ${isDark ? 'border-teal-800' : 'border-teal-400'
+                          }`}>
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center font-bold text-sm sm:text-base shadow-md">
                               {selectedConversation.name?.charAt(0)?.toUpperCase() || '?'}
@@ -2696,7 +2729,7 @@ const TraineeDashboard = () => {
                         </div>
 
                         {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-slate-950/50">
+                        <div className={`flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 transition-colors duration-300 ${isDark ? 'bg-slate-950/50' : 'bg-slate-50/30'}`}>
                           {messagesLoading ? (
                             <div className="flex items-center justify-center h-full">
                               <div className="text-center">
@@ -2719,14 +2752,15 @@ const TraineeDashboard = () => {
                                 className={`flex ${msg.is_mine ? 'justify-end' : 'justify-start'}`}
                               >
                                 <div
-                                  className={`max-w-[85%] sm:max-w-[75%] p-3 rounded-2xl ${
-                                    msg.is_mine
-                                      ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-br-md shadow-md'
-                                      : 'bg-slate-800 text-white rounded-bl-md shadow-sm border border-slate-700'
-                                  }`}
+                                  className={`max-w-[85%] sm:max-w-[75%] p-3 rounded-2xl ${msg.is_mine
+                                    ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-br-md shadow-md'
+                                    : isDark
+                                      ? 'bg-slate-800 text-white rounded-bl-md shadow-sm border border-slate-700'
+                                      : 'bg-white text-slate-900 rounded-bl-md shadow-sm border border-slate-100'
+                                    }`}
                                 >
                                   <p className="text-sm sm:text-base break-words">{msg.message}</p>
-                                  <p className={`text-[10px] mt-1.5 ${msg.is_mine ? 'text-teal-100' : 'text-slate-400'}`}>
+                                  <p className={`text-[10px] mt-1.5 transition-colors duration-300 ${msg.is_mine ? 'text-teal-100' : (isDark ? 'text-slate-400' : 'text-slate-500')}`}>
                                     {msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                                   </p>
                                 </div>
@@ -2737,7 +2771,7 @@ const TraineeDashboard = () => {
                         </div>
 
                         {/* Message Input */}
-                        <div className="p-3 sm:p-4 border-t border-slate-800 bg-slate-900">
+                        <div className={`p-3 sm:p-4 border-t transition-colors duration-300 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100'}`}>
                           <div className="flex items-end gap-2">
                             <input
                               type="text"
@@ -2745,7 +2779,8 @@ const TraineeDashboard = () => {
                               onChange={(e) => setNewMessage(e.target.value)}
                               onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
                               placeholder="Type a message..."
-                              className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-800 text-white placeholder-slate-500 text-sm sm:text-base"
+                              className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 text-sm sm:text-base ${isDark ? 'bg-slate-800 border-slate-700 text-white placeholder-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+                                }`}
                             />
                             <button
                               onClick={handleSendMessage}
@@ -2759,7 +2794,7 @@ const TraineeDashboard = () => {
                         </div>
                       </>
                     ) : (
-                      <div className="flex-1 flex items-center justify-center text-slate-500 bg-slate-950/50">
+                      <div className={`flex-1 flex items-center justify-center transition-colors duration-300 ${isDark ? 'bg-slate-950/50 text-slate-500' : 'bg-slate-50 text-slate-400'}`}>
                         <div className="text-center">
                           <MessageCircle className="w-16 h-16 mx-auto mb-4 opacity-50" />
                           <p className="text-lg font-medium">Select a conversation</p>

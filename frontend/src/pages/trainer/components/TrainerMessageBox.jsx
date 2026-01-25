@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { messagingApi } from '../../../utils/api'
 import { useTheme } from '../../../contexts/ThemeContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
+import {
   Send, MessageCircle, Inbox, Mail, Users, User, Search, RefreshCw,
   Reply, ChevronDown, ChevronUp, Check, CheckCheck, Clock,
   X, MailOpen, MessageSquare, ArrowRight
@@ -23,7 +23,7 @@ const formatDate = (dateString) => {
   const diffMins = Math.floor(diffMs / 60000)
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
-  
+
   if (diffMins < 1) return 'Just now'
   if (diffMins < 60) return `${diffMins}m ago`
   if (diffHours < 24) return `${diffHours}h ago`
@@ -34,32 +34,29 @@ const formatDate = (dateString) => {
 // Inbox Message Item component
 const InboxMessageItem = ({ message, isDark, isExpanded, onToggleExpand, onReply }) => {
   const isLong = message.message?.length > 150
-  
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className={`p-4 sm:p-5 transition-all ${
-        !message.is_read 
-          ? isDark ? 'bg-indigo-900/20' : 'bg-indigo-50/50' 
-          : isDark ? 'hover:bg-slate-800/50' : 'hover:bg-gray-50'
-      }`}
+      className={`p-4 sm:p-5 transition-all ${!message.is_read
+        ? isDark ? 'bg-indigo-900/20' : 'bg-indigo-50/50'
+        : isDark ? 'hover:bg-slate-800/50' : 'hover:bg-gray-50'
+        }`}
     >
       <div className="flex items-start gap-3 sm:gap-4">
-        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-md ${
-          isAdmin(message.sender_role) ? 'bg-gradient-to-br from-red-500 to-pink-600' : 'bg-gradient-to-br from-emerald-500 to-green-600'
-        }`}>
+        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-md ${isAdmin(message.sender_role) ? 'bg-gradient-to-br from-red-500 to-pink-600' : 'bg-gradient-to-br from-emerald-500 to-green-600'
+          }`}>
           {message.sender_name?.charAt(0)?.toUpperCase() || '?'}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
             <div className="flex items-center gap-2 flex-wrap">
               <p className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{message.sender_name || 'Unknown'}</p>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase ${
-                isAdmin(message.sender_role) 
-                  ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
-                  : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-              }`}>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase ${isAdmin(message.sender_role)
+                ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                }`}>
                 {message.sender_role}
               </span>
               {!message.is_read && (
@@ -116,7 +113,7 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
   const [expandedMessages, setExpandedMessages] = useState({})
   const [replyingTo, setReplyingTo] = useState(null)
   const messagesEndRef = useRef(null)
-  
+
   // Stats
   const unreadCount = conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0)
   const adminMessages = conversations.filter(c => isAdmin(c.user_role)).length
@@ -195,14 +192,14 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
       toast.error('Please select a recipient')
       return
     }
-    
+
     const recipientId = replyingTo?.sender_id || selectedConversation?.user_id || selectedConversation?.id
-    
+
     try {
       setSending(true)
-      await messagingApi.sendMessage({ 
-        receiver_id: recipientId, 
-        message: newMessage.trim() 
+      await messagingApi.sendMessage({
+        receiver_id: recipientId,
+        message: newMessage.trim()
       })
       toast.success('Message sent!')
       setNewMessage('')
@@ -230,7 +227,7 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
   }
 
   // Filter contacts based on search
-  const filteredContacts = contacts.filter(c => 
+  const filteredContacts = contacts.filter(c =>
     c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.email?.toLowerCase().includes(searchTerm.toLowerCase())
   )
@@ -267,11 +264,10 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
         <button
           onClick={() => loadData(true)}
           disabled={loading}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all disabled:opacity-50 ${
-            isDark 
-              ? 'bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300' 
-              : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 shadow-sm'
-          }`}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all disabled:opacity-50 ${isDark
+            ? 'bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300'
+            : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 shadow-sm'
+            }`}
         >
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -280,98 +276,92 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          className={`rounded-2xl shadow-lg p-4 sm:p-5 border ${
-            isDark 
-              ? 'bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700/50' 
-              : 'bg-white border-gray-100'
-          }`}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`rounded-2xl shadow-lg p-4 sm:p-5 border transition-colors ${isDark
+            ? 'bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700/50'
+            : 'bg-white border-slate-100 shadow-slate-100/50'
+            }`}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Unread</p>
-              <p className={`text-2xl sm:text-3xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{unreadCount}</p>
+              <p className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Unread</p>
+              <p className={`text-2xl sm:text-3xl font-bold mt-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{unreadCount}</p>
             </div>
-            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center ${
-              unreadCount > 0 
-                ? 'bg-gradient-to-br from-red-500 to-orange-500' 
-                : isDark ? 'bg-slate-700' : 'bg-gray-100'
-            }`}>
-              <MailOpen className={`w-5 h-5 sm:w-6 sm:h-6 ${unreadCount > 0 ? 'text-white' : isDark ? 'text-slate-400' : 'text-gray-400'}`} />
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shadow-sm ${unreadCount > 0
+              ? 'bg-gradient-to-br from-red-500 to-orange-500 text-white'
+              : isDark ? 'bg-slate-700 text-slate-400' : 'bg-slate-100 text-slate-400'
+              }`}>
+              <MailOpen className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
         </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ delay: 0.05 }} 
-          className={`rounded-2xl shadow-lg p-4 sm:p-5 border ${
-            isDark 
-              ? 'bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700/50' 
-              : 'bg-white border-gray-100'
-          }`}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className={`rounded-2xl shadow-lg p-4 sm:p-5 border transition-colors ${isDark
+            ? 'bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700/50'
+            : 'bg-white border-slate-100 shadow-slate-100/50'
+            }`}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Admin</p>
-              <p className={`text-2xl sm:text-3xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{adminMessages}</p>
+              <p className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Admin</p>
+              <p className={`text-2xl sm:text-3xl font-bold mt-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{adminMessages}</p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center">
-              <User className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center shadow-md text-white">
+              <User className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
         </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ delay: 0.1 }} 
-          className={`rounded-2xl shadow-lg p-4 sm:p-5 border ${
-            isDark 
-              ? 'bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700/50' 
-              : 'bg-white border-gray-100'
-          }`}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className={`rounded-2xl shadow-lg p-4 sm:p-5 border transition-colors ${isDark
+            ? 'bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700/50'
+            : 'bg-white border-slate-100 shadow-slate-100/50'
+            }`}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Trainees</p>
-              <p className={`text-2xl sm:text-3xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{traineeMessages}</p>
+              <p className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Trainees</p>
+              <p className={`text-2xl sm:text-3xl font-bold mt-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{traineeMessages}</p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center">
-              <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-md text-white">
+              <Users className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
         </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ delay: 0.15 }} 
-          className={`rounded-2xl shadow-lg p-4 sm:p-5 border ${
-            isDark 
-              ? 'bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700/50' 
-              : 'bg-white border-gray-100'
-          }`}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className={`rounded-2xl shadow-lg p-4 sm:p-5 border transition-colors ${isDark
+            ? 'bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700/50'
+            : 'bg-white border-slate-100 shadow-slate-100/50'
+            }`}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Total Chats</p>
-              <p className={`text-2xl sm:text-3xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{conversations.length}</p>
+              <p className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Total Chats</p>
+              <p className={`text-2xl sm:text-3xl font-bold mt-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{conversations.length}</p>
             </div>
-            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center ${isDark ? 'bg-slate-700' : 'bg-gray-100'}`}>
-              <Send className={`w-5 h-5 sm:w-6 sm:h-6 ${isDark ? 'text-slate-400' : 'text-gray-500'}`} />
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shadow-sm ${isDark ? 'bg-slate-700 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>
+              <Send className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
         </motion.div>
       </div>
 
       {/* Tabs */}
-      <div className={`flex gap-1 sm:gap-2 p-1.5 rounded-2xl w-fit shadow-lg border ${
-        isDark ? 'bg-slate-900/80 border-slate-700/50' : 'bg-gray-100 border-gray-200'
-      }`}>
+      <div className={`flex gap-1 sm:gap-2 p-1.5 rounded-2xl w-fit shadow-lg border ${isDark ? 'bg-slate-900/80 border-slate-700/50' : 'bg-gray-100 border-gray-200'
+        }`}>
         {[
           { id: 'conversations', label: 'Conversations', icon: MessageCircle, count: conversations.length },
           { id: 'compose', label: 'New Message', icon: Send },
@@ -379,20 +369,18 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-              activeTab === tab.id
-                ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg scale-[1.02]'
-                : isDark 
-                  ? 'text-slate-400 hover:text-white hover:bg-slate-800' 
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white'
-            }`}
+            className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all ${activeTab === tab.id
+              ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg scale-[1.02]'
+              : isDark
+                ? 'text-slate-400 hover:text-white hover:bg-slate-800'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-white'
+              }`}
           >
             <tab.icon className="w-4 h-4" />
             <span className="hidden sm:inline">{tab.label}</span>
             {tab.count > 0 && activeTab !== tab.id && (
-              <span className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold ${
-                isDark ? 'bg-slate-700 text-slate-300' : 'bg-gray-200 text-gray-600'
-              }`}>
+              <span className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold ${isDark ? 'bg-slate-700 text-slate-300' : 'bg-gray-200 text-gray-600'
+                }`}>
                 {tab.count}
               </span>
             )}
@@ -405,16 +393,14 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`rounded-xl p-4 flex items-center justify-between border ${
-            isDark 
-              ? 'bg-indigo-900/30 border-indigo-700/50' 
-              : 'bg-indigo-50 border-indigo-200'
-          }`}
+          className={`rounded-xl p-4 flex items-center justify-between border ${isDark
+            ? 'bg-indigo-900/30 border-indigo-700/50'
+            : 'bg-indigo-50 border-indigo-200'
+            }`}
         >
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-              isDark ? 'bg-indigo-900/50' : 'bg-indigo-100'
-            }`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-indigo-900/50' : 'bg-indigo-100'
+              }`}>
               <Reply className={`w-5 h-5 ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`} />
             </div>
             <div>
@@ -426,8 +412,8 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
               </p>
             </div>
           </div>
-          <button 
-            onClick={() => setReplyingTo(null)} 
+          <button
+            onClick={() => setReplyingTo(null)}
             className={`p-2 rounded-lg transition-all ${isDark ? 'hover:bg-indigo-800/50' : 'hover:bg-indigo-100'}`}
           >
             <X className={`w-4 h-4 ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`} />
@@ -437,9 +423,8 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
 
       {/* Conversations Tab */}
       {activeTab === 'conversations' && (
-        <div className={`rounded-2xl shadow-xl overflow-hidden border ${
-          isDark ? 'bg-slate-900/80 border-slate-700/50' : 'bg-white border-gray-100'
-        }`}>
+        <div className={`rounded-2xl shadow-xl overflow-hidden border transition-colors ${isDark ? 'bg-slate-900/80 border-slate-700/50' : 'bg-white border-slate-100 shadow-slate-100/50'
+          }`}>
           {/* Chat Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-3 h-[600px]">
             {/* Contacts List */}
@@ -452,7 +437,7 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
                 </div>
                 <p className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-gray-400'}`}>Quick access to your trainees</p>
               </div>
-              
+
               {trainees.length > 0 ? (
                 trainees.map((trainee) => {
                   const conv = conversations.find(c => c.user_id === (trainee.user_id || trainee.id))
@@ -465,11 +450,10 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
                         user_role: 'TRAINEE',
                         ...trainee
                       })}
-                      className={`w-full p-3 flex items-center gap-3 hover:bg-opacity-80 transition-colors border-b ${
-                        selectedConversation?.user_id === (trainee.user_id || trainee.id)
-                          ? isDark ? 'bg-green-900/30 border-l-2 border-l-green-500 border-b-slate-700' : 'bg-green-50 border-l-2 border-l-green-500 border-b-gray-100'
-                          : isDark ? 'hover:bg-slate-700/50 border-b-slate-700' : 'hover:bg-white border-b-gray-100'
-                      }`}
+                      className={`w-full p-3 flex items-center gap-3 hover:bg-opacity-80 transition-colors border-b ${selectedConversation?.user_id === (trainee.user_id || trainee.id)
+                        ? isDark ? 'bg-green-900/30 border-l-2 border-l-green-500 border-b-slate-700' : 'bg-green-50 border-l-2 border-l-green-500 border-b-gray-100'
+                        : isDark ? 'hover:bg-slate-700/50 border-b-slate-700' : 'hover:bg-white border-b-gray-100'
+                        }`}
                     >
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                         {(trainee.name || trainee.user?.name || 'T').charAt(0).toUpperCase()}
@@ -517,15 +501,13 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
                       <button
                         key={conv.user_id}
                         onClick={() => selectConversation(conv)}
-                        className={`w-full p-3 flex items-center gap-3 hover:bg-opacity-80 transition-colors border-b ${
-                          selectedConversation?.user_id === conv.user_id
-                            ? isDark ? 'bg-indigo-900/30 border-l-2 border-l-indigo-500 border-b-slate-700' : 'bg-indigo-50 border-l-2 border-l-indigo-500 border-b-gray-100'
-                            : isDark ? 'hover:bg-slate-700/50 border-b-slate-700' : 'hover:bg-white border-b-gray-100'
-                        }`}
+                        className={`w-full p-3 flex items-center gap-3 hover:bg-opacity-80 transition-colors border-b ${selectedConversation?.user_id === conv.user_id
+                          ? isDark ? 'bg-indigo-900/30 border-l-2 border-l-indigo-500 border-b-slate-700' : 'bg-indigo-50 border-l-2 border-l-indigo-500 border-b-slate-100'
+                          : isDark ? 'hover:bg-slate-700/50 border-b-slate-700' : 'hover:bg-slate-50 border-b-slate-100'
+                          }`}
                       >
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${
-                          isAdmin(conv.user_role) ? 'bg-gradient-to-br from-red-500 to-pink-600' : 'bg-gradient-to-br from-indigo-500 to-purple-600'
-                        }`}>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${isAdmin(conv.user_role) ? 'bg-gradient-to-br from-red-500 to-pink-600' : 'bg-gradient-to-br from-indigo-500 to-purple-600'
+                          }`}>
                           {conv.user_name?.charAt(0) || '?'}
                         </div>
                         <div className="flex-1 text-left min-w-0">
@@ -540,11 +522,10 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
                           <p className={`text-xs truncate ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
                             {conv.last_message || 'No messages'}
                           </p>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full inline-block mt-1 ${
-                            isAdmin(conv.user_role)
-                              ? 'text-red-500 bg-red-500/10'
-                              : 'text-indigo-500 bg-indigo-500/10'
-                          }`}>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full inline-block mt-1 ${isAdmin(conv.user_role)
+                            ? 'text-red-500 bg-red-500/10'
+                            : 'text-indigo-500 bg-indigo-500/10'
+                            }`}>
                             {conv.user_role}
                           </span>
                         </div>
@@ -567,13 +548,12 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
               {selectedConversation ? (
                 <>
                   {/* Chat Header */}
-                  <div className={`p-4 border-b ${isDark ? 'border-slate-700 bg-slate-800' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className={`p-4 border-b ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'}`}>
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${
-                        isAdmin(selectedConversation.user_role) 
-                          ? 'bg-gradient-to-br from-red-500 to-pink-600' 
-                          : 'bg-gradient-to-br from-green-500 to-emerald-500'
-                      }`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${isAdmin(selectedConversation.user_role)
+                        ? 'bg-gradient-to-br from-red-500 to-pink-600'
+                        : 'bg-gradient-to-br from-green-500 to-emerald-500'
+                        }`}>
                         {(selectedConversation.user_name || selectedConversation.name)?.charAt(0)}
                       </div>
                       <div>
@@ -588,7 +568,7 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
                   </div>
 
                   {/* Messages */}
-                  <div className={`flex-1 overflow-y-auto p-4 space-y-3 ${isDark ? 'bg-slate-900/50' : 'bg-gray-50'}`}>
+                  <div className={`flex-1 overflow-y-auto p-4 space-y-3 ${isDark ? 'bg-slate-900/50' : 'bg-slate-50'}`}>
                     {messagesLoading ? (
                       <div className="flex items-center justify-center h-full">
                         <RefreshCw className="w-6 h-6 animate-spin text-indigo-500" />
@@ -604,20 +584,19 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
                     ) : (
                       messages.map((msg) => (
                         <div key={msg.id} className={`flex ${msg.is_mine ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`max-w-[70%] p-3 rounded-2xl ${
-                            msg.is_mine
-                              ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-br-md'
-                              : isDark
-                                ? 'bg-slate-800 text-slate-200 rounded-bl-md border border-slate-700'
-                                : 'bg-white text-gray-700 rounded-bl-md shadow-sm border border-gray-200'
-                          }`}>
+                          <div className={`max-w-[70%] p-3 rounded-2xl ${msg.is_mine
+                            ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-br-md'
+                            : isDark
+                              ? 'bg-slate-800 text-slate-200 rounded-bl-md border border-slate-700'
+                              : 'bg-white text-slate-700 rounded-bl-md shadow-sm border border-slate-200'
+                            }`}>
                             <p className="text-sm">{msg.message}</p>
                             <div className={`flex items-center gap-1 mt-1 ${msg.is_mine ? 'justify-end' : ''}`}>
                               <p className={`text-[10px] ${msg.is_mine ? 'text-indigo-200' : isDark ? 'text-slate-500' : 'text-gray-400'}`}>
                                 {msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                               </p>
                               {msg.is_mine && (
-                                msg.is_read 
+                                msg.is_read
                                   ? <CheckCheck className="w-3 h-3 text-indigo-200" />
                                   : <Check className="w-3 h-3 text-indigo-200" />
                               )}
@@ -630,7 +609,7 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
                   </div>
 
                   {/* Message Input */}
-                  <div className={`p-4 border-t ${isDark ? 'border-slate-700 bg-slate-800' : 'border-gray-200 bg-white'}`}>
+                  <div className={`p-4 border-t ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'}`}>
                     <div className="flex items-center gap-2">
                       <input
                         type="text"
@@ -638,11 +617,10 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
                         onChange={(e) => setNewMessage(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                         placeholder="Type a message..."
-                        className={`flex-1 px-4 py-3 border-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
-                          isDark 
-                            ? 'bg-slate-900 border-slate-700 text-white placeholder-slate-500 focus:border-indigo-500' 
-                            : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-indigo-500'
-                        }`}
+                        className={`flex-1 px-4 py-3 border-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${isDark
+                          ? 'bg-slate-900 border-slate-700 text-white placeholder-slate-500 focus:border-indigo-500'
+                          : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-indigo-500 shadow-sm'
+                          }`}
                       />
                       <button
                         onClick={handleSend}
@@ -676,9 +654,8 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
       {activeTab === 'compose' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Contact Selection */}
-          <div className={`rounded-2xl shadow-xl p-4 sm:p-6 border ${
-            isDark ? 'bg-slate-900/80 border-slate-700/50' : 'bg-white border-gray-100'
-          }`}>
+          <div className={`rounded-2xl shadow-xl p-4 sm:p-6 border transition-colors ${isDark ? 'bg-slate-900/80 border-slate-700/50' : 'bg-white border-slate-100 shadow-slate-100/50'
+            }`}>
             <div className="flex items-center gap-3 mb-5">
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
                 <Users className="w-5 h-5 text-white" />
@@ -688,7 +665,7 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
                 <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>{allContacts.length} available</p>
               </div>
             </div>
-            
+
             <div className="relative mb-4">
               <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-500' : 'text-gray-400'}`} />
               <input
@@ -696,16 +673,15 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
                 placeholder="Search contacts..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all ${
-                  isDark 
-                    ? 'bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500' 
-                    : 'bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500'
-                }`}
+                className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all ${isDark
+                    ? 'bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500'
+                    : 'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 shadow-sm'
+                  }`}
               />
             </div>
-            
+
             <div className="max-h-[400px] overflow-y-auto space-y-1">
-              {allContacts.filter(c => 
+              {allContacts.filter(c =>
                 c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 c.email?.toLowerCase().includes(searchTerm.toLowerCase())
               ).map(contact => (
@@ -719,21 +695,19 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
                     })
                     setReplyingTo(null)
                   }}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
-                    selectedConversation?.user_id === contact.id
-                      ? isDark 
-                        ? 'bg-indigo-900/50 border-2 border-indigo-500' 
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${selectedConversation?.user_id === contact.id
+                      ? isDark
+                        ? 'bg-indigo-900/50 border-2 border-indigo-500'
                         : 'bg-indigo-50 border-2 border-indigo-500'
                       : isDark
                         ? 'hover:bg-slate-800 border-2 border-transparent'
-                        : 'hover:bg-gray-50 border-2 border-transparent'
-                  }`}
+                        : 'hover:bg-slate-50 border-2 border-transparent'
+                    }`}
                 >
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${
-                    isAdmin(contact.role) 
-                      ? 'bg-gradient-to-br from-red-500 to-pink-600' 
-                      : 'bg-gradient-to-br from-emerald-500 to-green-600'
-                  }`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${isAdmin(contact.role)
+                    ? 'bg-gradient-to-br from-red-500 to-pink-600'
+                    : 'bg-gradient-to-br from-emerald-500 to-green-600'
+                    }`}>
                     {contact.name?.charAt(0)?.toUpperCase() || '?'}
                   </div>
                   <div className="flex-1 text-left">
@@ -751,9 +725,8 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
           </div>
 
           {/* Compose Message */}
-          <div className={`lg:col-span-2 rounded-2xl shadow-xl p-4 sm:p-6 border ${
-            isDark ? 'bg-slate-900/80 border-slate-700/50' : 'bg-white border-gray-100'
-          }`}>
+          <div className={`lg:col-span-2 rounded-2xl shadow-xl p-4 sm:p-6 border transition-colors ${isDark ? 'bg-slate-900/80 border-slate-700/50' : 'bg-white border-slate-100 shadow-slate-100/50'
+            }`}>
             <div className="flex items-center gap-3 mb-5">
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
                 <MessageSquare className="w-5 h-5 text-white" />
@@ -763,18 +736,16 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
                 <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Compose your message below</p>
               </div>
             </div>
-            
+
             {(selectedConversation || replyingTo) && (
-              <div className={`mb-4 p-4 rounded-xl flex items-center gap-3 border ${
-                isDark 
-                  ? 'bg-gradient-to-r from-slate-800 to-slate-800/50 border-slate-700' 
-                  : 'bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-100'
-              }`}>
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md ${
-                  isAdmin(replyingTo?.sender_role || selectedConversation?.user_role)
-                    ? 'bg-gradient-to-br from-red-500 to-pink-600' 
-                    : 'bg-gradient-to-br from-emerald-500 to-green-600'
+              <div className={`mb-4 p-4 rounded-xl flex items-center gap-3 border ${isDark
+                ? 'bg-gradient-to-r from-slate-800 to-slate-800/50 border-slate-700'
+                : 'bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-100'
                 }`}>
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md ${isAdmin(replyingTo?.sender_role || selectedConversation?.user_role)
+                  ? 'bg-gradient-to-br from-red-500 to-pink-600'
+                  : 'bg-gradient-to-br from-emerald-500 to-green-600'
+                  }`}>
                   {(replyingTo?.sender_name || selectedConversation?.user_name)?.charAt(0)?.toUpperCase() || '?'}
                 </div>
                 <div className="flex-1">
@@ -788,14 +759,13 @@ const TrainerMessageBox = ({ trainees = [], onSelectConversation, selectedConver
                 <ArrowRight className={`w-5 h-5 ${isDark ? 'text-indigo-400' : 'text-indigo-500'}`} />
               </div>
             )}
-            
+
             <form onSubmit={handleSend} className="space-y-4">
               <textarea
-                className={`w-full border-2 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none min-h-[200px] resize-none transition-all ${
-                  isDark 
-                    ? 'bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500' 
-                    : 'bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500'
-                }`}
+                className={`w-full border-2 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none min-h-[200px] resize-none transition-all ${isDark
+                    ? 'bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500'
+                    : 'bg-white border-slate-200 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 shadow-sm'
+                  }`}
                 placeholder={selectedConversation || replyingTo ? 'Write your message...' : 'Select a recipient first...'}
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}

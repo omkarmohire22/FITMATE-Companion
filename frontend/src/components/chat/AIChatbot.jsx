@@ -2,9 +2,11 @@ import { useState, useRef, useEffect } from 'react'
 import { Send, Bot, User, Sparkles, RefreshCw, Trash2, Copy, Check, Wifi, WifiOff, AlertCircle, Dumbbell, Apple, Brain, Target, Zap, Clock, MessageSquare, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { chatApi } from '../../utils/api'
+import { useTheme } from '../../contexts/ThemeContext'
 import toast from 'react-hot-toast'
 
 const AIChatbot = () => {
+  const { isDark } = useTheme()
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -78,7 +80,7 @@ const AIChatbot = () => {
         message: userInput,
         conversation_id: conversationId
       })
-      
+
       const data = res.data || res
 
       // Update conversation ID if returned
@@ -88,7 +90,7 @@ const AIChatbot = () => {
 
       // Handle different response statuses
       let responseContent = data.response || "I couldn't generate a response. Please try again."
-      
+
       if (data.status === 'not_configured') {
         setAiStatus('not_configured')
         responseContent = "⚙️ **AI Configuration Pending**\n\nThe AI system is awaiting configuration by the administrator. In the meantime, here are some evidence-based fitness tips:\n\n• **Hydration**: Drink 500ml of water 2 hours before training\n• **Warm-up**: 5-10 minutes of dynamic stretching prevents injury\n• **Progressive Overload**: Increase weight/reps by 2.5-5% weekly\n• **Recovery**: Muscles grow during rest - aim for 7-9 hours of sleep"
@@ -108,10 +110,10 @@ const AIChatbot = () => {
     } catch (error) {
       console.error('Chat error:', error)
       setAiStatus('error')
-      
+
       // Provide helpful fallback responses based on keywords
       let fallbackResponse = "I'm experiencing connectivity issues. Please try again in a moment."
-      
+
       const lowerInput = userInput.toLowerCase()
       if (lowerInput.includes('workout') || lowerInput.includes('exercise') || lowerInput.includes('training')) {
         fallbackResponse = "**💪 Quick Workout Guidance**\n\nWhile I reconnect, here's proven advice:\n\n• **Beginners**: Start with 3 full-body sessions/week\n• **Intermediate**: Try a 4-day upper/lower split\n• **Advanced**: Consider push/pull/legs 6 days/week\n\n**Pro Tip**: Focus on compound movements (squats, deadlifts, bench press, rows) for maximum efficiency!"
@@ -169,38 +171,38 @@ const AIChatbot = () => {
   }
 
   const formatTime = (date) => {
-    return new Date(date).toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(date).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
     })
   }
 
   // Enhanced markdown-like formatting for AI responses
   const formatMessage = (content) => {
     if (!content) return content
-    
+
     // Convert **bold** to styled spans
-    let formatted = content.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
+    let formatted = content.replace(/\*\*(.*?)\*\*/g, `<strong class="${isDark ? 'text-white' : 'text-gray-900'} font-semibold">$1</strong>`)
     // Convert *italic* to styled spans
-    formatted = formatted.replace(/\*(.*?)\*/g, '<em class="text-slate-300 italic">$1</em>')
+    formatted = formatted.replace(/\*(.*?)\*/g, `<em class="${isDark ? 'text-gray-300' : 'text-gray-600'} italic">$1</em>`)
     // Convert bullet points with better styling
-    formatted = formatted.replace(/^• /gm, '<span class="text-blue-400 mr-1">•</span>')
+    formatted = formatted.replace(/^• /gm, '<span class="text-blue-500 mr-1">•</span>')
     // Convert numbered lists
-    formatted = formatted.replace(/^(\d+)\. /gm, '<span class="text-purple-400 font-bold mr-1">$1.</span>')
-    
+    formatted = formatted.replace(/^(\d+)\. /gm, '<span class="text-purple-500 font-bold mr-1">$1.</span>')
+
     return formatted
   }
 
   const getStatusIndicator = () => {
     switch (aiStatus) {
       case 'connected':
-        return { color: 'bg-emerald-500', text: 'Online', icon: Wifi, textColor: 'text-emerald-400' }
+        return { color: 'bg-emerald-500', text: 'Online', icon: Wifi, textColor: 'text-emerald-500' }
       case 'not_configured':
-        return { color: 'bg-amber-500', text: 'Limited Mode', icon: AlertCircle, textColor: 'text-amber-400' }
+        return { color: 'bg-amber-500', text: 'Limited Mode', icon: AlertCircle, textColor: 'text-amber-500' }
       case 'error':
-        return { color: 'bg-red-500', text: 'Reconnecting...', icon: WifiOff, textColor: 'text-red-400' }
+        return { color: 'bg-red-500', text: 'Reconnecting...', icon: WifiOff, textColor: 'text-red-500' }
       default:
-        return { color: 'bg-slate-500', text: 'Connecting...', icon: Wifi, textColor: 'text-slate-400' }
+        return { color: 'bg-gray-500', text: 'Connecting...', icon: Wifi, textColor: isDark ? 'text-gray-400' : 'text-gray-500' }
     }
   }
 
@@ -249,27 +251,27 @@ const AIChatbot = () => {
   ]
 
   return (
-    <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl shadow-2xl border border-slate-700/50 flex flex-col backdrop-blur-xl h-[calc(100vh-200px)] min-h-[600px] max-h-[800px]">
+    <div className={`rounded-2xl shadow-2xl border flex flex-col backdrop-blur-xl h-[calc(100vh-200px)] min-h-[600px] max-h-[800px] ${isDark ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border-gray-700/50' : 'bg-gradient-to-br from-white via-gray-50 to-gray-100 border-gray-200'}`}>
       {/* Header */}
-      <div className="flex items-center justify-between p-5 border-b border-slate-700/50 bg-gradient-to-r from-slate-800/50 to-slate-900/50">
+      <div className={`flex items-center justify-between p-5 border-b ${isDark ? 'border-gray-700/50 bg-gradient-to-r from-gray-800/50 to-gray-900/50' : 'border-gray-200 bg-gradient-to-r from-gray-50 to-white'}`}>
         <div className="flex items-center gap-4">
           <div className="relative">
-            <motion.div 
+            <motion.div
               whileHover={{ scale: 1.05, rotate: 5 }}
               className="w-14 h-14 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl shadow-purple-500/20"
             >
               <Bot className="w-8 h-8 text-white" />
             </motion.div>
-            <motion.div 
+            <motion.div
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ repeat: Infinity, duration: 2 }}
-              className={`absolute -bottom-1 -right-1 w-5 h-5 ${statusInfo.color} rounded-full border-3 border-slate-900 flex items-center justify-center`}
+              className={`absolute -bottom-1 -right-1 w-5 h-5 ${statusInfo.color} rounded-full border-3 ${isDark ? 'border-gray-900' : 'border-white'} flex items-center justify-center`}
             >
               <div className="w-2 h-2 bg-white rounded-full opacity-80"></div>
             </motion.div>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <h2 className={`text-xl font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
               AI Fitness Coach
               <motion.div
                 animate={{ rotate: [0, 15, -15, 0] }}
@@ -283,12 +285,12 @@ const AIChatbot = () => {
               <span className={`text-sm font-medium ${statusInfo.textColor}`}>
                 {statusInfo.text}
               </span>
-              <span className="text-slate-600">•</span>
-              <span className="text-xs text-slate-500">Powered by Advanced AI</span>
+              <span className={isDark ? 'text-gray-600' : 'text-gray-400'}>•</span>
+              <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Powered by Advanced AI</span>
             </div>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -297,19 +299,19 @@ const AIChatbot = () => {
               checkAIStatus()
               toast.success('Status refreshed')
             }}
-            className="p-2.5 bg-slate-800/80 hover:bg-slate-700 rounded-xl transition-colors border border-slate-700/50"
+            className={`p-2.5 rounded-xl transition-colors border ${isDark ? 'bg-gray-800/80 hover:bg-gray-700 border-gray-700/50' : 'bg-gray-100 hover:bg-gray-200 border-gray-200'}`}
             title="Refresh status"
           >
-            <RefreshCw className="w-4 h-4 text-slate-400" />
+            <RefreshCw className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={clearChat}
-            className="p-2.5 bg-slate-800/80 hover:bg-red-500/20 rounded-xl transition-colors border border-slate-700/50 group"
+            className={`p-2.5 rounded-xl transition-colors border group ${isDark ? 'bg-gray-800/80 hover:bg-red-500/20 border-gray-700/50' : 'bg-gray-100 hover:bg-red-50 border-gray-200'}`}
             title="Clear conversation"
           >
-            <Trash2 className="w-4 h-4 text-slate-400 group-hover:text-red-400 transition-colors" />
+            <Trash2 className={`w-4 h-4 group-hover:text-red-400 transition-colors ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
           </motion.button>
         </div>
       </div>
@@ -323,14 +325,14 @@ const AIChatbot = () => {
             exit={{ opacity: 0, height: 0 }}
             className="mx-5 mt-4"
           >
-            <div className="p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl">
+            <div className={`p-4 rounded-xl border ${isDark ? 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30' : 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200'}`}>
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-                  <AlertCircle className="w-5 h-5 text-amber-400" />
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isDark ? 'bg-amber-500/20' : 'bg-amber-100'}`}>
+                  <AlertCircle className="w-5 h-5 text-amber-500" />
                 </div>
                 <div>
-                  <p className="text-amber-300 font-semibold text-sm">Limited AI Mode</p>
-                  <p className="text-amber-400/70 text-xs mt-1">
+                  <p className={`font-semibold text-sm ${isDark ? 'text-amber-300' : 'text-amber-700'}`}>Limited AI Mode</p>
+                  <p className={`text-xs mt-1 ${isDark ? 'text-amber-400/70' : 'text-amber-600'}`}>
                     AI is providing basic fitness guidance. Full personalization available once configured.
                   </p>
                 </div>
@@ -341,10 +343,13 @@ const AIChatbot = () => {
       </AnimatePresence>
 
       {/* Messages Container */}
-      <div 
+      <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto p-5 space-y-4 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent"
+        className={`flex-1 overflow-y-auto p-5 space-y-4 scrollbar-thin transition-colors duration-300 ${isDark
+            ? 'scrollbar-thumb-slate-700 scrollbar-track-transparent'
+            : 'scrollbar-thumb-slate-200 scrollbar-track-transparent bg-slate-50/30'
+          }`}
       >
         <AnimatePresence mode="popLayout">
           {messages.map((message, index) => (
@@ -354,60 +359,58 @@ const AIChatbot = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className={`flex gap-3 ${
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
+              className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'
+                }`}
             >
               {message.role === 'assistant' && (
-                <motion.div 
+                <motion.div
                   whileHover={{ scale: 1.1 }}
-                  className={`w-10 h-10 bg-gradient-to-br ${message.isError ? 'from-amber-500/20 to-orange-500/20 border-amber-500/30' : 'from-blue-500/20 to-purple-500/20 border-blue-500/30'} rounded-xl flex items-center justify-center backdrop-blur-sm border flex-shrink-0 shadow-lg`}
+                  className={`w-10 h-10 bg-gradient-to-br rounded-xl flex items-center justify-center backdrop-blur-sm border flex-shrink-0 shadow-lg ${message.isError ? 'from-amber-500/20 to-orange-500/20 border-amber-500/30' : isDark ? 'from-blue-500/20 to-purple-500/20 border-blue-500/30' : 'from-blue-100 to-purple-100 border-blue-200'}`}
                 >
-                  <Bot className={`w-5 h-5 ${message.isError ? 'text-amber-400' : 'text-blue-400'}`} />
+                  <Bot className={`w-5 h-5 ${message.isError ? 'text-amber-500' : 'text-blue-500'}`} />
                 </motion.div>
               )}
 
               <div className="flex flex-col gap-1.5 max-w-[75%]">
                 <motion.div
                   whileHover={{ scale: 1.005 }}
-                  className={`group relative rounded-2xl px-5 py-4 text-sm shadow-xl ${
-                    message.role === 'user'
-                      ? 'bg-gradient-to-br from-blue-600 via-purple-600 to-purple-700 text-white ml-auto'
-                      : message.isError 
-                        ? 'bg-gradient-to-br from-slate-800/90 to-slate-800/70 text-slate-100 border border-amber-500/30 backdrop-blur-sm'
-                        : 'bg-gradient-to-br from-slate-800/90 to-slate-800/70 text-slate-100 border border-slate-700/50 backdrop-blur-sm'
-                  }`}
+                  className={`group relative rounded-2xl px-5 py-4 text-sm shadow-xl ${message.role === 'user'
+                    ? 'bg-gradient-to-br from-blue-600 via-purple-600 to-purple-700 text-white ml-auto'
+                    : message.isError
+                      ? isDark ? 'bg-gradient-to-br from-gray-800/90 to-gray-800/70 text-gray-100 border border-amber-500/30 backdrop-blur-sm' : 'bg-gradient-to-br from-amber-50 to-orange-50 text-gray-800 border border-amber-200'
+                      : isDark ? 'bg-gradient-to-br from-gray-800/90 to-gray-800/70 text-gray-100 border border-gray-700/50 backdrop-blur-sm' : 'bg-white text-gray-800 border border-gray-200 shadow-md'
+                    }`}
                 >
-                  <div 
+                  <div
                     className="leading-relaxed whitespace-pre-wrap"
                     dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
                   />
-                  
+
                   {/* Copy Button */}
                   <motion.button
                     initial={{ opacity: 0, scale: 0.8 }}
                     whileHover={{ scale: 1.1 }}
                     onClick={() => copyMessage(message.content, index)}
-                    className="absolute -top-2 -right-2 p-2 bg-slate-700 rounded-xl opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:bg-slate-600 border border-slate-600"
+                    className={`absolute -top-2 -right-2 p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all shadow-lg border ${isDark ? 'bg-gray-700 hover:bg-gray-600 border-gray-600' : 'bg-white hover:bg-gray-50 border-gray-200'}`}
                   >
                     {copiedIndex === index ? (
-                      <Check className="w-3.5 h-3.5 text-green-400" />
+                      <Check className="w-3.5 h-3.5 text-green-500" />
                     ) : (
-                      <Copy className="w-3.5 h-3.5 text-slate-300" />
+                      <Copy className={`w-3.5 h-3.5 ${isDark ? 'text-gray-300' : 'text-gray-500'}`} />
                     )}
                   </motion.button>
                 </motion.div>
-                
+
                 <div className="flex items-center gap-2 px-2">
-                  <Clock className="w-3 h-3 text-slate-600" />
-                  <span className="text-xs text-slate-500">
+                  <Clock className={`w-3 h-3 ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
+                  <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                     {formatTime(message.timestamp)}
                   </span>
                 </div>
               </div>
 
               {message.role === 'user' && (
-                <motion.div 
+                <motion.div
                   whileHover={{ scale: 1.1 }}
                   className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
                 >
@@ -427,23 +430,23 @@ const AIChatbot = () => {
               exit={{ opacity: 0, y: -10 }}
               className="flex gap-3 justify-start"
             >
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl flex items-center justify-center backdrop-blur-sm border border-blue-500/30">
-                <Bot className="w-5 h-5 text-blue-400" />
+              <div className={`w-10 h-10 bg-gradient-to-br rounded-xl flex items-center justify-center backdrop-blur-sm border ${isDark ? 'from-blue-500/20 to-purple-500/20 border-blue-500/30' : 'from-blue-100 to-purple-100 border-blue-200'}`}>
+                <Bot className="w-5 h-5 text-blue-500" />
               </div>
-              <div className="bg-gradient-to-br from-slate-800/90 to-slate-800/70 border border-slate-700/50 rounded-2xl px-5 py-4 backdrop-blur-sm">
+              <div className={`rounded-2xl px-5 py-4 backdrop-blur-sm border ${isDark ? 'bg-gradient-to-br from-gray-800/90 to-gray-800/70 border-gray-700/50' : 'bg-white border-gray-200 shadow-md'}`}>
                 <div className="flex items-center gap-3">
                   <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
                   >
-                    <Brain className="w-4 h-4 text-purple-400" />
+                    <Brain className="w-4 h-4 text-purple-500" />
                   </motion.div>
-                  <span className="text-sm text-slate-300">Analyzing your request</span>
+                  <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Analyzing your request</span>
                   <div className="flex gap-1">
                     {[0, 1, 2].map((i) => (
                       <motion.div
                         key={i}
-                        className="w-1.5 h-1.5 bg-blue-400 rounded-full"
+                        className="w-1.5 h-1.5 bg-blue-500 rounded-full"
                         animate={{
                           y: [0, -4, 0],
                           opacity: [0.4, 1, 0.4]
@@ -471,10 +474,10 @@ const AIChatbot = () => {
             className="space-y-4 pt-4"
           >
             <div className="flex items-center gap-2 px-1">
-              <MessageSquare className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-400 font-medium">Popular Topics</p>
+              <MessageSquare className={`w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
+              <p className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Popular Topics</p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {questionCategories.map((cat, catIndex) => (
                 <motion.div
@@ -488,7 +491,7 @@ const AIChatbot = () => {
                     <div className={`w-6 h-6 rounded-lg bg-gradient-to-br ${cat.color} flex items-center justify-center`}>
                       <cat.icon className="w-3.5 h-3.5 text-white" />
                     </div>
-                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">{cat.category}</span>
+                    <span className={`text-xs font-semibold uppercase tracking-wide ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{cat.category}</span>
                   </div>
                   {cat.questions.map((question, qIndex) => (
                     <motion.button
@@ -499,7 +502,10 @@ const AIChatbot = () => {
                         setInput(question)
                         inputRef.current?.focus()
                       }}
-                      className="w-full text-left text-xs p-3 bg-slate-800/40 hover:bg-slate-700/60 border border-slate-700/50 hover:border-slate-600 rounded-xl text-slate-300 transition-all"
+                      className={`w-full text-left text-xs p-3 rounded-xl transition-all border ${isDark
+                          ? 'bg-slate-800/40 hover:bg-slate-700/60 border-slate-700/50 hover:border-slate-600 text-slate-300'
+                          : 'bg-white hover:bg-white border-slate-200 hover:border-blue-300 hover:shadow-md hover:shadow-blue-500/5 text-slate-600'
+                        }`}
                     >
                       {question}
                     </motion.button>
@@ -529,7 +535,10 @@ const AIChatbot = () => {
       </AnimatePresence>
 
       {/* Input Area */}
-      <div className="p-5 border-t border-slate-700/50 bg-gradient-to-r from-slate-800/30 to-slate-900/30">
+      <div className={`p-5 border-t transition-colors duration-300 ${isDark
+          ? 'border-slate-700/50 bg-gradient-to-r from-slate-800/30 to-slate-900/30'
+          : 'border-slate-200 bg-gradient-to-r from-slate-50 to-white'
+        }`}>
         {/* Quick Prompts */}
         <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1 scrollbar-none">
           {quickPrompts.map((prompt, idx) => (
@@ -558,11 +567,11 @@ const AIChatbot = () => {
               onChange={(e) => setInput(e.target.value.slice(0, 500))}
               onKeyDown={handleKeyPress}
               placeholder="Ask me anything about fitness, nutrition, or workouts..."
-              className="w-full px-5 py-4 bg-slate-800/80 border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-white placeholder-slate-500 backdrop-blur-sm transition-all pr-16"
+              className={`w-full px-5 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 backdrop-blur-sm transition-all pr-16 ${isDark ? 'bg-gray-800/80 border-gray-700/50 text-white placeholder-gray-500' : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400'}`}
               disabled={loading}
             />
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-500 font-medium">
-              <span className={input.length > 450 ? 'text-amber-400' : ''}>{input.length}</span>/500
+            <div className={`absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+              <span className={input.length > 450 ? 'text-amber-500' : ''}>{input.length}</span>/500
             </div>
           </div>
 
@@ -588,8 +597,8 @@ const AIChatbot = () => {
             )}
           </motion.button>
         </div>
-        
-        <p className="text-xs text-slate-500 mt-3 text-center flex items-center justify-center gap-1.5">
+
+        <p className={`text-xs mt-3 text-center flex items-center justify-center gap-1.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
           <AlertCircle className="w-3 h-3" />
           AI can make mistakes. Verify important fitness information with professionals.
         </p>
