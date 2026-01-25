@@ -85,6 +85,7 @@ app.add_middleware(
         "http://127.0.0.1:3003",
         "http://127.0.0.1:3004",
         "http://127.0.0.1:5173",
+        "https://fitmate-companion-om.vercel.app",
     ],
     allow_credentials=True,   # This works now because origins are explicit
     allow_methods=["*"],
