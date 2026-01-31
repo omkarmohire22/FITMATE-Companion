@@ -790,7 +790,7 @@ const TraineeDashboard = () => {
                 title="Refresh Dashboard"
               >
                 <RefreshCw className={`w-5 h-5 text-sky-400 ${isRefreshing ? 'animate-spin' : ''}`} />
-                <div className="absolute top-full right-0 mt-2 hidden group-hover:block bg-slate-800 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg z-50 border border-slate-700">
+                <div className={`absolute top-full right-0 mt-2 hidden group-hover:block text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl z-50 border transition-all duration-300 ${isDark ? 'bg-slate-800 text-white border-slate-700' : 'bg-white text-slate-900 border-slate-200'}`}>
                   Updated: {lastUpdated.toLocaleTimeString()}
                 </div>
               </button>
@@ -810,12 +810,12 @@ const TraineeDashboard = () => {
 
               {/* User Profile */}
               {userData && (
-                <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-slate-700/50">
+                <div className={`flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l transition-colors ${isDark ? 'border-slate-700/50' : 'border-slate-200'}`}>
                   <div className="hidden sm:block text-right">
-                    <p className="text-xs sm:text-sm font-bold text-white">
+                    <p className={`text-xs sm:text-sm font-bold transition-colors ${isDark ? 'text-white' : 'text-slate-900'}`}>
                       {userData.name.split(' ')[0]}
                     </p>
-                    <p className="text-[10px] sm:text-xs text-indigo-400 font-semibold">
+                    <p className="text-[10px] sm:text-xs text-indigo-500 font-bold tracking-tight">
                       {userData.plan || 'Member'}
                     </p>
                   </div>
@@ -825,10 +825,12 @@ const TraineeDashboard = () => {
                 </div>
               )}
 
-              {/* Logout Button */}
               <button
                 onClick={logout}
-                className="hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg transition-all duration-200 border border-red-500/20 hover:border-red-500/40 text-xs sm:text-sm font-bold"
+                className={`hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200 text-xs sm:text-sm font-bold border ${isDark
+                  ? 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border-red-500/20 hover:border-red-500/40'
+                  : 'bg-red-50 hover:bg-red-100 text-red-600 border-red-200'
+                  }`}
               >
                 <LogOut className="w-4 h-4" />
                 Logout
@@ -854,18 +856,20 @@ const TraineeDashboard = () => {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
                 transition={{ type: "spring", duration: 0.3 }}
-                className="absolute right-4 sm:right-6 top-full mt-2 w-80 sm:w-96 bg-slate-900 rounded-2xl shadow-2xl z-50 border border-slate-700 max-h-[520px] flex flex-col overflow-hidden"
+                className={`absolute right-4 sm:right-6 top-full mt-2 w-80 sm:w-96 rounded-2xl shadow-2xl z-50 border max-h-[520px] flex flex-col overflow-hidden ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200 shadow-slate-200/50'
+                  }`}
               >
                 {/* Header */}
-                <div className="px-5 py-4 border-b border-slate-700/50 bg-gradient-to-r from-slate-800 to-slate-900">
+                <div className={`px-5 py-4 border-b transition-colors ${isDark ? 'border-slate-700/50 bg-gradient-to-r from-slate-800 to-slate-900' : 'border-slate-100 bg-gradient-to-r from-slate-50 to-white'
+                  }`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
                         <Bell className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-white text-lg">Notifications</h3>
-                        <p className="text-xs text-slate-400">
+                        <h3 className={`font-bold text-lg transition-colors ${isDark ? 'text-white' : 'text-slate-900'}`}>Notifications</h3>
+                        <p className={`text-xs transition-colors ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                           {notifications.length > 0 ? `${notifications.length} notification${notifications.length > 1 ? 's' : ''}` : 'All caught up!'}
                         </p>
                       </div>
@@ -881,20 +885,22 @@ const TraineeDashboard = () => {
 
                 {/* Notification Categories */}
                 {notifications.length > 0 && (
-                  <div className="px-4 py-2 bg-slate-800/50 border-b border-slate-700/30 flex items-center gap-2 overflow-x-auto">
-                    {[{ id: 'all', label: 'All', count: notifications.length }, { id: 'message', label: 'Messages', icon: MessageCircle }, { id: 'workout', label: 'Workouts', icon: Dumbbell }].map(cat => (
-                      <button
-                        key={cat.id}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${cat.id === 'all'
-                          ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
-                          : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
-                          }`}
-                      >
-                        {cat.icon && <cat.icon className="w-3.5 h-3.5" />}
-                        {cat.label}
-                        {cat.count && <span className="ml-1 px-1.5 py-0.5 bg-indigo-500/30 rounded-full text-[10px]">{cat.count}</span>}
-                      </button>
-                    ))}
+                  <div className={`px-4 py-2 border-b transition-colors ${isDark ? 'bg-slate-800/50 border-slate-700/30' : 'bg-slate-50/50 border-slate-100'}`}>
+                    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                      {[{ id: 'all', label: 'All', count: notifications.length }, { id: 'message', label: 'Messages', icon: MessageCircle }, { id: 'workout', label: 'Workouts', icon: Dumbbell }].map(cat => (
+                        <button
+                          key={cat.id}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${cat.id === 'all'
+                            ? (isDark ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' : 'bg-indigo-100 text-indigo-600 border border-indigo-200')
+                            : (isDark ? 'text-slate-400 hover:text-white hover:bg-slate-700/50' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100')
+                            }`}
+                        >
+                          {cat.icon && <cat.icon className="w-3.5 h-3.5" />}
+                          {cat.label}
+                          {cat.count && <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${isDark ? 'bg-indigo-500/30' : 'bg-indigo-500 text-white'}`}>{cat.count}</span>}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -911,11 +917,11 @@ const TraineeDashboard = () => {
                     </div>
                   ) : notifications.length === 0 ? (
                     <div className="py-16 px-6 text-center">
-                      <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-slate-800 flex items-center justify-center">
-                        <Bell className="w-10 h-10 text-slate-600" />
+                      <div className={`w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-colors ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
+                        <Bell className={`w-10 h-10 ${isDark ? 'text-slate-600' : 'text-slate-400'}`} />
                       </div>
-                      <h4 className="text-white font-semibold mb-2">No notifications</h4>
-                      <p className="text-slate-400 text-sm">You're all caught up! Check back later.</p>
+                      <h4 className={`font-semibold mb-2 transition-colors ${isDark ? 'text-white' : 'text-slate-900'}`}>No notifications</h4>
+                      <p className={`text-sm transition-colors ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>You're all caught up! Check back later.</p>
                     </div>
                   ) : (
                     <div className="py-2">
@@ -940,9 +946,10 @@ const TraineeDashboard = () => {
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: idx * 0.05 }}
-                            whileHover={{ x: 4, backgroundColor: 'rgba(51, 65, 85, 0.3)' }}
+                            whileHover={{ x: 4, backgroundColor: isDark ? 'rgba(51, 65, 85, 0.3)' : 'rgba(241, 245, 249, 1)' }}
                             onClick={() => handleNotificationClick(notif)}
-                            className={`mx-2 px-4 py-3 rounded-xl cursor-pointer transition-all relative ${isUnread ? 'bg-slate-800/50' : ''}`}
+                            className={`mx-2 px-4 py-3 rounded-xl cursor-pointer transition-all relative ${isUnread ? (isDark ? 'bg-slate-800/50' : 'bg-slate-100/50') : ''
+                              }`}
                           >
                             {/* Unread Indicator */}
                             {isUnread && (
@@ -1325,8 +1332,8 @@ const TraineeDashboard = () => {
               <button
                 onClick={toggleTheme}
                 className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-300 ${isDark
-                    ? 'bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700'
-                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-sm'
+                  ? 'bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700'
+                  : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-sm'
                   }`}
               >
                 <div className="flex items-center gap-3">
@@ -1344,8 +1351,8 @@ const TraineeDashboard = () => {
               <button
                 onClick={logout}
                 className={`mt-3 w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group border ${isDark
-                    ? 'bg-red-500/5 border-red-500/10 text-red-400 hover:bg-red-500/10 hover:border-red-500/20'
-                    : 'bg-red-50 border-red-100 text-red-600 hover:bg-red-100 hover:border-red-200 shadow-sm'
+                  ? 'bg-red-500/5 border-red-500/10 text-red-400 hover:bg-red-500/10 hover:border-red-500/20'
+                  : 'bg-red-50 border-red-100 text-red-600 hover:bg-red-100 hover:border-red-200 shadow-sm'
                   }`}
               >
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isDark ? 'bg-red-500/10' : 'bg-white border border-red-100 shadow-sm'

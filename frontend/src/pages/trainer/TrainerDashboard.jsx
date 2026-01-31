@@ -139,6 +139,7 @@ const TrainerDashboard = () => {
         const activities = traineesData.slice(0, 4).map((t, idx) => ({
           user: t.name || t.user?.name || 'Trainee',
           action: ['Joined training', 'Updated profile', 'Completed workout', 'Sent message'][idx % 4],
+          time: ['Just now', '10m ago', '25m ago', '1h ago'][idx % 4],
           icon: ['Users', 'Target', 'CheckCircle', 'MessageCircle'][idx % 4],
           color: ['text-blue-500', 'text-green-500', 'text-purple-500', 'text-sky-500'][idx % 4],
           bgColor: ['bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-sky-100'][idx % 4]
@@ -703,28 +704,28 @@ const TrainerDashboard = () => {
                           if (window.innerWidth < 1024) setSidebarOpen(false)
                         }}
                         className={`
-                          w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative
+                          w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative
                           ${isActive
                             ? isDark
-                              ? 'bg-indigo-500/10 text-white border border-indigo-500/20 shadow-lg shadow-indigo-500/5'
-                              : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
+                              ? 'bg-indigo-500/10 text-white border-r-2 border-indigo-500 font-medium'
+                              : 'bg-indigo-50/80 text-indigo-600 font-semibold shadow-sm'
                             : isDark
                               ? 'text-slate-400 hover:text-white hover:bg-slate-800/80'
-                              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                           }
                         `}
                       >
                         <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 shadow-sm ${isActive
-                          ? `bg-gradient-to-br ${tab.gradient} text-white`
-                          : isDark ? 'bg-slate-800 text-slate-400 group-hover:bg-slate-700' : 'bg-slate-50 text-slate-400 group-hover:bg-white'
+                          ? `bg-gradient-to-br ${tab.gradient} text-white shadow-md scale-105`
+                          : isDark ? 'bg-slate-800 text-slate-400 group-hover:bg-slate-700' : 'bg-white text-slate-400 group-hover:text-indigo-500 group-hover:shadow-md'
                           }`}>
                           <Icon className="w-4.5 h-4.5" />
                         </div>
-                        <span className="flex-1 text-left text-sm font-medium">{tab.label}</span>
+                        <span className="flex-1 text-left text-sm">{tab.label}</span>
                         {isActive && (
                           <motion.div
                             layoutId="trainerActiveIndicator"
-                            className="w-1.5 h-6 rounded-full bg-indigo-500 absolute right-0"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-l-full bg-indigo-600"
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
                           />
                         )}
@@ -754,28 +755,28 @@ const TrainerDashboard = () => {
                           if (window.innerWidth < 1024) setSidebarOpen(false)
                         }}
                         className={`
-                          w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative
+                          w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative
                           ${isActive
                             ? isDark
-                              ? 'bg-indigo-500/10 text-white border border-indigo-500/20 shadow-lg shadow-indigo-500/5'
-                              : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
+                              ? 'bg-indigo-500/10 text-white border-r-2 border-indigo-500 font-medium'
+                              : 'bg-indigo-50/80 text-indigo-600 font-semibold shadow-sm'
                             : isDark
                               ? 'text-slate-400 hover:text-white hover:bg-slate-800/80'
-                              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                           }
                         `}
                       >
                         <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 shadow-sm ${isActive
-                          ? `bg-gradient-to-br ${tab.gradient} text-white`
-                          : isDark ? 'bg-slate-800 text-slate-400 group-hover:bg-slate-700' : 'bg-slate-50 text-slate-400 group-hover:bg-white'
+                          ? `bg-gradient-to-br ${tab.gradient} text-white shadow-md scale-105`
+                          : isDark ? 'bg-slate-800 text-slate-400 group-hover:bg-slate-700' : 'bg-white text-slate-400 group-hover:text-indigo-500 group-hover:shadow-md'
                           }`}>
                           <Icon className="w-4.5 h-4.5" />
                         </div>
-                        <span className="flex-1 text-left text-sm font-medium">{tab.label}</span>
+                        <span className="flex-1 text-left text-sm">{tab.label}</span>
                         {isActive && (
                           <motion.div
                             layoutId="trainerActiveIndicator"
-                            className="w-1.5 h-6 rounded-full bg-indigo-500 absolute right-0"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-l-full bg-indigo-600"
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
                           />
                         )}
@@ -804,28 +805,28 @@ const TrainerDashboard = () => {
                           if (window.innerWidth < 1024) setSidebarOpen(false)
                         }}
                         className={`
-                          w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative
+                          w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative
                           ${isActive
                             ? isDark
-                              ? 'bg-indigo-500/10 text-white border border-indigo-500/20 shadow-lg shadow-indigo-500/5'
-                              : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
+                              ? 'bg-indigo-500/10 text-white border-r-2 border-indigo-500 font-medium'
+                              : 'bg-indigo-50/80 text-indigo-600 font-semibold shadow-sm'
                             : isDark
                               ? 'text-slate-400 hover:text-white hover:bg-slate-800/80'
-                              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                           }
                         `}
                       >
                         <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 shadow-sm ${isActive
-                          ? `bg-gradient-to-br ${tab.gradient} text-white`
-                          : isDark ? 'bg-slate-800 text-slate-400 group-hover:bg-slate-700' : 'bg-slate-50 text-slate-400 group-hover:bg-white'
+                          ? `bg-gradient-to-br ${tab.gradient} text-white shadow-md scale-105`
+                          : isDark ? 'bg-slate-800 text-slate-400 group-hover:bg-slate-700' : 'bg-white text-slate-400 group-hover:text-indigo-500 group-hover:shadow-md'
                           }`}>
                           <Icon className="w-4.5 h-4.5" />
                         </div>
-                        <span className="flex-1 text-left text-sm font-medium">{tab.label}</span>
+                        <span className="flex-1 text-left text-sm">{tab.label}</span>
                         {isActive && (
                           <motion.div
                             layoutId="trainerActiveIndicator"
-                            className="w-1.5 h-6 rounded-full bg-indigo-500 absolute right-0"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-l-full bg-indigo-600"
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
                           />
                         )}
@@ -854,28 +855,28 @@ const TrainerDashboard = () => {
                           if (window.innerWidth < 1024) setSidebarOpen(false)
                         }}
                         className={`
-                          w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative
+                          w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative
                           ${isActive
                             ? isDark
-                              ? 'bg-indigo-500/10 text-white border border-indigo-500/20 shadow-lg shadow-indigo-500/5'
-                              : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
+                              ? 'bg-indigo-500/10 text-white border-r-2 border-indigo-500 font-medium'
+                              : 'bg-indigo-50/80 text-indigo-600 font-semibold shadow-sm'
                             : isDark
                               ? 'text-slate-400 hover:text-white hover:bg-slate-800/80'
-                              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                           }
                         `}
                       >
                         <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 shadow-sm ${isActive
-                          ? `bg-gradient-to-br ${tab.gradient} text-white`
-                          : isDark ? 'bg-slate-800 text-slate-400 group-hover:bg-slate-700' : 'bg-slate-50 text-slate-400 group-hover:bg-white'
+                          ? `bg-gradient-to-br ${tab.gradient} text-white shadow-md scale-105`
+                          : isDark ? 'bg-slate-800 text-slate-400 group-hover:bg-slate-700' : 'bg-white text-slate-400 group-hover:text-indigo-500 group-hover:shadow-md'
                           }`}>
                           <Icon className="w-4.5 h-4.5" />
                         </div>
-                        <span className="flex-1 text-left text-sm font-medium">{tab.label}</span>
+                        <span className="flex-1 text-left text-sm">{tab.label}</span>
                         {isActive && (
                           <motion.div
                             layoutId="trainerActiveIndicator"
-                            className="w-1.5 h-6 rounded-full bg-indigo-500 absolute right-0"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-l-full bg-indigo-600"
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
                           />
                         )}
@@ -1091,27 +1092,40 @@ const TrainerDashboard = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+                    className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
                   >
                     {[
-                      { label: 'Active Trainees', value: dashboardStats.totalTrainees, icon: Users, color: 'from-blue-500 to-cyan-500', bgColor: isDark ? 'bg-blue-900/20' : 'bg-white', borderColor: isDark ? 'border-blue-700/30' : 'border-blue-100' },
-                      { label: 'Total Workouts', value: dashboardStats.totalWorkouts, icon: Activity, color: 'from-green-500 to-emerald-500', bgColor: isDark ? 'bg-green-900/20' : 'bg-white', borderColor: isDark ? 'border-green-700/30' : 'border-green-100' },
-                      { label: 'Success Rate', value: `${dashboardStats.successRate}%`, icon: Target, color: 'from-purple-500 to-pink-500', bgColor: isDark ? 'bg-purple-900/20' : 'bg-white', borderColor: isDark ? 'border-purple-700/30' : 'border-purple-100' },
-                      { label: 'Avg Progress', value: `+${dashboardStats.avgProgress}%`, icon: TrendingUp, color: 'from-orange-500 to-amber-500', bgColor: isDark ? 'bg-orange-900/20' : 'bg-white', borderColor: isDark ? 'border-orange-700/30' : 'border-orange-100' }
+                      { label: 'Active Trainees', value: dashboardStats.totalTrainees, icon: Users, color: 'from-blue-500 to-cyan-500', bgColor: isDark ? 'bg-slate-800' : 'bg-white', borderColor: isDark ? 'border-slate-700' : 'border-slate-100' },
+                      { label: 'Total Workouts', value: dashboardStats.totalWorkouts, icon: Activity, color: 'from-emerald-500 to-teal-500', bgColor: isDark ? 'bg-slate-800' : 'bg-white', borderColor: isDark ? 'border-slate-700' : 'border-slate-100' },
+                      { label: 'Success Rate', value: `${dashboardStats.successRate}%`, icon: Target, color: 'from-purple-500 to-pink-500', bgColor: isDark ? 'bg-slate-800' : 'bg-white', borderColor: isDark ? 'border-slate-700' : 'border-slate-100' },
+                      { label: 'Avg Progress', value: `+${dashboardStats.avgProgress}%`, icon: TrendingUp, color: 'from-orange-500 to-amber-500', bgColor: isDark ? 'bg-slate-800' : 'bg-white', borderColor: isDark ? 'border-slate-700' : 'border-slate-100' }
                     ].map((stat, idx) => {
                       const Icon = stat.icon;
                       return (
                         <motion.div
                           key={stat.label}
-                          whileHover={{ y: -5, scale: 1.02 }}
-                          className={`${stat.bgColor} border ${stat.borderColor} rounded-2xl p-5 transition-all shadow-lg ${isDark ? 'shadow-black/20' : 'shadow-slate-200/60 hover:shadow-xl hover:shadow-slate-200/80'
+                          whileHover={{ y: -5 }}
+                          className={`relative overflow-hidden rounded-2xl p-6 transition-all duration-300 group ${isDark
+                            ? 'bg-slate-800 border border-slate-700 shadow-lg'
+                            : 'bg-white border border-slate-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] hover:shadow-[0_8px_30px_-12px_rgba(6,81,237,0.2)] hover:border-indigo-100'
                             }`}
                         >
-                          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3 shadow-lg`}>
+                          <div className={`absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300`}>
+                            <Icon className="w-24 h-24" />
+                          </div>
+
+                          <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                             <Icon className="w-6 h-6 text-white" />
                           </div>
-                          <p className={`text-2xl font-bold transition-colors ${isDark ? 'text-white' : 'text-slate-900'}`}>{stat.value}</p>
-                          <p className={`text-sm font-medium transition-colors ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{stat.label}</p>
+
+                          <div>
+                            <p className={`text-3xl font-extrabold transition-colors ${isDark ? 'text-white' : 'text-slate-800'}`}>
+                              {stat.value}
+                            </p>
+                            <p className={`text-sm font-semibold mt-1 transition-colors ${isDark ? 'text-slate-400' : 'text-slate-500 group-hover:text-indigo-500'}`}>
+                              {stat.label}
+                            </p>
+                          </div>
                         </motion.div>
                       );
                     })}
@@ -1146,15 +1160,15 @@ const TrainerDashboard = () => {
                               whileHover={{ scale: 1.03, y: -2 }}
                               whileTap={{ scale: 0.98 }}
                               onClick={action.action}
-                              className={`group p-4 rounded-2xl transition-all border shadow-sm hover:shadow-md flex flex-col items-center justify-center gap-3 ${isDark
-                                ? 'bg-slate-800/50 hover:bg-slate-800 border-slate-700/50 hover:border-slate-600'
-                                : 'bg-white hover:bg-slate-50 border-slate-100 hover:border-slate-200 shadow-slate-100'
+                              className={`group p-4 rounded-2xl transition-all border flex flex-col items-center justify-center gap-4 ${isDark
+                                ? 'bg-slate-800/50 hover:bg-slate-800 border-slate-700/50 hover:border-slate-600 shadow-sm'
+                                : 'bg-white hover:bg-slate-50/80 border-slate-100 hover:border-indigo-100 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] hover:shadow-md'
                                 }`}
                             >
-                              <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${action.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                                <Icon className="w-6 h-6 text-white" />
+                              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${action.color} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300`}>
+                                <Icon className="w-7 h-7 text-white" />
                               </div>
-                              <p className={`text-sm font-bold text-center transition-colors ${isDark ? 'text-slate-300 group-hover:text-white' : 'text-slate-600 group-hover:text-slate-900'
+                              <p className={`text-sm font-bold text-center transition-colors ${isDark ? 'text-slate-300 group-hover:text-white' : 'text-slate-600 group-hover:text-indigo-600'
                                 }`}>{action.label}</p>
                             </motion.button>
                           );
@@ -1200,9 +1214,9 @@ const TrainerDashboard = () => {
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.5 + index * 0.1 }}
                                 whileHover={{ x: 5 }}
-                                className={`flex items-center justify-between p-4 rounded-xl border transition-all ${isDark
+                                className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-300 group ${isDark
                                   ? 'bg-slate-800/30 hover:bg-slate-800 border-slate-700/50 hover:shadow-md'
-                                  : 'bg-white hover:bg-slate-50 border-slate-100 hover:border-indigo-100 hover:shadow-md'
+                                  : 'bg-white hover:bg-slate-50 border-slate-100 hover:border-indigo-200 hover:shadow-lg shadow-sm'
                                   }`}
                               >
                                 <div className="flex items-center gap-4">
@@ -1247,32 +1261,34 @@ const TrainerDashboard = () => {
                       >
                         <DashboardCard className="p-6">
                           <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center shadow-md">
                               <Clock className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                              <h3 className="font-bold text-white">Today's Schedule</h3>
-                              <p className="text-xs text-slate-400">{new Date().toLocaleDateString('en-US', { weekday: 'long' })}</p>
+                              <h3 className={`font-bold transition-colors ${isDark ? 'text-white' : 'text-slate-900'}`}>Today's Schedule</h3>
+                              <p className={`text-xs transition-colors ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{new Date().toLocaleDateString('en-US', { weekday: 'long' })}</p>
                             </div>
                           </div>
 
                           <div className="space-y-2">
                             {todaySchedule.length > 0 ? (
                               todaySchedule.map((slot, idx) => (
-                                <div key={idx} className={`p-3 rounded-lg border-l-4 ${slot.is_available ? 'bg-green-900/20 border-l-green-500' : 'bg-orange-900/20 border-l-orange-500'}`}>
-                                  <p className="font-semibold text-white text-sm">{slot.start_time} - {slot.end_time}</p>
-                                  <p className={`text-xs ${slot.is_available ? 'text-green-400' : 'text-sky-400'}`}>
+                                <div key={idx} className={`p-3 rounded-lg border-l-4 transition-all hover:shadow-sm ${slot.is_available
+                                  ? (isDark ? 'bg-green-900/20 border-l-green-500' : 'bg-green-50 border-l-green-500 border-y border-r border-green-100')
+                                  : (isDark ? 'bg-orange-900/20 border-l-orange-500' : 'bg-orange-50 border-l-orange-500 border-y border-r border-orange-100')}`}>
+                                  <p className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>{slot.start_time} - {slot.end_time}</p>
+                                  <p className={`text-xs font-medium ${slot.is_available ? (isDark ? 'text-green-400' : 'text-green-700') : (isDark ? 'text-orange-400' : 'text-orange-700')}`}>
                                     {slot.is_available ? '✓ Available' : '◉ Booked'}
                                   </p>
                                 </div>
                               ))
                             ) : (
-                              <div className="text-center py-6 text-slate-400">
-                                <Calendar className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                              <div className="text-center py-8 text-slate-400">
+                                <Calendar className="w-10 h-10 mx-auto mb-2 opacity-20" />
                                 <p className="text-sm">No sessions scheduled today</p>
                                 <button
                                   onClick={() => setActiveTab('schedule')}
-                                  className="mt-2 text-indigo-400 text-sm font-medium hover:underline"
+                                  className="mt-2 text-indigo-500 text-sm font-bold hover:underline"
                                 >
                                   Add a slot →
                                 </button>
@@ -1292,38 +1308,38 @@ const TrainerDashboard = () => {
                           {/* Performance Metrics */}
                           <div className="mb-6">
                             <div className="flex items-center gap-3 mb-4">
-                              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-md">
                                 <Trophy className="w-5 h-5 text-white" />
                               </div>
-                              <h3 className="font-bold text-white">Performance</h3>
+                              <h3 className={`font-bold transition-colors ${isDark ? 'text-white' : 'text-slate-900'}`}>Performance</h3>
                             </div>
 
                             <div className="grid grid-cols-3 gap-3">
-                              <div className="text-center p-3 bg-yellow-900/20 rounded-lg">
-                                <Trophy className="w-5 h-5 text-yellow-500 mx-auto mb-1" />
-                                <p className="text-xl font-bold text-white">{dashboardStats.successRate}%</p>
-                                <p className="text-xs text-slate-400">Success</p>
+                              <div className={`text-center p-3 rounded-lg border transition-colors ${isDark ? 'bg-yellow-900/20 border-yellow-700/30' : 'bg-yellow-50 border-yellow-100/50'}`}>
+                                <Trophy className={`w-5 h-5 mx-auto mb-1 ${isDark ? 'text-yellow-500' : 'text-yellow-600'}`} />
+                                <p className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{dashboardStats.successRate}%</p>
+                                <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Success</p>
                               </div>
-                              <div className="text-center p-3 bg-green-900/20 rounded-lg">
-                                <TrendingUp className="w-5 h-5 text-green-500 mx-auto mb-1" />
-                                <p className="text-xl font-bold text-white">+{dashboardStats.avgProgress}%</p>
-                                <p className="text-xs text-slate-400">Progress</p>
+                              <div className={`text-center p-3 rounded-lg border transition-colors ${isDark ? 'bg-green-900/20 border-green-700/30' : 'bg-green-50 border-green-100/50'}`}>
+                                <TrendingUp className={`w-5 h-5 mx-auto mb-1 ${isDark ? 'text-green-500' : 'text-green-600'}`} />
+                                <p className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>+{dashboardStats.avgProgress}%</p>
+                                <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Progress</p>
                               </div>
-                              <div className="text-center p-3 bg-blue-900/20 rounded-lg">
-                                <Activity className="w-5 h-5 text-blue-500 mx-auto mb-1" />
-                                <p className="text-xl font-bold text-white">{dashboardStats.totalWorkouts}</p>
-                                <p className="text-xs text-slate-400">Workouts</p>
+                              <div className={`text-center p-3 rounded-lg border transition-colors ${isDark ? 'bg-blue-900/20 border-blue-700/30' : 'bg-blue-50 border-blue-100/50'}`}>
+                                <Activity className={`w-5 h-5 mx-auto mb-1 ${isDark ? 'text-blue-500' : 'text-blue-600'}`} />
+                                <p className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{dashboardStats.totalWorkouts}</p>
+                                <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Workouts</p>
                               </div>
                             </div>
                           </div>
 
                           {/* Recent Activity */}
-                          <div className="pt-6 border-t border-slate-700/50">
+                          <div className={`pt-6 border-t ${isDark ? 'border-slate-700/50' : 'border-slate-100'}`}>
                             <div className="flex items-center gap-3 mb-4">
-                              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-md">
                                 <Sparkles className="w-5 h-5 text-white" />
                               </div>
-                              <h3 className="font-bold text-white">Recent Activity</h3>
+                              <h3 className={`font-bold transition-colors ${isDark ? 'text-white' : 'text-slate-900'}`}>Recent Activity</h3>
                             </div>
 
                             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
@@ -1332,15 +1348,15 @@ const TrainerDashboard = () => {
                                   const iconMap = { Users, Target, CheckCircle, MessageCircle };
                                   const Icon = iconMap[activity.icon] || Users;
                                   return (
-                                    <div key={index} className={`flex items-center gap-4 p-3 rounded-xl transition-colors ${isDark ? 'hover:bg-slate-800/50' : 'hover:bg-slate-50'}`}>
+                                    <div key={index} className={`flex items-center gap-4 p-3 rounded-xl transition-all duration-300 ${isDark ? 'hover:bg-slate-800/50' : 'hover:bg-slate-100/80 shadow-sm shadow-transparent hover:shadow-slate-100'}`}>
                                       <div className={`w-10 h-10 rounded-xl ${activity.bgColor} flex items-center justify-center flex-shrink-0 shadow-sm`}>
                                         <Icon className={`w-5 h-5 ${activity.color}`} />
                                       </div>
                                       <div className="flex-1 min-w-0">
                                         <p className={`text-sm font-bold truncate transition-colors ${isDark ? 'text-white' : 'text-slate-900'}`}>{activity.user}</p>
-                                        <p className={`text-xs truncate transition-colors ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{activity.action}</p>
+                                        <p className={`text-xs font-medium truncate transition-colors ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{activity.action}</p>
                                       </div>
-                                      <span className={`text-[10px] whitespace-nowrap transition-colors ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Just now</span>
+                                      <span className={`text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-colors ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>{activity.time || 'Just now'}</span>
                                     </div>
                                   );
                                 })
@@ -1982,23 +1998,31 @@ const TrainerDashboard = () => {
                               transition={{ delay: idx * 0.05 }}
                               whileHover={{ y: -3 }}
                               className={`rounded-xl border transition-all overflow-hidden ${isToday
-                                ? 'bg-gradient-to-b from-purple-900/40 to-slate-800/80 border-purple-500/50 ring-2 ring-purple-500/30'
-                                : 'bg-slate-800/50 border-slate-700 hover:border-slate-600'
+                                ? (isDark
+                                  ? 'bg-gradient-to-b from-purple-900/40 to-slate-800/80 border-purple-500/50 ring-2 ring-purple-500/30'
+                                  : 'bg-gradient-to-b from-purple-50 to-white border-purple-200 ring-2 ring-purple-500/20')
+                                : (isDark
+                                  ? 'bg-slate-800/50 border-slate-700 hover:border-slate-600'
+                                  : 'bg-white border-slate-200 hover:border-indigo-200 hover:shadow-md')
                                 }`}
                             >
                               {/* Day Header */}
-                              <div className={`px-4 py-3 border-b ${isToday ? 'border-purple-500/30 bg-purple-500/10' : 'border-slate-700'}`}>
+                              <div className={`px-4 py-3 border-b ${isToday
+                                ? (isDark ? 'border-purple-500/30 bg-purple-500/10' : 'border-purple-100 bg-purple-50/50')
+                                : (isDark ? 'border-slate-700' : 'border-slate-100 bg-slate-50/50')}`}>
                                 <div className="flex items-center justify-between">
-                                  <h4 className={`font-bold ${isToday ? 'text-purple-300' : 'text-white'}`}>
+                                  <h4 className={`font-bold ${isToday
+                                    ? (isDark ? 'text-purple-300' : 'text-purple-700')
+                                    : (isDark ? 'text-white' : 'text-slate-900')}`}>
                                     {day.slice(0, 3)}
                                   </h4>
                                   {isToday && (
-                                    <span className="text-[10px] font-bold text-purple-400 bg-purple-500/20 px-2 py-0.5 rounded-full">
+                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isDark ? 'text-purple-400 bg-purple-500/20' : 'text-purple-700 bg-purple-100'}`}>
                                       TODAY
                                     </span>
                                   )}
                                 </div>
-                                <p className="text-xs text-slate-500 mt-0.5">{daySchedule.length} slots</p>
+                                <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{daySchedule.length} slots</p>
                               </div>
 
                               {/* Time Slots */}

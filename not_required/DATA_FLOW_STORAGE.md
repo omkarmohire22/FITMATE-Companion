@@ -228,7 +228,7 @@ class UserCreate(BaseModel):
     email: EmailStr              # Must be valid email
     password: str                # Min 8 chars, uppercase, number
     name: str
-    role: UserRole = TRAINEE
+    role: UserRole = TRAINEE      
 
 # Response serialization
 class UserResponse(BaseModel):
