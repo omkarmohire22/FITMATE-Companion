@@ -15,7 +15,7 @@ const TrainerManagement = () => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [details, setDetails] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
-  
+
   // Modal state for adding trainer
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -46,12 +46,12 @@ const TrainerManagement = () => {
     if (loaded && !force) {
       return;
     }
-    
+
     try {
       setLoading(true);
       const res = await adminApi.getTrainers();
       const trainersData = res.data.trainers || [];
-      
+
       // Debug: Log trainer data structure
       if (trainersData.length > 0) {
         console.log('Sample trainer data:', {
@@ -60,7 +60,7 @@ const TrainerManagement = () => {
           email: trainersData[0].user?.email
         });
       }
-      
+
       setTrainers(trainersData);
       setLoaded(true);
     } catch (err) {
@@ -119,7 +119,7 @@ const TrainerManagement = () => {
     } catch (err) {
       console.error(err);
       let msg = 'Failed to create trainer';
-      
+
       // Handle Pydantic validation errors
       if (err.response?.data?.detail && Array.isArray(err.response.data.detail)) {
         msg = err.response.data.detail.map((e) => e.msg || JSON.stringify(e)).join(", ");
@@ -128,7 +128,7 @@ const TrainerManagement = () => {
       } else if (err.message) {
         msg = err.message;
       }
-      
+
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -224,7 +224,7 @@ const TrainerManagement = () => {
     // Enhanced confirmation dialog
     const trainer = trainers.find(t => t.id === trainerId);
     const trainerName = trainer?.user?.name || 'this trainer';
-    
+
     if (!window.confirm(
       `⚠️ WARNING: Delete ${trainerName}?\n\n` +
       `This will permanently delete:\n` +
@@ -240,20 +240,20 @@ const TrainerManagement = () => {
 
     try {
       setActionLoading(true);
-      
+
       // Log the ID being sent for debugging
       console.log('Deleting trainer with ID:', trainerId);
-      
+
       const response = await adminApi.deleteTrainer(trainerId);
-      
+
       toast.success(`${trainerName} deleted successfully`);
-      
+
       // Force refresh the trainers list
       await loadTrainers(true);
-      
+
     } catch (err) {
       console.error('Delete trainer error:', err);
-      
+
       // Better error messages
       if (err.response?.status === 401) {
         toast.error('Unauthorized. Please login again.');
@@ -291,7 +291,7 @@ const TrainerManagement = () => {
     } catch (err) {
       console.error("Reset Password Error:", err);
       let msg = "Failed to reset password";
-      
+
       // Handle Pydantic validation errors (array of objects)
       if (err.response?.data?.detail && Array.isArray(err.response.data.detail)) {
         msg = err.response.data.detail.map((e) => e.msg || JSON.stringify(e)).join(", ");
@@ -300,7 +300,7 @@ const TrainerManagement = () => {
       } else if (err.message) {
         msg = err.message;
       }
-      
+
       toast.error(msg);
     } finally {
       setPasswordLoading(false);
@@ -516,7 +516,7 @@ const TrainerManagement = () => {
       {/* Edit Trainer Modal */}
       {showEditModal && selectedTrainerForEdit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => {setShowEditModal(false); setSelectedTrainerForEdit(null);}} />
+          <div className="absolute inset-0 bg-black/50" onClick={() => { setShowEditModal(false); setSelectedTrainerForEdit(null); }} />
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -527,7 +527,7 @@ const TrainerManagement = () => {
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">Edit Trainer</h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Update trainer details</p>
               </div>
-              <button onClick={() => {setShowEditModal(false); setSelectedTrainerForEdit(null);}} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+              <button onClick={() => { setShowEditModal(false); setSelectedTrainerForEdit(null); }} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
                 <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               </button>
             </div>
@@ -654,7 +654,7 @@ const TrainerManagement = () => {
               <div className="flex justify-end gap-3 pt-4 border-t dark:border-gray-700">
                 <button
                   type="button"
-                  onClick={() => {setShowEditModal(false); setSelectedTrainerForEdit(null);}}
+                  onClick={() => { setShowEditModal(false); setSelectedTrainerForEdit(null); }}
                   className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
                 >
                   Cancel
@@ -712,16 +712,15 @@ const TrainerManagement = () => {
           >
             {/* Gradient Background Overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 via-white to-indigo-50/30 dark:from-indigo-900/20 dark:via-slate-800 dark:to-indigo-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            
+
             {/* Status Badge */}
             <div className="absolute top-4 right-4 z-10">
-              <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm ${
-                t.status === 'active'
+              <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm ${t.status === 'active'
                   ? 'bg-emerald-500/90 text-white border border-emerald-400/50'
                   : t.status === 'inactive'
-                  ? 'bg-red-500/90 text-white border border-red-400/50'
-                  : 'bg-gray-500/90 text-white border border-gray-400/50'
-              }`}>
+                    ? 'bg-red-500/90 text-white border border-red-400/50'
+                    : 'bg-gray-500/90 text-white border border-gray-400/50'
+                }`}>
                 {t.status || 'active'}
               </span>
             </div>
@@ -742,7 +741,7 @@ const TrainerManagement = () => {
                     {t.user?.name || 'Trainer'}
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300 truncate mb-2">{t.user?.email}</p>
-                  
+
                   {/* Specialization Tag */}
                   {t.specialization && (
                     <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/50 dark:to-purple-900/50 px-3 py-1.5 rounded-full border border-indigo-200/50 dark:border-indigo-700/50 shadow-sm">
@@ -866,7 +865,7 @@ const TrainerManagement = () => {
             <Award className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <p className="font-semibold text-gray-700 dark:text-gray-200 text-lg mb-2">No Trainers Found</p>
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">Start managing your gym by adding trainers</p>
-            <button 
+            <button
               onClick={() => setShowAddModal(true)}
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all"
             >
@@ -902,11 +901,11 @@ const TrainerManagement = () => {
 /* =========================================
       TRAINER DETAILS DRAWER COMPONENT
    ========================================= */
-const TrainerDetailsDrawer = ({ 
-  open, 
-  onClose, 
-  loading, 
-  trainer, 
+const TrainerDetailsDrawer = ({
+  open,
+  onClose,
+  loading,
+  trainer,
   details,
   showPasswordResetModal,
   setShowPasswordResetModal,
@@ -946,7 +945,7 @@ const TrainerDetailsDrawer = ({
             <p className="text-xs text-gray-500">{profile.name} ({profile.email})</p>
           </div>
           <div className="flex items-center gap-2">
-            <button 
+            <button
               className="p-2 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors"
               onClick={() => {
                 setPasswordResetTarget(trainer);
@@ -1134,7 +1133,7 @@ const TrainerDetailsDrawer = ({
             <p className="text-sm text-gray-600 mb-4">
               Set a new password for <span className="font-semibold">{passwordResetTarget?.user?.name}</span> ({passwordResetTarget?.user?.email})
             </p>
-            
+
             <div className="space-y-4 mb-6">
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-2">

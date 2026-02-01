@@ -55,7 +55,7 @@ const TraineeManagement = () => {
      ============================ */
   const loadMembers = async (force = false) => {
     if (loaded.members && !force) return;
-    
+
     try {
       setLoading(true);
       const res = await adminApi.getMembers();
@@ -78,7 +78,7 @@ const TraineeManagement = () => {
      ============================ */
   const loadTrainers = async (force = false) => {
     if (loaded.trainers && !force) return;
-    
+
     try {
       const res = await adminApi.getTrainers();
       setTrainers(res.data.trainers || []);
@@ -93,7 +93,7 @@ const TraineeManagement = () => {
      ============================ */
   const loadMembershipPlans = async (force = false) => {
     if (loaded.plans && !force) return;
-    
+
     try {
       const res = await adminApi.getMembershipPlans();
       setMembershipPlans(res.data.membership_plans || res.data.plans || res.data || []);
@@ -167,7 +167,7 @@ const TraineeManagement = () => {
         <div>
           <strong>Trainee created successfully!</strong>
           <br />
-          <span className="text-sm">Password: <code className="bg-gray-100 px-1 rounded">{pwd}</code></span>
+          <span className="text-sm">Password: <code className="bg-white text-slate-900 px-2 py-0.5 rounded font-mono font-bold ml-1 border border-slate-200 shadow-sm">{pwd}</code></span>
           {res.data.membership_created && <br />}
           {res.data.membership_created && <span className="text-sm text-green-600">✓ Membership activated</span>}
         </div>,
@@ -180,9 +180,9 @@ const TraineeManagement = () => {
       loadMembers();
     } catch (err) {
       console.error("Create Member Error:", err);
-      
+
       let msg = "Failed to create trainee";
-      
+
       // Handle Pydantic validation errors
       if (err.response?.data?.detail && Array.isArray(err.response.data.detail)) {
         msg = err.response.data.detail.map((e) => e.msg || JSON.stringify(e)).join(", ");
@@ -208,9 +208,9 @@ const TraineeManagement = () => {
       loadMembers();
     } catch (err) {
       console.error("Delete Member Error:", err);
-      
+
       let msg = "Failed to remove trainee";
-      
+
       // Handle Pydantic validation errors
       if (err.response?.data?.detail && Array.isArray(err.response.data.detail)) {
         msg = err.response.data.detail.map((e) => e.msg || JSON.stringify(e)).join(", ");
@@ -219,7 +219,7 @@ const TraineeManagement = () => {
       } else if (err.message) {
         msg = err.message;
       }
-      
+
       toast.error(msg);
     }
   };
@@ -237,15 +237,15 @@ const TraineeManagement = () => {
       setPasswordLoading(true);
       // Call the API with correct payload
       await adminApi.resetPassword(passwordResetTarget.id, newPassword);
-      
+
       toast.success(
         <div>
           <p>Password reset for <strong>{passwordResetTarget.name}</strong></p>
-          <p className="text-xs mt-1">New password: <code className="bg-white px-1 rounded">{newPassword}</code></p>
+          <p className="text-xs mt-1">New password: <code className="bg-white text-slate-900 px-2 py-0.5 rounded font-mono font-bold ml-1 border border-slate-200 shadow-sm">{newPassword}</code></p>
         </div>,
         { duration: 5000 }
       );
-      
+
       setShowPasswordResetModal(false);
       setPasswordResetTarget(null);
       setNewPassword("");
@@ -253,7 +253,7 @@ const TraineeManagement = () => {
     } catch (err) {
       console.error("Reset Password Error:", err);
       let msg = "Failed to reset password";
-      
+
       // Handle Pydantic validation errors (array of objects)
       if (err.response?.data?.detail && Array.isArray(err.response.data.detail)) {
         msg = err.response.data.detail.map((e) => e.msg || JSON.stringify(e)).join(", ");
@@ -262,7 +262,7 @@ const TraineeManagement = () => {
       } else if (err.message) {
         msg = err.message;
       }
-      
+
       toast.error(msg);
     } finally {
       setPasswordLoading(false);
@@ -304,7 +304,7 @@ const TraineeManagement = () => {
      ============================ */
   const handleUpdateMember = async (e) => {
     e.preventDefault();
-    
+
     if (!selectedMember) return;
 
     // Validation
@@ -334,9 +334,9 @@ const TraineeManagement = () => {
       loadMembers();
     } catch (err) {
       console.error("Update Member Error:", err);
-      
+
       let msg = "Failed to update trainee";
-      
+
       // Handle Pydantic validation errors
       if (err.response?.data?.detail && Array.isArray(err.response.data.detail)) {
         msg = err.response.data.detail.map((e) => e.msg || JSON.stringify(e)).join(", ");
@@ -345,7 +345,7 @@ const TraineeManagement = () => {
       } else if (err.message) {
         msg = err.message;
       }
-      
+
       toast.error(msg);
     }
   };
@@ -405,7 +405,7 @@ const TraineeManagement = () => {
       let deleted = 0;
       let failed = 0;
       const failedNames = [];
-      
+
       for (const id of selectedTrainees) {
         try {
           await adminApi.deleteMember(id);
@@ -418,16 +418,16 @@ const TraineeManagement = () => {
           if (trainee) failedNames.push(trainee.name);
         }
       }
-      
+
       if (deleted > 0) {
         toast.success(`Removed ${deleted} trainee(s)`);
       }
-      
+
       if (failed > 0) {
         const msg = `Failed to remove ${failed} trainee(s): ${failedNames.join(", ")}`;
         toast.error(msg);
       }
-      
+
       setSelectedTrainees(new Set());
       loadMembers();
     } catch (err) {
@@ -443,12 +443,12 @@ const TraineeManagement = () => {
     setSelectedMember(member);
     setDetailsOpen(true);
     setDetailsTab('profile');
-    
+
     // Try to fetch detailed info, but fallback to list data if not available
     try {
       setDetailsLoading(true);
       const res = await adminApi.getTraineeDetails(member.id).catch(() => null);
-      
+
       if (res?.data) {
         setDetails(res.data);
       } else {
@@ -507,11 +507,11 @@ const TraineeManagement = () => {
             ...details.profile,
             trainer: trainerObj
               ? {
-                  id: trainerObj.id,
-                  name: trainerObj.user?.name,
-                  email: trainerObj.user?.email,
-                  phone: trainerObj.user?.phone,
-                }
+                id: trainerObj.id,
+                name: trainerObj.user?.name,
+                email: trainerObj.user?.email,
+                phone: trainerObj.user?.phone,
+              }
               : null,
           },
         });
@@ -1039,11 +1039,10 @@ const TraineeManagement = () => {
                       </td>
 
                       <td className="py-4 px-4">
-                        <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
-                          isActive
+                        <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${isActive
                             ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
                             : 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700'
-                        }`}>
+                          }`}>
                           <span className={`w-2 h-2 rounded-full mr-2 ${isActive ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
                           {isActive ? 'Active' : 'Incomplete'}
                         </span>
@@ -1257,11 +1256,10 @@ const TraineeDetailsDrawer = ({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-xs font-semibold rounded-t-lg border-b-2 whitespace-nowrap transition-all ${
-                  activeTab === tab.id
+                className={`flex items-center gap-2 px-4 py-3 text-xs font-semibold rounded-t-lg border-b-2 whitespace-nowrap transition-all ${activeTab === tab.id
                     ? 'border-sky-500 text-sky-600 dark:text-indigo-400 bg-sky-50 dark:bg-sky-900/30'
                     : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                }`}
+                  }`}
               >
                 <Icon className="w-4 h-4" />
                 {tab.label}
@@ -1455,7 +1453,7 @@ const TraineeDetailsDrawer = ({
               <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                 Set a new password for <span className="font-semibold text-gray-900 dark:text-white">{passwordResetTarget?.name}</span> ({passwordResetTarget?.email})
               </p>
-              
+
               <div className="space-y-4 mb-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">

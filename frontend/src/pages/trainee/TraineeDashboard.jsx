@@ -533,9 +533,29 @@ const TraineeDashboard = () => {
         traineeApi.getAttendanceHistory(30)
       ]);
 
+      const normalizeTime = (time) => {
+        if (!time || typeof time !== 'string') return time;
+        if (time.includes('Z') || time.includes('+')) return time;
+        // Ensure proper ISO format and treat as UTC
+        return time.replace(' ', 'T') + 'Z';
+      };
+
+      const rawAttendance = todayRes.data?.attendance;
+      const normalizedAttendance = rawAttendance ? {
+        ...rawAttendance,
+        check_in_time: normalizeTime(rawAttendance.check_in_time),
+        check_out_time: normalizeTime(rawAttendance.check_out_time)
+      } : null;
+
+      const normalizedHistory = (historyRes.data?.records || []).map(record => ({
+        ...record,
+        check_in_time: normalizeTime(record.check_in_time),
+        check_out_time: normalizeTime(record.check_out_time)
+      }));
+
       setAttendanceStatus(todayRes.data?.status || 'not_checked_in');
-      setAttendanceData(todayRes.data?.attendance || null);
-      setAttendanceHistory(historyRes.data?.records || []);
+      setAttendanceData(normalizedAttendance);
+      setAttendanceHistory(normalizedHistory);
       setAttendanceStats(historyRes.data?.stats || null);
     } catch (err) {
       console.error('Failed to load attendance data:', err);
@@ -2084,12 +2104,12 @@ const TraineeDashboard = () => {
                             {attendanceData?.check_in_time && (
                               <p className={`text-sm flex items-center gap-1 transition-colors duration-300 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                                 <LogIn className="w-3.5 h-3.5 text-green-400" />
-                                {new Date(attendanceData.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                {attendanceData?.check_out_time && (
+                                {new Date(attendanceData.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                {attendanceData?.check_out_time && attendanceData.check_out_time !== attendanceData.check_in_time && (
                                   <>
                                     <span className="mx-1">→</span>
                                     <LogOutIcon className="w-3.5 h-3.5 text-red-400" />
-                                    {new Date(attendanceData.check_out_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    {new Date(attendanceData.check_out_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                                   </>
                                 )}
                               </p>
@@ -2234,14 +2254,14 @@ const TraineeDashboard = () => {
                                   <div className="flex items-center gap-3 mt-1 text-sm text-slate-400">
                                     <span className="flex items-center gap-1">
                                       <LogIn className="w-3.5 h-3.5 text-green-400" />
-                                      {record.check_in_time && new Date(record.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                      {record.check_in_time && new Date(record.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                                     </span>
-                                    {record.check_out_time && (
+                                    {record.check_out_time && record.check_out_time !== record.check_in_time && record.duration_minutes > 0 && (
                                       <>
                                         <span className="text-slate-600">→</span>
                                         <span className="flex items-center gap-1">
                                           <LogOutIcon className="w-3.5 h-3.5 text-red-400" />
-                                          {new Date(record.check_out_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                          {new Date(record.check_out_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                                         </span>
                                       </>
                                     )}
@@ -2251,7 +2271,7 @@ const TraineeDashboard = () => {
 
                               {/* Duration Badge */}
                               <div className="text-right">
-                                {record.duration_minutes ? (
+                                {record.duration_minutes && record.duration_minutes > 0 ? (
                                   <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-colors duration-300 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'
                                     }`}>
                                     <Timer className="w-4 h-4 text-cyan-400" />

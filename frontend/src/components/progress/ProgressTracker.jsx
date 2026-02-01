@@ -311,67 +311,73 @@ const ProgressTracker = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2 text-slate-300">Body Fat (%)</label>
+              <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Body Fat (%)</label>
               <input
                 type="number"
                 step="0.1"
                 value={measurementForm.body_fat}
                 onChange={(e) => setMeasurementForm({ ...measurementForm, body_fat: e.target.value })}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${isDark ? 'bg-white/5 border-white/10 text-white placeholder-slate-600' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+                  }`}
                 placeholder="15.0"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2 text-slate-300">Muscle Mass (kg)</label>
+              <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Muscle Mass (kg)</label>
               <input
                 type="number"
                 step="0.1"
                 value={measurementForm.muscle_mass}
                 onChange={(e) => setMeasurementForm({ ...measurementForm, muscle_mass: e.target.value })}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${isDark ? 'bg-white/5 border-white/10 text-white placeholder-slate-600' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+                  }`}
                 placeholder="55.0"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2 text-slate-300">Chest (cm)</label>
+              <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Chest (cm)</label>
               <input
                 type="number"
                 step="0.1"
                 value={measurementForm.chest}
                 onChange={(e) => setMeasurementForm({ ...measurementForm, chest: e.target.value })}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${isDark ? 'bg-white/5 border-white/10 text-white placeholder-slate-600' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+                  }`}
                 placeholder="100"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2 text-slate-300">Waist (cm)</label>
+              <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Waist (cm)</label>
               <input
                 type="number"
                 step="0.1"
                 value={measurementForm.waist}
                 onChange={(e) => setMeasurementForm({ ...measurementForm, waist: e.target.value })}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${isDark ? 'bg-white/5 border-white/10 text-white placeholder-slate-600' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+                  }`}
                 placeholder="80"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2 text-slate-300">Biceps (cm)</label>
+              <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Biceps (cm)</label>
               <input
                 type="number"
                 step="0.1"
                 value={measurementForm.biceps}
                 onChange={(e) => setMeasurementForm({ ...measurementForm, biceps: e.target.value })}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${isDark ? 'bg-white/5 border-white/10 text-white placeholder-slate-600' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+                  }`}
                 placeholder="35"
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-2 text-slate-300">Notes</label>
+              <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Notes</label>
               <input
                 type="text"
                 value={measurementForm.notes}
                 onChange={(e) => setMeasurementForm({ ...measurementForm, notes: e.target.value })}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${isDark ? 'bg-white/5 border-white/10 text-white placeholder-slate-600' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+                  }`}
                 placeholder="Optional notes"
               />
             </div>
