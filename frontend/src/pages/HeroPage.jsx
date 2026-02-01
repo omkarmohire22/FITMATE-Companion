@@ -399,7 +399,7 @@ const HeroPage = () => {
                     <h3 className="text-xl font-bold text-white mb-2">Opening Hours</h3>
                     <div className="space-y-2 text-sm text-gray-400">
                       <p className="flex justify-between w-48"><span className="text-white font-medium">Mon - Sat:</span> 6 AM - 10 PM</p>
-                      <p className="flex justify-between w-48"><span className="text-white font-medium">Sunday:</span> 7 AM - 12 PM</p>
+                      <p className="flex justify-between w-48"><span className="text-white font-medium">Sunday:</span> close </p>
                     </div>
                   </div>
                 </div>
