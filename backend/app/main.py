@@ -18,8 +18,9 @@ from app.database import engine, Base
 # IMPORTANT — import ALL MODELS before create_all
 from app import models
 
-# Initialize tables at module load time
-Base.metadata.create_all(bind=engine)
+# Initialize tables at module load time - COMMENTED OUT to avoid startup delay
+# Uncomment this if you need to create/update tables
+# Base.metadata.create_all(bind=engine)
 
 # Custom JSON encoder for UUIDs
 class UUIDEncoder(json.JSONEncoder):
@@ -85,8 +86,7 @@ app.add_middleware(
         "http://127.0.0.1:3003",
         "http://127.0.0.1:3004",
         "http://127.0.0.1:5173",
-        "https://fitmate-companion-om.vercel.app", # Vercel production
-        "https://fitmate-companion-l0ul8oxt-omkars-projects-3aa5e891.vercel.app", # Vercel preview
+        
     ],
     allow_credentials=True,   # This works now because origins are explicit
     allow_methods=["*"],
